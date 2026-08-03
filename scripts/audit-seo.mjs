@@ -50,7 +50,7 @@ for (const file of htmlFiles) {
   }
   for (const match of html.matchAll(/href="(\/[^"]*)"/g)) {
     const href = match[1].split(/[?#]/)[0];
-    if (!href || href === '/' || href.startsWith('/_astro/') || /\.(?:xml|txt|svg|ico|png|webp|jpg|jpeg)$/i.test(href)) continue;
+    if (!href || href === '/' || href.startsWith('/_astro/') || /\.(?:xml|txt|svg|ico|png|webp|jpg|jpeg|webmanifest)$/i.test(href)) continue;
     const normalized = href.endsWith('/') ? href.slice(0, -1) : href;
     if (!routeFiles.has(normalized)) failures.push(`${route}: bozuk internal link ${href}`);
   }

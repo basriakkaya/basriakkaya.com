@@ -1,0 +1,21 @@
+{
+  "name": "Basri Akkaya",
+  "short_name": "Basri Akkaya",
+  "description": "Basri Akkaya'nın siber güvenlik ve teknoloji blogu.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#090b10",
+  "theme_color": "#090b10",
+  "icons": [
+    {
+      "src": "/favicon-48x48.png",
+      "sizes": "48x48",
+      "type": "image/png"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}

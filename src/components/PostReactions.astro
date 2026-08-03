@@ -1,0 +1,65 @@
+---
+interface Props { slug: string }
+const { slug } = Astro.props;
+const reactions = [
+  { value: 'recon', name: 'RECON', short: 'Yeni bir şey öğrendim.', detail: 'Bu yazı bana yeni bir bilgi veya bakış açısı kazandırdı.' },
+  { value: 'patch', name: 'PATCH', short: 'Pratikte işime yaradı.', detail: 'Bu yazı bir problemi çözmeme veya konuyu daha iyi anlamama yardımcı oldu.' },
+  { value: 'root', name: 'ROOT', short: 'Bu içerik aklımda kalacak.', detail: 'Bu yazı beni etkiledi ve daha sonra tekrar hatırlamak isteyeceğim.' },
+] as const;
+---
+
+<section class="post-reactions" aria-labelledby={`reaction-title-${slug}`} data-post-reactions data-storage-key={`basri:post-reaction:${slug}`}>
+  <p class="reaction-command">$ leave_reaction --one</p>
+  <h2 id={`reaction-title-${slug}`}>Bu yazı sende ne bıraktı?</h2>
+  <p class="reaction-intro">Bir reaction seç. Kararını daha sonra değiştirebilirsin.</p>
+  <div class="reaction-options">
+    {reactions.map((reaction) => (
+      <button type="button" class="reaction-option" data-reaction={reaction.value} aria-pressed="false" aria-label={`${reaction.name} reaction: ${reaction.short}`} aria-describedby={`reaction-detail-${slug}-${reaction.value}`}>
+        <span class="reaction-name">{reaction.name}</span>
+        <span class="reaction-short">{reaction.short}</span>
+        <span class="reaction-detail" id={`reaction-detail-${slug}-${reaction.value}`} role="tooltip">{reaction.detail}</span>
+      </button>
+    ))}
+  </div>
+  <p class="reaction-status" aria-live="polite" data-reaction-status></p>
+  <p class="reaction-privacy">Bu seçim yalnızca bu tarayıcıda saklanır. Herhangi bir kişisel veri veya reaction bilgisi sunucuya gönderilmez.</p>
+  <noscript><p class="reaction-noscript">Reaction kaydetmek için JavaScript etkin olmalıdır.</p></noscript>
+</section>
+
+<script>
+  const allowedReactions = new Set(['recon', 'patch', 'root']);
+
+  function initializeReactions() {
+    document.querySelectorAll<HTMLElement>('[data-post-reactions]').forEach((container) => {
+      if (container.dataset.initialized === 'true') return;
+      container.dataset.initialized = 'true';
+      const storageKey = container.dataset.storageKey;
+      const buttons = Array.from(container.querySelectorAll<HTMLButtonElement>('[data-reaction]'));
+      const status = container.querySelector<HTMLElement>('[data-reaction-status]');
+      if (!storageKey || !status) return;
+      const select = (value: string | null) => buttons.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.reaction === value)));
+      let current: string | null = null;
+      try {
+        const stored = localStorage.getItem(storageKey);
+        if (stored && allowedReactions.has(stored)) current = stored;
+        else if (stored) localStorage.removeItem(storageKey);
+      } catch { /* Depolama kapalıysa yazı ve butonlar kullanılabilir kalır. */ }
+      select(current);
+      buttons.forEach((button) => button.addEventListener('click', () => {
+        const next = button.dataset.reaction;
+        if (!next || !allowedReactions.has(next)) return;
+        const changed = current !== null && current !== next;
+        try {
+          localStorage.setItem(storageKey, next);
+          current = next;
+          select(next);
+          status.textContent = changed ? 'reaction güncellendi ✓' : 'reaction yerel olarak kaydedildi ✓';
+        } catch {
+          status.textContent = 'Reaction bu tarayıcıda saklanamadı.';
+        }
+      }));
+    });
+  }
+  initializeReactions();
+  document.addEventListener('astro:page-load', initializeReactions);
+</script>

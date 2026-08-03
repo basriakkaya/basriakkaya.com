@@ -4,7 +4,7 @@ import path from 'node:path';
 
 const root = process.cwd();
 const failures = [];
-const removedPattern = /PostReactions|post_reactions|PUBLIC_SUPABASE|PUBLIC_REACTIONS|REACTION_HASH_SECRET|ba_visitor_id/i;
+const removedPattern = /post_reactions|PUBLIC_SUPABASE|PUBLIC_REACTIONS|REACTION_HASH_SECRET|ba_visitor_id/i;
 const secretPattern = /SERVICE_ROLE|(?:API|PRIVATE)[_-]?KEY\s*[=:]\s*["'][^"']+|PASSWORD\s*[=:]\s*["'][^"']+|BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY/i;
 
 async function filesUnder(relative) {
