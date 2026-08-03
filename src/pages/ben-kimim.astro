@@ -1,0 +1,32 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import { siteConfig } from '../config/site';
+import { absoluteUrl } from '../config/site';
+import { breadcrumbSchema, personSchema, schemaGraph } from '../lib/schema';
+const jsonLd = schemaGraph([
+  personSchema,
+  { '@type': 'ProfilePage', '@id': `${absoluteUrl('/ben-kimim')}#profile`, name: `Ben Kimim? | ${siteConfig.name}`, url: absoluteUrl('/ben-kimim'), inLanguage: siteConfig.locale, mainEntity: { '@id': `${absoluteUrl('/')}#person` } },
+  breadcrumbSchema([{ name: 'Ana Sayfa', path: '/' }, { name: 'Ben Kimim?', path: '/ben-kimim' }]),
+]);
+---
+<BaseLayout title="Ben Kimim?" description="Basri Akkaya'nın çalışma alanları ve bu blogun amacı." jsonLd={jsonLd}>
+  <section class="page-intro shell about-page">
+    <div class="about-intro">
+      <SectionHeading eyebrow="profile.summary" title="Ben Kimim?" as="h1" />
+      <p class="lead">{siteConfig.about}</p>
+      <div class="about-story">
+        <p>Günümün çoğunu bilgisayar başında geçiriyor; spam ve scam sitelerini tespit edip raporluyor, web ve ağ güvenliği üzerine çalışıyorum.</p>
+        <p>Üniversitemde tespit ettiğim bir açığı responsible disclosure ilkeleriyle bildirmem, çalışmamın görünür olmasını ve fakültemde staj fırsatına dönüşmesini sağladı.</p>
+        <p>BugHane Academy yöneticisi olarak öğrendiklerimi toplulukla paylaşıyorum. Bu blogda da teknik bilgiyi kısa, doğrulanabilir ve pratiğe dönük tutuyorum.</p>
+      </div>
+      <blockquote>“{siteConfig.motto}”</blockquote>
+      <div class="actions about-actions"><a class="button primary" href={siteConfig.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn <span aria-hidden="true">↗</span></a><a class="button secondary" href={`mailto:${siteConfig.email}`}>E-posta Gönder</a></div>
+    </div>
+    <figure class="about-visual">
+      <img src="/images/security-researcher.png" alt="Koyu bir çalışma ortamında güvenlik araştırması yapan Basri Akkaya" width="960" height="1200" />
+      <figcaption><span>security.research</span><span>learn · test · disclose</span></figcaption>
+    </figure>
+  </section>
+  <section class="section shell"><div class="focus-panel wide"><p class="panel-title">odak_alanlari.txt</p><ul>{siteConfig.focus.map((item) => <li><span aria-hidden="true">›</span> {item}</li>)}</ul></div></section>
+</BaseLayout>

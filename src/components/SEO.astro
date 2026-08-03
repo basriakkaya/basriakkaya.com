@@ -1,0 +1,50 @@
+---
+import { absoluteUrl, siteConfig } from '../config/site';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  type?: 'website' | 'article';
+  canonicalPath?: string;
+  jsonLd?: Record<string, unknown>;
+  noindex?: boolean;
+}
+
+const {
+  title = siteConfig.defaultTitle,
+  description = siteConfig.description,
+  image = siteConfig.defaultImage,
+  type = 'website',
+  canonicalPath = Astro.url.pathname,
+  jsonLd,
+  noindex = false,
+} = Astro.props;
+const fullTitle = title === siteConfig.defaultTitle ? title : `${title} | ${siteConfig.name}`;
+const canonical = absoluteUrl(canonicalPath);
+const socialImage = absoluteUrl(image);
+const shouldIndex = siteConfig.indexable && !noindex;
+const googleVerification = import.meta.env.PUBLIC_GOOGLE_SITE_VERIFICATION?.trim();
+const bingVerification = import.meta.env.PUBLIC_BING_SITE_VERIFICATION?.trim();
+---
+
+<title>{fullTitle}</title>
+<meta name="description" content={description} />
+<meta name="robots" content={shouldIndex ? 'index, follow' : 'noindex, nofollow'} />
+{googleVerification && <meta name="google-site-verification" content={googleVerification} />}
+{bingVerification && <meta name="msvalidate.01" content={bingVerification} />}
+<link rel="canonical" href={canonical} />
+<meta property="og:type" content={type} />
+<meta property="og:locale" content="tr_TR" />
+<meta property="og:title" content={fullTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={socialImage} />
+<meta property="og:image:alt" content={`${siteConfig.name} — güvenlik araştırmaları`} />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={fullTitle} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={socialImage} />
+<meta name="theme-color" content="#0b0f14" />
+<link rel="alternate" type="application/rss+xml" title={`${siteConfig.name} RSS`} href={absoluteUrl('/rss.xml')} />
+{jsonLd && <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}

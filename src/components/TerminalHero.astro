@@ -1,0 +1,49 @@
+---
+import { siteConfig } from '../config/site';
+---
+
+<section class="hero-simple" aria-labelledby="hero-title">
+  <div class="hero-content">
+    <p class="hero-kicker">Security Research · Responsible Disclosure</p>
+    <h1 id="hero-title">{siteConfig.name}</h1>
+    <p class="role">{siteConfig.headline}</p>
+    <p class="hero-motto">“{siteConfig.motto}”</p>
+    <p class="hero-copy">{siteConfig.heroCopy}</p>
+    <div class="actions">
+      <a class="button primary" href="/yazilar">Yazıları Oku <span aria-hidden="true">→</span></a>
+      <a class="button secondary" href={siteConfig.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      <a class="button secondary" href={siteConfig.youtube} target="_blank" rel="noopener noreferrer">YouTube</a>
+      <button class="button terminal-action" id="contact-open" type="button">$ ./hack-me</button>
+    </div>
+  </div>
+</section>
+
+<dialog class="contact-dialog" id="contact-dialog" aria-labelledby="contact-title">
+  <div class="dialog-header"><p id="contact-title">contact.session</p><button id="contact-close" type="button" aria-label="İletişim penceresini kapat">×</button></div>
+  <div class="dialog-body">
+    <p class="dialog-prompt"><span aria-hidden="true">$</span> Güvenli bağlantı kuruldu.</p>
+    <h2>Birlikte konuşalım.</h2>
+    <p>Güvenlik araştırmaları, teknik çalışmalar ve profesyonel iletişim için doğru kanalı seçebilirsin.</p>
+    <div class="dialog-actions"><a class="button primary" href={`mailto:${siteConfig.email}`}>E-posta Gönder</a><a class="button secondary" href={siteConfig.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a></div>
+  </div>
+</dialog>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('#contact-dialog');
+  const openButton = document.querySelector<HTMLButtonElement>('#contact-open');
+  const closeButton = document.querySelector<HTMLButtonElement>('#contact-close');
+
+  openButton?.addEventListener('click', () => {
+    dialog?.showModal();
+    document.body.classList.add('dialog-open');
+    closeButton?.focus();
+  });
+  closeButton?.addEventListener('click', () => dialog?.close());
+  dialog?.addEventListener('click', (event) => {
+    if (event.target === dialog) dialog.close();
+  });
+  dialog?.addEventListener('close', () => {
+    document.body.classList.remove('dialog-open');
+    openButton?.focus();
+  });
+</script>

@@ -1,0 +1,35 @@
+---
+import { siteConfig } from '../config/site';
+
+const pathname = Astro.url.pathname;
+const nav = [
+  { href: '/', label: 'Ana Sayfa' },
+  { href: '/yazilar', label: 'Yazılar' },
+  { href: '/ben-kimim', label: 'Ben Kimim' },
+];
+const isCurrent = (href: string) => href === '/' ? pathname === '/' : pathname.startsWith(href);
+---
+
+<header class="site-header">
+  <div class="shell nav-wrap">
+    <a class="brand" href="/" aria-label="Basri Akkaya ana sayfa"><span class="brand-prompt" aria-hidden="true">~/</span><span>Basri Akkaya</span></a>
+    <button class="menu-button" type="button" aria-expanded="false" aria-controls="site-menu">
+      <span class="sr-only">Menüyü aç veya kapat</span>
+      <svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
+    </button>
+    <nav id="site-menu" class="site-nav" aria-label="Ana navigasyon">
+      {nav.map(({ href, label }) => <a href={href} aria-current={isCurrent(href) ? 'page' : undefined}>{label}</a>)}
+      <a href={siteConfig.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn<span class="sr-only"> (yeni sekmede açılır)</span></a>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const button = document.querySelector<HTMLButtonElement>('.menu-button');
+  const menu = document.querySelector<HTMLElement>('#site-menu');
+  button?.addEventListener('click', () => {
+    const open = button.getAttribute('aria-expanded') === 'true';
+    button.setAttribute('aria-expanded', String(!open));
+    menu?.classList.toggle('is-open', !open);
+  });
+</script>

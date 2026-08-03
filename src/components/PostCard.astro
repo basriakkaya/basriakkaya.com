@@ -1,0 +1,16 @@
+---
+import type { BlogPost } from '../lib/posts';
+import { postSlug } from '../lib/posts';
+import { readingTime } from '../lib/reading-time';
+
+interface Props { post: BlogPost }
+const { post } = Astro.props;
+const date = post.data.publishedAt.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+---
+<article class="post-card">
+  <div class="post-meta"><time datetime={post.data.publishedAt.toISOString()}>{date}</time><span aria-hidden="true">·</span><span>{readingTime(post.body ?? '')}</span>{post.data.draft && <span class="draft">Taslak</span>}</div>
+  <h3><a href={`/yazilar/${postSlug(post)}`}>{post.data.title}</a></h3>
+  <p>{post.data.description}</p>
+  <ul class="tag-list" aria-label="Etiketler">{post.data.tags.map((tag) => <li>{tag}</li>)}</ul>
+  <a class="read-link" href={`/yazilar/${postSlug(post)}`} aria-label={`${post.data.title} yazısını oku`}>Yazıyı oku <span aria-hidden="true">→</span></a>
+</article>

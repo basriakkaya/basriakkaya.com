@@ -1,0 +1,58 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import TerminalHero from '../components/TerminalHero.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import PostCard from '../components/PostCard.astro';
+import { getPublishedPosts } from '../lib/posts';
+import { siteConfig, absoluteUrl } from '../config/site';
+import { personSchema, schemaGraph } from '../lib/schema';
+
+const posts = (await getPublishedPosts()).slice(0, 3);
+const jsonLd = schemaGraph([
+  personSchema,
+  { '@type': 'WebSite', '@id': `${absoluteUrl('/')}#website`, name: siteConfig.name, url: absoluteUrl('/'), description: siteConfig.description, inLanguage: siteConfig.locale, publisher: { '@id': `${absoluteUrl('/')}#person` } },
+]);
+---
+<BaseLayout jsonLd={jsonLd}>
+  <div class="shell home-hero"><TerminalHero /></div>
+
+  <section class="section shell about-grid" aria-labelledby="about-title">
+    <div>
+      <SectionHeading eyebrow="profile.summary" title="Ben Kimim?" />
+      <p class="about-copy">{siteConfig.about}</p>
+      <p class="about-note">Eğitimime devam ederken fakültemde staj yaptım. Üniversitemde tespit edip responsible disclosure çerçevesinde bildirdiğim bir güvenlik açığının görünürlük kazanması, bu süreci bir staj fırsatına dönüştürdü.</p>
+      <a class="read-link" href="/ben-kimim">Hikâyenin devamı <span aria-hidden="true">→</span></a>
+    </div>
+    <aside class="focus-panel" aria-label="Odak alanlarım"><p class="panel-title">focus_areas</p><ul>{siteConfig.focus.map((item) => <li><span aria-hidden="true">›</span> {item}</li>)}</ul></aside>
+  </section>
+
+  <section class="section shell research-section" aria-labelledby="research-title">
+    <SectionHeading eyebrow="security.research" title="CVE / Güvenlik Araştırmaları" description="Güvenlik araştırmalarım kapsamında iki ayrı CVE bana tahsis edildi. Sessizce araştır, açıkça raporla, sonucu doğru kanalda takip et." />
+    <div class="cve-grid">
+      {siteConfig.cves.map((cve) => <article class="cve-card"><p class="card-label">assigned</p><h3>{cve.id}</h3><p>Koordineli açıklama sürecinden geçen güvenlik araştırması kaydı.</p>{cve.url ? <a class="read-link" href={cve.url} target="_blank" rel="noopener noreferrer">CVE kaydını görüntüle <span aria-hidden="true">↗</span></a> : <span class="muted-note">Kayıt kodu</span>}</article>)}
+    </div>
+  </section>
+
+  <section class="section shell" aria-labelledby="achievements-title">
+    <SectionHeading eyebrow="recognition.log" title="Öne Çıkan Başarılar" description="Responsible disclosure ve uygulamalı güvenlik çalışmalarından kısa notlar." />
+    <div class="recognition-grid">{siteConfig.achievements.map((item) => <a class="recognition-card" href={item.url} target="_blank" rel="noopener noreferrer"><span class="external-mark" aria-hidden="true">↗</span><h3>{item.title}</h3><p>{item.description}</p></a>)}</div>
+  </section>
+
+  <section class="section shell recognition-community" aria-labelledby="institutional-title">
+    <div>
+      <SectionHeading eyebrow="acknowledgements" title="Takdir & Görünürlük" />
+      <div class="compact-list">{siteConfig.recognition.map((item) => item.url ? <a href={item.url} target="_blank" rel="noopener noreferrer"><span><strong>{item.title}</strong><small>{item.description}</small></span><span aria-hidden="true">↗</span></a> : <div><span><strong>{item.title}</strong><small>{item.description}</small></span></div>)}</div>
+    </div>
+    <aside class="community-card">
+      <p class="card-label">community / media</p><h2>{siteConfig.community.name}</h2><p>{siteConfig.community.description}</p>
+      <div class="text-links"><a href={siteConfig.community.website} target="_blank" rel="noopener noreferrer">Forum <span aria-hidden="true">↗</span></a><a href={siteConfig.community.youtube} target="_blank" rel="noopener noreferrer">YouTube <span aria-hidden="true">↗</span></a></div>
+    </aside>
+  </section>
+
+  <section class="section shell" aria-labelledby="recent-title">
+    <div class="heading-row"><SectionHeading eyebrow="ls ./yazilar --recent" title="Son yazılar" description="Öğrenirken aldığım kısa, uygulanabilir teknik notlar." /><a class="all-link" href="/yazilar">Tüm yazılar <span aria-hidden="true">→</span></a></div>
+    <div class="post-grid">{posts.map((post) => <PostCard post={post} />)}</div>
+  </section>
+
+  <section class="section shell"><div class="contact-panel"><div><p class="eyebrow">$ ./connect.sh</p><h2>Bir konu hakkında iletişime geçmek mi istiyorsun?</h2><p>Teknik çalışmalar, güvenlik araştırmaları ve profesyonel iletişim için bana e-posta veya LinkedIn üzerinden ulaşabilirsin.</p></div><div class="actions"><a class="button primary" href={`mailto:${siteConfig.email}`}>E-posta Gönder</a><a class="button secondary" href={siteConfig.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn Profili</a></div></div></section>
+</BaseLayout>
