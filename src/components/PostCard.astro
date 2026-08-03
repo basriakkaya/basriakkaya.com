@@ -2,12 +2,17 @@
 import type { BlogPost } from '../lib/posts';
 import { postSlug } from '../lib/posts';
 import { readingTime } from '../lib/reading-time';
+import { getCategory } from '../config/categories';
+import { getSeries } from '../config/series';
 
 interface Props { post: BlogPost }
 const { post } = Astro.props;
 const date = post.data.publishedAt.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+const category = getCategory(post.data.category);
+const series = getSeries(post.data.series);
 ---
 <article class="post-card">
+  <div class="post-taxonomy"><a href={`/yazilar/kategori/${post.data.category}`}>{category.name}</a>{series && <a href={`/yazilar/seri/${post.data.series}`}>{series.shortTitle ?? series.title} · Bölüm {post.data.seriesOrder}</a>}</div>
   <div class="post-meta"><time datetime={post.data.publishedAt.toISOString()}>{date}</time><span aria-hidden="true">·</span><span>{readingTime(post.body ?? '')}</span>{post.data.draft && <span class="draft">Taslak</span>}</div>
   <h3><a href={`/yazilar/${postSlug(post)}`}>{post.data.title}</a></h3>
   <p>{post.data.description}</p>

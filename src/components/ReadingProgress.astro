@@ -1,0 +1,39 @@
+<div class="reading-progress" data-reading-progress role="progressbar" aria-label="Makale okuma ilerlemesi" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div>
+<script>
+  function initializeArticleNavigation() {
+    document.querySelectorAll<HTMLElement>('[data-article-shell]').forEach((shell) => {
+      if (shell.dataset.navigationInitialized === 'true') return;
+      shell.dataset.navigationInitialized = 'true';
+      const article = shell.querySelector<HTMLElement>('[data-article-body]');
+      const progress = shell.querySelector<HTMLElement>('[data-reading-progress]');
+      const links = Array.from(shell.querySelectorAll<HTMLAnchorElement>('[data-toc-link]'));
+      if (!article || !progress) return;
+      progress.classList.add('is-enabled');
+      let frame = 0;
+      const update = () => {
+        frame = 0;
+        const rect = article.getBoundingClientRect();
+        const range = Math.max(1, article.offsetHeight - window.innerHeight * .35);
+        const value = Math.max(0, Math.min(100, (-rect.top + window.innerHeight * .18) / range * 100));
+        progress.style.setProperty('--reading-progress', `${value}%`);
+        progress.setAttribute('aria-valuenow', String(Math.round(value)));
+      };
+      const onScroll = () => { if (!frame) frame = requestAnimationFrame(update); };
+      window.addEventListener('scroll', onScroll, { passive: true });
+      update();
+      if (links.length) {
+        const linkById = new Map(links.map((link) => [decodeURIComponent(link.hash.slice(1)), link]));
+        const observer = new IntersectionObserver((entries) => {
+          const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+          if (!visible) return;
+          links.forEach((link) => { link.classList.remove('is-active'); link.removeAttribute('aria-current'); });
+          const active = linkById.get(visible.target.id);
+          active?.classList.add('is-active'); active?.setAttribute('aria-current', 'location');
+        }, { rootMargin: '-18% 0px -68% 0px' });
+        linkById.forEach((_, id) => { const heading = document.getElementById(id); if (heading) observer.observe(heading); });
+      }
+    });
+  }
+  initializeArticleNavigation();
+  document.addEventListener('astro:page-load', initializeArticleNavigation);
+</script>

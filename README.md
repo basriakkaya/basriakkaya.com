@@ -24,6 +24,8 @@ npm run preview
 
 ## Yeni yazı ekleme
 
+Ayrıntılı kategori, seri, başlık ve yayın akışı için [İçerik Yazma Rehberi](docs/content-authoring.md) dosyasına bakın.
+
 `src/content/blog` içinde bir `.md` dosyası oluşturun. Frontmatter örneği:
 
 ```yaml
