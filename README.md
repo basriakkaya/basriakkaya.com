@@ -61,6 +61,31 @@ Profil fotoğrafı kullanılmıyor; `src/pages/ben-kimim.astro` içindeki `monog
 
 Özel alan adı için Vercel projesinde Settings → Domains bölümünden alan adını ekleyin ve Vercel'in gösterdiği DNS kayıtlarını alan adı sağlayıcınızda tanımlayın. `SITE_URL` değerini de aynı HTTPS adresiyle güncelleyin.
 
+## Günlük İçerik Yayınlama
+
+Yeni bir blog yazısı veya site değişikliği üzerinde çalışmaya başlamadan önce ana branch'i güncelleyin ve geliştirme sunucusunu açın:
+
+```bash
+git checkout main
+git pull --ff-only
+npm install
+npm run dev
+```
+
+Değişikliği yayınlamadan önce kontrolleri çalıştırın, ardından anlamlı bir commit oluşturup `main` branch'ine gönderin:
+
+```bash
+npm run check
+npm run build
+npm run audit:seo
+npm run audit:security
+git add .
+git commit -m "Değişikliği açıklayan kısa mesaj"
+git push origin main
+```
+
+`main` branch'ine gönderilen commitler production deployment oluşturur. Farklı branch'ler ve pull request'ler Vercel preview deployment akışını kullanır. `.env`, `.vercel`, `dist`, `.astro` ve `node_modules` hiçbir zaman commit edilmemelidir.
+
 ## Güvenlik başlıkları
 
 Dağıtım sonrasında CSP, HSTS, `X-Content-Type-Options` ve `Referrer-Policy` gibi başlıklar Vercel yapılandırmasından eklenebilir. CSP, kullanılan kaynaklar doğrulanmadan zorla uygulanmamıştır.
