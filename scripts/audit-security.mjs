@@ -45,7 +45,8 @@ for (const file of await filesUnder('dist')) {
   const text = await readFile(file, 'utf8').catch(() => '');
   if (secretPattern.test(text)) failures.push(`Build çıktısında secret paterni: ${path.relative(root, file)}`);
   if (file.endsWith('.map')) failures.push(`Production source map: ${path.relative(root, file)}`);
-  if (/localhost|\.vercel\.app/.test(text) && /rel="canonical"|property="og:url"/.test(text)) failures.push(`Build metadata içinde geçici origin: ${path.relative(root, file)}`);
+  const metadataTags = text.match(/<(?:link|meta)\b[^>]*(?:rel="canonical"|property="og:url")[^>]*>/gi) ?? [];
+  if (metadataTags.some((tag) => /localhost|\.vercel\.app/i.test(tag))) failures.push(`Build metadata içinde geçici origin: ${path.relative(root, file)}`);
 }
 
 try { await access(path.join(root, 'supabase')); failures.push('Supabase klasörü mevcut'); } catch { /* beklenen */ }
