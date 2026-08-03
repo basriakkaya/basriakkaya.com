@@ -20,7 +20,7 @@ const {
   jsonLd,
   noindex = false,
 } = Astro.props;
-const fullTitle = title === siteConfig.defaultTitle ? title : `${title} | ${siteConfig.name}`;
+const fullTitle = title === siteConfig.defaultTitle || title.includes(siteConfig.name) ? title : `${title} | ${siteConfig.name}`;
 const canonical = absoluteUrl(canonicalPath);
 const socialImage = absoluteUrl(image);
 const shouldIndex = siteConfig.indexable && !noindex;
@@ -30,7 +30,7 @@ const bingVerification = import.meta.env.PUBLIC_BING_SITE_VERIFICATION?.trim();
 
 <title>{fullTitle}</title>
 <meta name="description" content={description} />
-<meta name="robots" content={shouldIndex ? 'index, follow' : 'noindex, nofollow'} />
+<meta name="robots" content={shouldIndex ? 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' : 'noindex, follow'} />
 {googleVerification && <meta name="google-site-verification" content={googleVerification} />}
 {bingVerification && <meta name="msvalidate.01" content={bingVerification} />}
 <link rel="canonical" href={canonical} />
@@ -39,6 +39,7 @@ const bingVerification = import.meta.env.PUBLIC_BING_SITE_VERIFICATION?.trim();
 <meta property="og:title" content={fullTitle} />
 <meta property="og:description" content={description} />
 <meta property="og:url" content={canonical} />
+<meta property="og:site_name" content={siteConfig.name} />
 <meta property="og:image" content={socialImage} />
 <meta property="og:image:alt" content={`${siteConfig.name} — güvenlik araştırmaları`} />
 <meta name="twitter:card" content="summary_large_image" />

@@ -1,0 +1,50 @@
+const baseUrl = process.env.AUDIT_BASE_URL || 'http://127.0.0.1:4322';
+const targets = await fetch('http://127.0.0.1:9222/json/list').then((response) => response.json());
+const target = targets.find((entry) => entry.type === 'page');
+if (!target?.webSocketDebuggerUrl) throw new Error('Chrome DevTools hedefi bulunamadı.');
+const socket = new WebSocket(target.webSocketDebuggerUrl);
+await new Promise((resolve, reject) => { socket.addEventListener('open', resolve, { once: true }); socket.addEventListener('error', reject, { once: true }); });
+let nextId = 0;
+const pending = new Map();
+let requests = 0;
+socket.addEventListener('message', ({ data }) => {
+  const message = JSON.parse(data);
+  if (message.id && pending.has(message.id)) { const entry = pending.get(message.id); pending.delete(message.id); return message.error ? entry.reject(new Error(message.error.message)) : entry.resolve(message.result); }
+  if (message.method === 'Network.requestWillBeSent') requests += 1;
+});
+const send = (method, params = {}) => new Promise((resolve, reject) => { const id = ++nextId; pending.set(id, { resolve, reject }); socket.send(JSON.stringify({ id, method, params })); });
+const evaluate = async (expression) => { const result = await send('Runtime.evaluate', { expression, awaitPromise: true, returnByValue: true }); if (result.exceptionDetails) throw new Error(result.exceptionDetails.text); return result.result.value; };
+const navigate = async (path) => { const loaded = new Promise((resolve) => { const listener = ({ data }) => { const message = JSON.parse(data); if (message.method === 'Page.loadEventFired') { socket.removeEventListener('message', listener); resolve(); } }; socket.addEventListener('message', listener); }); await send('Page.navigate', { url: `${baseUrl}${path}` }); await loaded; };
+await Promise.all([send('Page.enable'), send('Runtime.enable'), send('Network.enable')]);
+const slug = 'neden-bu-blogu-actim';
+const key = `basri:post-reaction:${slug}`;
+await navigate(`/yazilar/${slug}`);
+await evaluate(`localStorage.clear()`);
+const buttonCount = await evaluate(`document.querySelectorAll('[data-reaction]').length`);
+const beforeClick = requests;
+const first = await evaluate(`(() => { document.querySelector('[data-reaction="recon"]').click(); return { stored: localStorage.getItem(${JSON.stringify(key)}), pressed: document.querySelector('[data-reaction="recon"]').getAttribute('aria-pressed'), cookies: document.cookie }; })()`);
+await new Promise((resolve) => setTimeout(resolve, 100));
+const clickRequests = requests - beforeClick;
+await navigate(`/yazilar/${slug}`);
+const afterReload = await evaluate(`document.querySelector('[data-reaction="recon"]').getAttribute('aria-pressed')`);
+const changed = await evaluate(`(() => { document.querySelector('[data-reaction="patch"]').click(); return { value: localStorage.getItem(${JSON.stringify(key)}), recon: document.querySelector('[data-reaction="recon"]').getAttribute('aria-pressed'), patch: document.querySelector('[data-reaction="patch"]').getAttribute('aria-pressed') }; })()`);
+await evaluate(`localStorage.setItem(${JSON.stringify(key)}, 'invalid')`);
+await navigate(`/yazilar/${slug}`);
+const invalidCleared = await evaluate(`localStorage.getItem(${JSON.stringify(key)}) === null`);
+await evaluate(`document.querySelector('[data-reaction="root"]').focus()`);
+await send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Enter', code: 'Enter', text: '\r', unmodifiedText: '\r', windowsVirtualKeyCode: 13, nativeVirtualKeyCode: 13 });
+await send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13, nativeVirtualKeyCode: 13 });
+const keyboard = await evaluate(`({ stored: localStorage.getItem(${JSON.stringify(key)}), pressed: document.querySelector('[data-reaction="root"]').getAttribute('aria-pressed'), focused: document.activeElement === document.querySelector('[data-reaction="root"]') })`);
+await navigate('/yazilar/network-ogrenme-gunlugu-gun-1');
+const isolated = await evaluate(`({ selected: document.querySelector('[data-reaction][aria-pressed="true"]') === null, stored: localStorage.getItem('basri:post-reaction:network-ogrenme-gunlugu-gun-1') })`);
+const responsive = [];
+for (const width of [360, 390, 768, 1024, 1440]) {
+  await send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: width < 768 });
+  await navigate(`/yazilar/${slug}`);
+  responsive.push(await evaluate(`({ width: ${width}, overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth, minHeight: Math.min(...[...document.querySelectorAll('[data-reaction]')].map((button) => button.getBoundingClientRect().height)) })`));
+}
+const result = { buttonCount, first, clickRequests, afterReload, changed, invalidCleared, keyboard, isolated, responsive };
+console.log(JSON.stringify(result, null, 2));
+socket.close();
+const passed = buttonCount === 3 && first.stored === 'recon' && first.pressed === 'true' && first.cookies === '' && clickRequests === 0 && afterReload === 'true' && changed.value === 'patch' && changed.recon === 'false' && changed.patch === 'true' && invalidCleared && keyboard.stored === 'root' && keyboard.pressed === 'true' && keyboard.focused && isolated.selected && isolated.stored === null && responsive.every(({ overflow, minHeight }) => !overflow && minHeight >= 44);
+if (!passed) process.exitCode = 1; else console.log('Reaction tarayıcı denetimi başarılı.');

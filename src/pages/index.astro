@@ -10,7 +10,7 @@ import { personSchema, schemaGraph } from '../lib/schema';
 const posts = (await getPublishedPosts()).slice(0, 3);
 const jsonLd = schemaGraph([
   personSchema,
-  { '@type': 'WebSite', '@id': `${absoluteUrl('/')}#website`, name: siteConfig.name, url: absoluteUrl('/'), description: siteConfig.description, inLanguage: siteConfig.locale, publisher: { '@id': `${absoluteUrl('/')}#person` } },
+  { '@type': 'WebSite', '@id': `${absoluteUrl('/')}#website`, name: siteConfig.name, alternateName: ['Basri Akkaya Blog', 'Basri Akkaya Cybersecurity'], url: absoluteUrl('/'), description: siteConfig.description, inLanguage: siteConfig.locale, publisher: { '@id': `${absoluteUrl('/')}#person` } },
 ]);
 ---
 <BaseLayout jsonLd={jsonLd}>

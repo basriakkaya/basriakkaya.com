@@ -54,6 +54,8 @@ Profil fotoğrafı kullanılmıyor; `src/pages/ben-kimim.astro` içindeki `monog
 
 ## Vercel'e dağıtım
 
+Blog sayfa görüntülenmeleri Vercel Web Analytics üzerinden ölçülür. Ziyaretçilere açık bir görüntülenme sayacı bilinçli olarak gösterilmez.
+
 1. Depoyu GitHub/GitLab/Bitbucket'a gönderin ve Vercel'de **New Project** ile içe aktarın.
 2. Framework preset olarak Astro otomatik algılanır; build komutu `npm run build`, output dizini `dist` olmalıdır.
 3. Project Settings → Environment Variables altında `SITE_URL` değerini production alan adıyla ekleyin.

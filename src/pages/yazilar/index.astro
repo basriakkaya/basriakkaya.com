@@ -11,7 +11,7 @@ const jsonLd = schemaGraph([
   breadcrumbSchema([{ name: 'Ana Sayfa', path: '/' }, { name: 'Yazılar', path: '/yazilar' }]),
 ]);
 ---
-<BaseLayout title="Yazılar" description="Siber güvenlik, Linux ve yazılım geliştirme üzerine kısa teknik notlar." jsonLd={jsonLd}>
+<BaseLayout title="Siber Güvenlik Yazıları" description="Web güvenliği, Linux, ağ teknolojileri, etik hacking, güvenlik araştırmaları ve araç geliştirme üzerine Türkçe teknik yazılar." jsonLd={jsonLd}>
   <section class="page-intro shell"><SectionHeading eyebrow="ls ./yazilar" title="Yazılar" description="Siber güvenlik, Linux ve yazılım geliştirme üzerine kısa, doğrudan ve uygulanabilir notlar." as="h1" /></section>
   <section class="section shell" aria-label="Tüm yazılar"><div class="post-grid">{posts.map((post) => <PostCard post={post} />)}</div></section>
 </BaseLayout>
