@@ -45,10 +45,10 @@ cover: "/images/kapak.png" # isteğe bağlı
 `.env.example` dosyasını `.env` olarak kopyalayın ve gerçek alan adını yazın:
 
 ```dotenv
-SITE_URL=https://alanadiniz.com
+SITE_URL=https://www.basriakkaya.com
 ```
 
-Alan adı verilmezse geliştirme ve build için güvenli `https://example.com` fallback'i kullanılır. İsim, unvan, e-posta, LinkedIn ve opsiyonel GitHub adresi `src/config/site.ts` içinde yönetilir. GitHub bağlantısı eklemek için `github` alanına URL yazın; boşken arayüzde gösterilmez.
+Production canonical origin'i `https://www.basriakkaya.com` adresidir; apex domain kalıcı olarak bu adrese yönlenir. Alan adı verilmezse geliştirme ve build için güvenli `https://example.com` fallback'i kullanılır. İsim, unvan, e-posta, LinkedIn ve opsiyonel GitHub adresi `src/config/site.ts` içinde yönetilir. GitHub bağlantısı eklemek için `github` alanına URL yazın; boşken arayüzde gösterilmez.
 
 Profil fotoğrafı kullanılmıyor; `src/pages/ben-kimim.astro` içindeki `monogram` alanı daha sonra Astro `Image` bileşeniyle değiştirilebilir ve görsel `src/assets` altına eklenebilir.
 

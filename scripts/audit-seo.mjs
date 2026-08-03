@@ -3,7 +3,7 @@ import path from 'node:path';
 
 const root = process.cwd();
 const dist = path.join(root, 'dist');
-const origin = 'https://basriakkaya.com';
+const origin = 'https://www.basriakkaya.com';
 const failures = [];
 
 async function walk(directory) {

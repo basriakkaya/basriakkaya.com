@@ -15,7 +15,7 @@ export const siteConfig = {
   locale: 'tr-TR',
   language: 'tr',
   siteUrl,
-  indexable: !isPreview && siteUrl === 'https://basriakkaya.com',
+  indexable: !isPreview && siteUrl === 'https://www.basriakkaya.com',
   defaultImage: '/images/security-researcher.png',
   defaultTitle: 'Basri Akkaya — Security Researcher',
   description: "Basri Akkaya'nın siber güvenlik, web uygulama güvenliği, responsible disclosure ve yazılım geliştirme üzerine kişisel blogu.",
