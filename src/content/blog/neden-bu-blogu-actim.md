@@ -32,8 +32,8 @@ Genel olarak şunlardan bahsetmeyi düşünüyorum:
 - Web güvenliği
 - Network temelleri
 - Linux
-- Pentest notları
-- Responsible disclosure süreçleri
+- Sızma testi notları
+- Sorumlu açıklama süreçleri
 - Geliştirdiğim araçlar
 - CTF yarışmalarında öğrendiklerim
 - Yaptığım hatalar

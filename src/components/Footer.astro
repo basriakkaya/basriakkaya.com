@@ -4,7 +4,7 @@ import { siteConfig } from '../config/site';
 <footer class="footer">
   <div class="shell footer-main">
     <div class="footer-brand"><a href="/" aria-label="Ana sayfa"><span aria-hidden="true">~/</span> {siteConfig.name}</a><p>Güvenlik araştırmaları, Linux ve uygulama güvenliği üzerine notlar.</p></div>
-    <nav class="footer-nav" aria-label="Footer navigasyonu"><p>Sayfalar</p><a href="/">Ana Sayfa</a><a href="/yazilar">Yazılar</a><a href="/ben-kimim">Ben Kimim?</a></nav>
+    <nav class="footer-nav" aria-label="Alt bilgi navigasyonu"><p>Sayfalar</p><a href="/">Ana Sayfa</a><a href="/yazilar">Yazılar</a><a href="/ben-kimim">Ben Kimim?</a></nav>
     <div class="footer-nav"><p>Bağlantılar</p><a href={siteConfig.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn <span aria-hidden="true">↗</span></a><a href={siteConfig.youtube} target="_blank" rel="noopener noreferrer">YouTube <span aria-hidden="true">↗</span></a><a href={`mailto:${siteConfig.email}`}>E-posta</a></div>
   </div>
   <div class="shell footer-bottom"><p>© {new Date().getFullYear()} {siteConfig.name}</p><p>Astro ile geliştirildi · <a href="/rss.xml">RSS</a></p></div>
