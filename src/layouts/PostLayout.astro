@@ -6,11 +6,22 @@ import { absoluteUrl, siteConfig } from '../config/site';
 import { breadcrumbSchema, personSchema, schemaGraph } from '../lib/schema';
 import { postSlug } from '../lib/posts';
 import PostReactions from '../components/PostReactions.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import ArticleTableOfContents from '../components/ArticleTableOfContents.astro';
+import ReadingProgress from '../components/ReadingProgress.astro';
+import SeriesNavigation from '../components/SeriesNavigation.astro';
+import RelatedPosts from '../components/RelatedPosts.astro';
+import type { MarkdownHeading } from 'astro';
+import { getCategory } from '../config/categories';
+import { getRelatedPosts, getSeriesContext } from '../lib/posts';
 
-interface Props { post: BlogPost }
-const { post } = Astro.props;
+interface Props { post: BlogPost; headings: MarkdownHeading[] }
+const { post, headings } = Astro.props;
 const { title, description, publishedAt, updatedAt, tags, cover } = post.data;
 const slug = postSlug(post);
+const category = getCategory(post.data.category);
+const seriesContext = await getSeriesContext(post);
+const related = await getRelatedPosts(post, [seriesContext?.previous, seriesContext?.next].filter(Boolean) as BlogPost[]);
 const postUrl = absoluteUrl(`/yazilar/${slug}`);
 const format = (date: Date) => date.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
 const posting: Record<string, unknown> = {
@@ -18,24 +29,37 @@ const posting: Record<string, unknown> = {
   mainEntityOfPage: { '@type': 'WebPage', '@id': postUrl },
   datePublished: publishedAt.toISOString(), dateModified: (updatedAt ?? publishedAt).toISOString(),
   author: { '@id': `${absoluteUrl('/')}#person` }, publisher: { '@id': `${absoluteUrl('/')}#person` },
-  inLanguage: siteConfig.locale, keywords: tags.join(', '), articleSection: tags[0] ?? 'Siber Güvenlik',
+  inLanguage: siteConfig.locale, keywords: tags.join(', '), articleSection: category.name,
 };
 posting.image = absoluteUrl(cover ?? siteConfig.defaultImage);
+if (post.data.series && seriesContext?.metadata) posting.isPartOf = { '@type': 'CreativeWorkSeries', name: seriesContext.metadata.title, url: absoluteUrl(`/yazilar/seri/${post.data.series}`) };
+const breadcrumbItems = seriesContext?.metadata
+  ? [{ name: 'Ana Sayfa', path: '/' }, { name: 'Yazılar', path: '/yazilar' }, { name: seriesContext.metadata.title, path: `/yazilar/seri/${post.data.series}` }, { name: title, path: `/yazilar/${slug}` }]
+  : [{ name: 'Ana Sayfa', path: '/' }, { name: 'Yazılar', path: '/yazilar' }, { name: category.name, path: `/yazilar/kategori/${post.data.category}` }, { name: title, path: `/yazilar/${slug}` }];
 const jsonLd = schemaGraph([
   personSchema,
   posting,
-  breadcrumbSchema([{ name: 'Ana Sayfa', path: '/' }, { name: 'Yazılar', path: '/yazilar' }, { name: title, path: `/yazilar/${slug}` }]),
+  breadcrumbSchema(breadcrumbItems),
 ]);
+const visibleBreadcrumbs = breadcrumbItems.map((item, index) => ({ name: item.name, href: index < breadcrumbItems.length - 1 ? item.path : undefined }));
 ---
 <BaseLayout title={title} description={description} type="article" image={cover} jsonLd={jsonLd}>
-  <article class="article shell-narrow">
+  <article class:list={['article', 'shell', { 'has-toc': post.data.toc && headings.filter(({ depth }) => depth === 2 || depth === 3).length >= 2 }]} data-article-shell>
+    <ReadingProgress />
     <header class="article-header">
-      <p class="eyebrow">$ cat yazilar/{post.id}</p><h1>{title}</h1><p class="lead">{description}</p>
+      <Breadcrumbs items={visibleBreadcrumbs} />
+      <div class="article-taxonomy"><a href={`/yazilar/kategori/${post.data.category}`}>{category.name}</a>{seriesContext?.metadata && <a href={`/yazilar/seri/${post.data.series}`}>{seriesContext.metadata.title} · Bölüm {seriesContext.index + 1} / {seriesContext.posts.length}</a>}</div>
+      <h1>{title}</h1><p class="lead">{description}</p>
       <div class="article-meta"><span>Yazar: {siteConfig.name}</span><span>·</span><time datetime={publishedAt.toISOString()}>{format(publishedAt)}</time><span>·</span><span>{readingTime(post.body ?? '')}</span>{updatedAt && <span>Güncellendi: <time datetime={updatedAt.toISOString()}>{format(updatedAt)}</time></span>}</div>
       <ul class="tag-list" aria-label="Etiketler">{tags.map((tag) => <li>{tag}</li>)}</ul>
+      {post.data.toc && <ArticleTableOfContents headings={headings} mode="mobile" />}
     </header>
-    <div class="prose"><slot /></div>
-    <PostReactions slug={slug} />
-    <a class="back-link article-end-link" href="/yazilar">← Yazılara dön</a>
+    <div class="article-layout">
+      <div class="article-main"><div class="prose" data-article-body><slot /></div><PostReactions slug={slug} />
+        {post.data.series && seriesContext?.metadata && <SeriesNavigation slug={post.data.series as any} current={post} posts={seriesContext.posts} index={seriesContext.index} previous={seriesContext.previous} next={seriesContext.next} />}
+        <RelatedPosts posts={related} /><a class="back-link article-end-link" href="/yazilar">← Yazılara dön</a>
+      </div>
+      {post.data.toc && <ArticleTableOfContents headings={headings} mode="desktop" />}
+    </div>
   </article>
 </BaseLayout>

@@ -28,20 +28,31 @@ const routeFor = (file) => {
   return `/${relative.replace(/\/index\.html$/, '').replace(/\.html$/, '')}`;
 };
 const routeFiles = new Set(htmlFiles.map(routeFor));
+const seenTitles = new Map();
+const seenDescriptions = new Map();
 
 for (const file of htmlFiles) {
   const html = await readFile(file, 'utf8');
   const route = routeFor(file);
   const canonical = attr(html, /<link rel="canonical" href="([^"]+)"/);
   const robots = attr(html, /<meta name="robots" content="([^"]+)"/);
+  const title = attr(html, /<title>([^<]+)<\/title>/);
+  const description = attr(html, /<meta name="description" content="([^"]+)"/);
   const required = [
     [/<title>[^<]+<\/title>/, 'title'], [/<meta name="description" content="[^"]+"/, 'description'],
     [/<meta property="og:title" content="[^"]+"/, 'og:title'], [/<meta property="og:description" content="[^"]+"/, 'og:description'],
     [/<meta property="og:url" content="[^"]+"/, 'og:url'], [/<meta property="og:image" content="https:\/\/[^" ]+"/, 'og:image'],
-    [/<meta name="twitter:card" content="[^"]+"/, 'twitter:card'],
+    [/<meta property="og:site_name" content="[^"]+"/, 'og:site_name'], [/<meta name="twitter:card" content="[^"]+"/, 'twitter:card'],
+    [/<meta name="twitter:title" content="[^"]+"/, 'twitter:title'], [/<meta name="twitter:description" content="[^"]+"/, 'twitter:description'], [/<meta name="twitter:image" content="https:\/\/[^" ]+"/, 'twitter:image'],
   ];
   for (const [pattern, label] of required) if (!pattern.test(html)) failures.push(`${route}: ${label} eksik`);
   if (!canonical.startsWith(origin) || canonical.includes('localhost') || canonical.includes('.vercel.app')) failures.push(`${route}: canonical production domaininde değil (${canonical})`);
+  if (route !== '/404') {
+    const canonicalPath = new URL(canonical).pathname.replace(/\/$/, '') || '/';
+    if (canonicalPath !== route) failures.push(`${route}: canonical kendisini göstermiyor (${canonical})`);
+    if (seenTitles.has(title)) failures.push(`${route}: duplicate title (${seenTitles.get(title)})`); else seenTitles.set(title, route);
+    if (seenDescriptions.has(description)) failures.push(`${route}: duplicate description (${seenDescriptions.get(description)})`); else seenDescriptions.set(description, route);
+  }
   if (route === '/404' ? !robots.includes('noindex') : !robots.includes('index')) failures.push(`${route}: robots meta yanlış (${robots})`);
   const h1Count = (html.match(/<h1(?:\s|>)/g) ?? []).length;
   if (h1Count !== 1) failures.push(`${route}: H1 sayısı ${h1Count}`);
@@ -58,7 +69,10 @@ for (const file of htmlFiles) {
 
 const structured = {
   '/': ['Person', 'WebSite'], '/ben-kimim': ['ProfilePage', 'Person', 'BreadcrumbList'],
-  '/yazilar': ['Blog', 'BreadcrumbList'], '/yazilar/neden-bu-blogu-actim': ['BlogPosting', 'BreadcrumbList'],
+  '/yazilar': ['CollectionPage', 'ItemList', 'BreadcrumbList'], '/yazilar/neden-bu-blogu-actim': ['BlogPosting', 'BreadcrumbList'],
+  '/yazilar/kategori/ag-ve-linux': ['CollectionPage', 'ItemList', 'BreadcrumbList'],
+  '/yazilar/kategori/kisisel-notlar': ['CollectionPage', 'ItemList', 'BreadcrumbList'],
+  '/yazilar/seri/network-ogrenme-gunlugu': ['CollectionPage', 'ItemList', 'BreadcrumbList'],
 };
 for (const [route, types] of Object.entries(structured)) {
   const file = route === '/' ? path.join(dist, 'index.html') : path.join(dist, route.slice(1), 'index.html');

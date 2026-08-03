@@ -3,6 +3,10 @@ title: "Network Öğrenme Günlüğü — Gün 1: İnternet Var mı?"
 description: "Network ile internet arasındaki farktan IP, MAC, switch, router, gateway, kapsülleme ve ping testlerine uzanan ilk gün notlarım."
 publishedAt: 2026-08-03
 draft: false
+category: "ag-ve-linux"
+series: "network-ogrenme-gunlugu"
+seriesOrder: 1
+toc: true
 tags:
   - Network
   - Linux
