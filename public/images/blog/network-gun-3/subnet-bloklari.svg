@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 570" role="img" aria-labelledby="title desc">
+  <title id="title">192.168.1.0/24 ağının /26 alt ağlara bölünmesi</title>
+  <desc id="desc">Her biri 64 adres içeren dört /26 bloğu ve 192.168.1.70 adresinin ikinci blokta oluşu</desc>
+  <rect width="1200" height="570" rx="28" fill="#07111f"/>
+  <text x="60" y="72" fill="#e5f3ff" font-family="system-ui,sans-serif" font-size="30" font-weight="700">Bir /24, dört /26 mahalleye bölünür</text>
+  <text x="60" y="112" fill="#8aa4bd" font-family="system-ui,sans-serif" font-size="20">/26 maskesi: 255.255.255.192 · blok boyutu: 256 − 192 = 64</text>
+  <g font-family="ui-monospace,monospace">
+    <rect x="60" y="160" width="1080" height="76" rx="14" fill="#0c2d42"/>
+    <rect x="60" y="160" width="270" height="76" rx="14" fill="#103e54" stroke="#22d3ee" stroke-width="2"/>
+    <rect x="330" y="160" width="270" height="76" fill="#3b2c12" stroke="#fbbf24" stroke-width="4"/>
+    <rect x="600" y="160" width="270" height="76" fill="#103e54" stroke="#22d3ee" stroke-width="2"/>
+    <rect x="870" y="160" width="270" height="76" rx="14" fill="#103e54" stroke="#22d3ee" stroke-width="2"/>
+    <g fill="#d9f7ff" font-size="20" text-anchor="middle">
+      <text x="195" y="205">0–63</text><text x="465" y="205" fill="#fde68a">64–127</text><text x="735" y="205">128–191</text><text x="1005" y="205">192–255</text>
+    </g>
+  </g>
+  <g font-family="system-ui,sans-serif" font-size="19" text-anchor="middle">
+    <text x="195" y="275" fill="#67e8f9">192.168.1.0/26</text>
+    <text x="465" y="275" fill="#fbbf24" font-weight="700">192.168.1.64/26</text>
+    <text x="735" y="275" fill="#67e8f9">192.168.1.128/26</text>
+    <text x="1005" y="275" fill="#67e8f9">192.168.1.192/26</text>
+  </g>
+  <path d="M465 297v45" stroke="#fbbf24" stroke-width="3"/>
+  <polygon points="465,356 455,338 475,338" fill="#fbbf24"/>
+  <rect x="240" y="366" width="450" height="142" rx="18" fill="#172131" stroke="#fbbf24" stroke-width="2"/>
+  <text x="465" y="405" fill="#fde68a" text-anchor="middle" font-family="ui-monospace,monospace" font-size="24" font-weight="700">192.168.1.70/26</text>
+  <g fill="#c8d6e5" font-family="ui-monospace,monospace" font-size="19">
+    <text x="275" y="445">Network</text><text x="420" y="445">192.168.1.64</text>
+    <text x="275" y="478">Broadcast</text><text x="420" y="478">192.168.1.127</text>
+  </g>
+  <g font-family="system-ui,sans-serif">
+    <text x="750" y="400" fill="#e5f3ff" font-size="23" font-weight="700">70 hangi aralıkta?</text>
+    <text x="750" y="440" fill="#b8c8d9" font-size="21">64 ≤ 70 ≤ 127</text>
+    <text x="750" y="480" fill="#67e8f9" font-size="21">Doğru mahalle: ikinci blok</text>
+  </g>
+</svg>

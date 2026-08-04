@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 520" role="img" aria-labelledby="title desc">
+  <title id="title">IPv4 adresinin ağ ve host bölümleri</title>
+  <desc id="desc">192.168.1.25 adresinin 32 biti ve /24 maskesinde ilk 24 bitin ağ, son 8 bitin host olması</desc>
+  <rect width="1200" height="520" rx="28" fill="#07111f"/>
+  <text x="60" y="72" fill="#e5f3ff" font-family="ui-monospace,monospace" font-size="30" font-weight="700">192.168.1.25/24</text>
+  <text x="60" y="115" fill="#8aa4bd" font-family="system-ui,sans-serif" font-size="20">32 bit = 4 octet × 8 bit</text>
+  <g font-family="ui-monospace,monospace" font-size="22" text-anchor="middle">
+    <rect x="60" y="160" width="270" height="92" rx="14" fill="#0d3f54" stroke="#22d3ee" stroke-width="2"/>
+    <rect x="340" y="160" width="270" height="92" rx="14" fill="#0d3f54" stroke="#22d3ee" stroke-width="2"/>
+    <rect x="620" y="160" width="270" height="92" rx="14" fill="#0d3f54" stroke="#22d3ee" stroke-width="2"/>
+    <rect x="900" y="160" width="240" height="92" rx="14" fill="#33214f" stroke="#a78bfa" stroke-width="2"/>
+    <text x="195" y="198" fill="#ecfeff">11000000</text><text x="195" y="230" fill="#67e8f9">192</text>
+    <text x="475" y="198" fill="#ecfeff">10101000</text><text x="475" y="230" fill="#67e8f9">168</text>
+    <text x="755" y="198" fill="#ecfeff">00000001</text><text x="755" y="230" fill="#67e8f9">1</text>
+    <text x="1020" y="198" fill="#f5f3ff">00011001</text><text x="1020" y="230" fill="#c4b5fd">25</text>
+  </g>
+  <path d="M60 298v30h830v-30M900 298v30h240v-30" fill="none" stroke-width="3" stroke-linecap="round" stroke="#22d3ee"/>
+  <path d="M900 298v30h240v-30" fill="none" stroke="#a78bfa" stroke-width="3" stroke-linecap="round"/>
+  <text x="475" y="374" fill="#67e8f9" text-anchor="middle" font-family="system-ui,sans-serif" font-size="25" font-weight="700">NETWORK — 24 bit</text>
+  <text x="1020" y="374" fill="#c4b5fd" text-anchor="middle" font-family="system-ui,sans-serif" font-size="25" font-weight="700">HOST — 8 bit</text>
+  <rect x="60" y="418" width="1080" height="52" rx="12" fill="#101d2d"/>
+  <text x="600" y="452" fill="#b8c8d9" text-anchor="middle" font-family="system-ui,sans-serif" font-size="20">Subnet mask: 255.255.255.0  →  11111111.11111111.11111111.00000000</text>
+</svg>
