@@ -9,6 +9,8 @@ tags:
   - Kişisel
   - Siber Güvenlik
   - Öğrenme
+cover: "/images/blog/neden-bu-blogu-actim/terminal-ogrenme-yolculugu.png"
+coverAlt: "Gece çalışan, terminal ekranları ve teknik notlar arasında bir problemi araştıran güvenlik öğrencisi"
 ---
 
 Günümün büyük bir kısmı bilgisayar başında geçiyor. Bazen bir güvenlik açığını araştırıyorum, bazen Linux’ta nedenini anlamadığım bir hatayla kavga ediyorum, bazen de iki dakikada bitecek sandığım bir iş için üç saat terminale bakıyorum.
@@ -22,6 +24,11 @@ Bir problemi çözdüğümde genelde “tamamdır, bunu artık öğrendim” diy
 Komutu hatırlıyorum ama neden kullandığımı hatırlamıyorum. Çözümü bulmuşum ama mantığını bir yerde kaybetmişim. Sonra tekrar araştır, tekrar dene, tekrar uğraş.
 
 Bu blogu biraz da aynı şeyleri tekrar tekrar yaşamamak için açtım.
+
+<figure class="article-figure">
+  <img src="/images/blog/neden-bu-blogu-actim/terminal-ogrenme-yolculugu.png" alt="Gece çalışan, terminal ekranları ve teknik notlar arasında bir problemi araştıran güvenlik öğrencisi" width="1536" height="1024" loading="eager" />
+  <figcaption>Bazen çözüm tek satır; o satıra ulaşan yol ise notlar, denemeler ve birkaç saatlik terminal mesaisi.</figcaption>
+</figure>
 
 ## Burada ne paylaşacağım?
 
@@ -68,6 +75,11 @@ Zaten güvenlik araştırmasının eğlenceli kısmı da biraz burada başlıyor
 Bazen herkesin normal çalışan bir site gördüğü yerde sen yanlış giden küçük bir detayı fark ediyorsun. Sonra biraz kurcalıyorsun, biraz araştırıyorsun ve o küçük detayın arkasından çok daha büyük bir problem çıkabiliyor.
 
 İtiraf edeyim, bu kısmı seviyorum.
+
+<figure class="article-figure">
+  <img src="/images/blog/neden-bu-blogu-actim/guvenlik-arastirmasi-anomali.png" alt="Normal görünen bir web sistemi içinde küçük bir anomaliyi takip eden güvenlik araştırmacısını gösteren teknik illüstrasyon" width="1536" height="1024" loading="lazy" />
+  <figcaption>Güvenlik araştırması bazen herkesin normal gördüğü akıştaki tek bir küçük tutarsızlığı fark etmekle başlıyor.</figcaption>
+</figure>
 
 ## Neden herkese açık bir blog?
 
