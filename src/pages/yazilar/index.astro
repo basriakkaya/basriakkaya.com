@@ -8,6 +8,7 @@ import { breadcrumbSchema, schemaGraph } from '../../lib/schema';
 import { categoryEntries } from '../../config/categories';
 import { seriesEntries, seriesStatusLabel } from '../../config/series';
 import { getPostsByCategory, getPostsBySeries, postSlug } from '../../lib/posts';
+import { getCategoryLinkTitle, getNavigationLinkTitle, getSeriesLinkTitle } from '../../lib/linkTitles';
 const posts = await getPublishedPosts();
 const activeCategories = (await Promise.all(categoryEntries.map(async ([slug, metadata]) => ({ slug, metadata, posts: await getPostsByCategory(slug) })))).filter(({ posts }) => posts.length);
 const activeSeries = (await Promise.all(seriesEntries.map(async ([slug, metadata]) => ({ slug, metadata, posts: await getPostsBySeries(slug) })))).filter(({ posts }) => posts.length);
@@ -19,7 +20,7 @@ const jsonLd = schemaGraph([
 ---
 <BaseLayout title="Siber Güvenlik Yazıları" description="Web güvenliği, ağ ve Linux, güvenlik araştırmaları ve araç geliştirme üzerine Türkçe teknik yazılar, seriler ve uygulamalı notlar." jsonLd={jsonLd}>
   <section class="page-intro shell"><SectionHeading eyebrow="ls ./yazilar" title="Yazılar" description="Siber güvenlik, Linux ve yazılım geliştirme üzerine kısa, doğrudan ve uygulanabilir notlar." as="h1" /></section>
-  <nav class="taxonomy-nav shell" aria-label="Yazı kategorileri"><a href="/yazilar" aria-current="page">Tüm Yazılar <span>{posts.length}</span></a>{activeCategories.map(({ slug, metadata, posts }) => <a href={`/yazilar/kategori/${slug}`}>{metadata.name} <span>{posts.length}</span></a>)}</nav>
-  {activeSeries.length > 0 && <section class="section shell series-list" aria-labelledby="series-title"><SectionHeading eyebrow="cat ./seriler" title="Seriler" /><div>{activeSeries.map(({ slug, metadata, posts }) => <a href={`/yazilar/seri/${slug}`}><span>{seriesStatusLabel[metadata.status]}</span><h3>{metadata.title}</h3><p>{metadata.description}</p><small>{posts.length} yayınlanmış bölüm</small></a>)}</div></section>}
+  <nav class="taxonomy-nav shell" aria-label="Yazı kategorileri"><a href="/yazilar" title={getNavigationLinkTitle('articles')} aria-current="page">Tüm Yazılar <span aria-hidden="true">{posts.length}</span></a>{activeCategories.map(({ slug, metadata, posts }) => <a href={`/yazilar/kategori/${slug}`} title={getCategoryLinkTitle(metadata.name)}>{metadata.name} <span aria-hidden="true">{posts.length}</span></a>)}</nav>
+  {activeSeries.length > 0 && <section class="section shell series-list" aria-labelledby="series-title"><SectionHeading eyebrow="cat ./seriler" title="Seriler" /><div>{activeSeries.map(({ slug, metadata, posts }) => <a href={`/yazilar/seri/${slug}`} title={getSeriesLinkTitle(metadata.title)}><span>{seriesStatusLabel[metadata.status]}</span><h3>{metadata.title}</h3><p>{metadata.description}</p><small>{posts.length} yayınlanmış bölüm</small></a>)}</div></section>}
   <section class="section shell" aria-labelledby="latest-posts"><h2 id="latest-posts" class="list-heading">En Yeni Yazılar</h2><div class="post-grid">{posts.map((post) => <PostCard post={post} />)}</div></section>
 </BaseLayout>
