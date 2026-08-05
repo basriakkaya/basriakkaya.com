@@ -9,6 +9,8 @@
     "dev": "astro dev",
     "check": "astro check",
     "build": "astro build",
+    "postbuild": "npm run audit:sitemap",
+    "audit:sitemap": "node scripts/audit-sitemap.mjs",
     "audit:seo": "node scripts/audit-seo.mjs",
     "audit:content": "node scripts/audit-content.mjs",
     "audit:security": "node scripts/audit-security.mjs",
