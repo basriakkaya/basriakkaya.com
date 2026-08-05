@@ -1,6 +1,7 @@
 ---
 import { siteConfig } from '../config/site';
 import { getExternalProfileLinkTitle, getNavigationLinkTitle } from '../lib/linkTitles';
+import PWAInstallPrompt from './PWAInstallPrompt.astro';
 ---
 <footer class="footer">
   <div class="shell footer-main">
@@ -8,5 +9,5 @@ import { getExternalProfileLinkTitle, getNavigationLinkTitle } from '../lib/link
     <nav class="footer-nav" aria-label="Alt bilgi navigasyonu"><p>Sayfalar</p><a href="/" title={getNavigationLinkTitle('home')}>Ana Sayfa</a><a href="/yazilar" title={getNavigationLinkTitle('articles')}>Yazılar</a><a href="/ben-kimim" title={getNavigationLinkTitle('about')}>Ben Kimim?</a></nav>
     <div class="footer-nav"><p>Bağlantılar</p><a href={siteConfig.linkedin} title={getExternalProfileLinkTitle('LinkedIn')} target="_blank" rel="noopener noreferrer">LinkedIn <span aria-hidden="true">↗</span><span class="sr-only"> (yeni sekmede açılır)</span></a><a href={siteConfig.youtube} title={getExternalProfileLinkTitle('YouTube')} target="_blank" rel="noopener noreferrer">YouTube <span aria-hidden="true">↗</span><span class="sr-only"> (yeni sekmede açılır)</span></a><a href={`mailto:${siteConfig.email}`}>E-posta</a></div>
   </div>
-  <div class="shell footer-bottom"><p>© {new Date().getFullYear()} {siteConfig.name}</p><p>Astro ile geliştirildi · <a href="/rss.xml">RSS</a></p></div>
+  <div class="shell footer-bottom"><p>© {new Date().getFullYear()} {siteConfig.name}</p><p>Astro ile geliştirildi · <a href="/rss.xml">RSS</a></p><PWAInstallPrompt /></div>
 </footer>

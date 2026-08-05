@@ -22,6 +22,8 @@ npm run build
 npm run preview
 ```
 
+Kurulum, offline davranış ve Service Worker bakımı için [PWA rehberine](docs/pwa.md) bakın.
+
 ## Yeni yazı ekleme
 
 Ayrıntılı kategori, seri, başlık ve yayın akışı için [İçerik Yazma Rehberi](docs/content-authoring.md) dosyasına bakın.

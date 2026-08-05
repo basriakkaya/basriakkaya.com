@@ -179,6 +179,8 @@ if (/Sitemap:\s*.*(?:localhost|127\.0\.0\.1|\.vercel\.app)/iu.test(robots)) fail
 
 for (const file of htmlFiles) {
   const html = await readFile(file, 'utf8');
+  const robotsContent = html.match(/<meta name="robots" content="([^"]+)"/u)?.[1] ?? '';
+  if (robotsContent.toLowerCase().includes('noindex')) continue;
   const count = (html.match(/<link rel="sitemap" type="application\/xml" href="\/sitemap-index\.xml"\s*\/?\s*>/gu) ?? []).length;
   if (count !== 1) failures.push(`${path.relative(root, file)}: rel=sitemap sayısı ${count}, beklenen 1`);
 }

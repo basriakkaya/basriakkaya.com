@@ -36,7 +36,13 @@ const props = Astro.props;
     <Header />
     <main id="main-content"><slot /></main>
     <Footer />
+    <aside class="pwa-update" data-pwa-update aria-live="polite" hidden>
+      <p><span aria-hidden="true">$</span> system_update</p>
+      <strong>Yeni sürüm hazır.</strong>
+      <div><button type="button" data-pwa-update-now>Şimdi Güncelle</button><button type="button" data-pwa-update-later>Daha Sonra</button></div>
+    </aside>
     <Analytics />
     <SpeedInsights />
+    <script src="../scripts/pwa-client.ts"></script>
   </body>
 </html>
