@@ -14,6 +14,7 @@ import RelatedPosts from '../components/RelatedPosts.astro';
 import type { MarkdownHeading } from 'astro';
 import { getCategory } from '../config/categories';
 import { getRelatedPosts, getSeriesContext } from '../lib/posts';
+import { getCategoryLinkTitle, getNavigationLinkTitle, getSeriesLinkTitle } from '../lib/linkTitles';
 
 interface Props { post: BlogPost; headings: MarkdownHeading[] }
 const { post, headings } = Astro.props;
@@ -48,7 +49,7 @@ const visibleBreadcrumbs = breadcrumbItems.map((item, index) => ({ name: item.na
     <ReadingProgress />
     <header class="article-header">
       <Breadcrumbs items={visibleBreadcrumbs} />
-      <div class="article-taxonomy"><a href={`/yazilar/kategori/${post.data.category}`}>{category.name}</a>{seriesContext?.metadata && <a href={`/yazilar/seri/${post.data.series}`}>{seriesContext.metadata.title} · Bölüm {seriesContext.index + 1} / {seriesContext.posts.length}</a>}</div>
+      <div class="article-taxonomy"><a href={`/yazilar/kategori/${post.data.category}`} title={getCategoryLinkTitle(category.name)}>{category.name}</a>{seriesContext?.metadata && <a href={`/yazilar/seri/${post.data.series}`} title={getSeriesLinkTitle(seriesContext.metadata.title)}>{seriesContext.metadata.title} · Bölüm {seriesContext.index + 1} / {seriesContext.posts.length}</a>}</div>
       <h1>{title}</h1><p class="lead">{description}</p>
       <div class="article-meta"><span>Yazar: {siteConfig.name}</span><span>·</span><time datetime={publishedAt.toISOString()}>{format(publishedAt)}</time><span>·</span><span>{readingTime(post.body ?? '')}</span>{updatedAt && <span>Güncellendi: <time datetime={updatedAt.toISOString()}>{format(updatedAt)}</time></span>}</div>
       <ul class="tag-list" aria-label="Etiketler">{tags.map((tag) => <li>{tag}</li>)}</ul>
@@ -57,7 +58,7 @@ const visibleBreadcrumbs = breadcrumbItems.map((item, index) => ({ name: item.na
     <div class="article-layout">
       <div class="article-main"><div class="prose" data-article-body><slot /></div><PostReactions slug={slug} />
         {post.data.series && seriesContext?.metadata && <SeriesNavigation slug={post.data.series as any} current={post} posts={seriesContext.posts} index={seriesContext.index} previous={seriesContext.previous} next={seriesContext.next} />}
-        <RelatedPosts posts={related} /><a class="back-link article-end-link" href="/yazilar">← Yazılara dön</a>
+        <RelatedPosts posts={related} /><a class="back-link article-end-link" href="/yazilar" title={getNavigationLinkTitle('articles')}>← Yazılara dön</a>
       </div>
       {post.data.toc && <ArticleTableOfContents headings={headings} mode="desktop" />}
     </div>

@@ -6,6 +6,7 @@ import PostCard from '../components/PostCard.astro';
 import { getPublishedPosts } from '../lib/posts';
 import { siteConfig, absoluteUrl } from '../config/site';
 import { personSchema, schemaGraph } from '../lib/schema';
+import { getExternalProfileLinkTitle, getNavigationLinkTitle } from '../lib/linkTitles';
 
 const posts = (await getPublishedPosts()).slice(0, 3);
 const jsonLd = schemaGraph([
@@ -21,7 +22,7 @@ const jsonLd = schemaGraph([
       <SectionHeading eyebrow="profil.ozeti" title="Ben Kimim?" />
       <p class="about-copy">{siteConfig.about}</p>
       <p class="about-note">Eğitimime devam ederken fakültemde staj yaptım. Üniversitemde tespit edip sorumlu açıklama çerçevesinde bildirdiğim bir güvenlik açığının görünürlük kazanması, bu süreci bir staj fırsatına dönüştürdü.</p>
-      <a class="read-link" href="/ben-kimim">Hikâyenin devamı <span aria-hidden="true">→</span></a>
+      <a class="read-link" href="/ben-kimim" title={getNavigationLinkTitle('aboutDetails')}>Basri Akkaya Hakkında Daha Fazlası <span aria-hidden="true">→</span></a>
     </div>
     <aside class="focus-panel" aria-label="Odak alanlarım"><p class="panel-title">odak_alanlari</p><ul>{siteConfig.focus.map((item) => <li><span aria-hidden="true">›</span> {item}</li>)}</ul></aside>
   </section>
@@ -29,30 +30,30 @@ const jsonLd = schemaGraph([
   <section class="section shell research-section" aria-labelledby="research-title">
     <SectionHeading eyebrow="guvenlik.arastirmalari" title="CVE / Güvenlik Araştırmaları" description="Güvenlik araştırmalarım kapsamında iki ayrı CVE bana tahsis edildi. Sessizce araştır, açıkça raporla, sonucu doğru kanalda takip et." />
     <div class="cve-grid">
-      {siteConfig.cves.map((cve) => <article class="cve-card"><p class="card-label">atanmış</p><h3>{cve.id}</h3><p>Koordineli açıklama sürecinden geçen güvenlik araştırması kaydı.</p>{cve.url ? <a class="read-link" href={cve.url} target="_blank" rel="noopener noreferrer">CVE kaydını görüntüle <span aria-hidden="true">↗</span></a> : <span class="muted-note">Kayıt kodu</span>}</article>)}
+      {siteConfig.cves.map((cve) => <article class="cve-card"><p class="card-label">atanmış</p><h3>{cve.id}</h3><p>Koordineli açıklama sürecinden geçen güvenlik araştırması kaydı.</p>{cve.url ? <a class="read-link" href={cve.url} title={`${cve.id} kaydını yeni sekmede görüntüle`} target="_blank" rel="noopener noreferrer">CVE kaydını görüntüle <span aria-hidden="true">↗</span><span class="sr-only"> (yeni sekmede açılır)</span></a> : <span class="muted-note">Kayıt kodu</span>}</article>)}
     </div>
   </section>
 
   <section class="section shell" aria-labelledby="achievements-title">
     <SectionHeading eyebrow="basarilar.log" title="Öne Çıkan Başarılar" description="Sorumlu açıklama ve uygulamalı güvenlik çalışmalarından kısa notlar." />
-    <div class="recognition-grid">{siteConfig.achievements.map((item) => <a class="recognition-card" href={item.url} target="_blank" rel="noopener noreferrer"><span class="external-mark" aria-hidden="true">↗</span><h3>{item.title}</h3><p>{item.description}</p></a>)}</div>
+    <div class="recognition-grid">{siteConfig.achievements.map((item) => <a class="recognition-card" href={item.url} title={`${item.title} ayrıntılarını yeni sekmede görüntüle`} target="_blank" rel="noopener noreferrer"><span class="external-mark" aria-hidden="true">↗</span><span class="sr-only">Yeni sekmede açılır. </span><h3>{item.title}</h3><p>{item.description}</p></a>)}</div>
   </section>
 
   <section class="section shell recognition-community" aria-labelledby="institutional-title">
     <div>
       <SectionHeading eyebrow="takdirler" title="Takdir & Görünürlük" />
-      <div class="compact-list">{siteConfig.recognition.map((item) => item.url ? <a href={item.url} target="_blank" rel="noopener noreferrer"><span><strong>{item.title}</strong><small>{item.description}</small></span><span aria-hidden="true">↗</span></a> : <div><span><strong>{item.title}</strong><small>{item.description}</small></span></div>)}</div>
+      <div class="compact-list">{siteConfig.recognition.map((item) => item.url ? <a href={item.url} title={`${item.title} kaynağını yeni sekmede görüntüle`} target="_blank" rel="noopener noreferrer"><span><strong>{item.title}</strong><small>{item.description}</small></span><span aria-hidden="true">↗</span><span class="sr-only"> (yeni sekmede açılır)</span></a> : <div><span><strong>{item.title}</strong><small>{item.description}</small></span></div>)}</div>
     </div>
     <aside class="community-card">
       <p class="card-label">topluluk / medya</p><h2>{siteConfig.community.name}</h2><p>{siteConfig.community.description}</p>
-      <div class="text-links"><a href={siteConfig.community.website} target="_blank" rel="noopener noreferrer">Forum <span aria-hidden="true">↗</span></a><a href={siteConfig.community.youtube} target="_blank" rel="noopener noreferrer">YouTube <span aria-hidden="true">↗</span></a></div>
+      <div class="text-links"><a href={siteConfig.community.website} title="BugHane Academy forumunu yeni sekmede aç" target="_blank" rel="noopener noreferrer">Forum <span aria-hidden="true">↗</span><span class="sr-only"> (yeni sekmede açılır)</span></a><a href={siteConfig.community.youtube} title="BugHane Academy YouTube kanalını yeni sekmede aç" target="_blank" rel="noopener noreferrer">YouTube <span aria-hidden="true">↗</span><span class="sr-only"> (yeni sekmede açılır)</span></a></div>
     </aside>
   </section>
 
   <section class="section shell" aria-labelledby="recent-title">
-    <div class="heading-row"><SectionHeading eyebrow="ls ./yazilar --recent" title="Son yazılar" description="Öğrenirken aldığım kısa, uygulanabilir teknik notlar." /><a class="all-link" href="/yazilar">Tüm yazılar <span aria-hidden="true">→</span></a></div>
+    <div class="heading-row"><SectionHeading eyebrow="ls ./yazilar --recent" title="Son yazılar" description="Öğrenirken aldığım kısa, uygulanabilir teknik notlar." /><a class="all-link" href="/yazilar" title={getNavigationLinkTitle('allArticles')}>Siber Güvenlik Yazılarını Oku <span aria-hidden="true">→</span></a></div>
     <div class="post-grid">{posts.map((post) => <PostCard post={post} />)}</div>
   </section>
 
-  <section class="section shell"><div class="contact-panel"><div><p class="eyebrow">$ ./iletisim.sh</p><h2>Bir konu hakkında iletişime geçmek mi istiyorsun?</h2><p>Teknik çalışmalar, güvenlik araştırmaları ve profesyonel iletişim için bana e-posta veya LinkedIn üzerinden ulaşabilirsin.</p></div><div class="actions"><a class="button primary" href={`mailto:${siteConfig.email}`}>E-posta Gönder</a><a class="button secondary" href={siteConfig.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn Profili</a></div></div></section>
+  <section class="section shell"><div class="contact-panel"><div><p class="eyebrow">$ ./iletisim.sh</p><h2>Bir konu hakkında iletişime geçmek mi istiyorsun?</h2><p>Teknik çalışmalar, güvenlik araştırmaları ve profesyonel iletişim için bana e-posta veya LinkedIn üzerinden ulaşabilirsin.</p></div><div class="actions"><a class="button primary" href={`mailto:${siteConfig.email}`}>E-posta Gönder</a><a class="button secondary" href={siteConfig.linkedin} title={getExternalProfileLinkTitle('LinkedIn')} target="_blank" rel="noopener noreferrer">LinkedIn Profili<span class="sr-only"> (yeni sekmede açılır)</span></a></div></div></section>
 </BaseLayout>

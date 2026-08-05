@@ -3,8 +3,9 @@ import type { BlogPost } from '../lib/posts';
 import { postSlug } from '../lib/posts';
 import type { SeriesSlug } from '../config/series';
 import { seriesRegistry } from '../config/series';
+import { getNextArticleLinkTitle, getPreviousArticleLinkTitle, getSeriesAllChaptersLinkTitle } from '../lib/linkTitles';
 interface Props { slug: SeriesSlug; current: BlogPost; posts: BlogPost[]; index: number; previous?: BlogPost; next?: BlogPost }
 const { slug, posts, index, previous, next } = Astro.props as Props;
 const series = seriesRegistry[slug];
 ---
-<nav class="series-navigation" aria-label="Seri bölümleri"><p><a href={`/yazilar/seri/${slug}`}>{series.title}</a> · Bölüm {index + 1} / {posts.length}</p><div>{previous ? <a href={`/yazilar/${postSlug(previous)}`}>← Önceki Bölüm<strong>{previous.data.title}</strong></a> : <span></span>}{next ? <a href={`/yazilar/${postSlug(next)}`}>Sonraki Bölüm →<strong>{next.data.title}</strong></a> : <span class="series-state">{series.status === 'ongoing' ? 'Yeni bölüm hazırlanıyor.' : 'Bu seri tamamlandı.'}</span>}</div></nav>
+<nav class="series-navigation" aria-label="Seri bölümleri"><p><a href={`/yazilar/seri/${slug}`} title={getSeriesAllChaptersLinkTitle(series.title)}>{series.title}</a> · Bölüm {index + 1} / {posts.length}</p><div>{previous ? <a href={`/yazilar/${postSlug(previous)}`} title={getPreviousArticleLinkTitle(previous.data.title)}>← Önceki Bölüm<strong>{previous.data.title}</strong></a> : <span></span>}{next ? <a href={`/yazilar/${postSlug(next)}`} title={getNextArticleLinkTitle(next.data.title)}>Sonraki Bölüm →<strong>{next.data.title}</strong></a> : <span class="series-state">{series.status === 'ongoing' ? 'Yeni bölüm hazırlanıyor.' : 'Bu seri tamamlandı.'}</span>}</div></nav>
