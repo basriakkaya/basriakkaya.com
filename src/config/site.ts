@@ -1,5 +1,4 @@
-const envSite = import.meta.env.SITE_URL?.trim();
-const siteUrl = envSite || 'https://example.com';
+const siteUrl = 'https://www.basriakkaya.com';
 const isPreview = import.meta.env.VERCEL_ENV === 'preview';
 
 export const siteConfig = {
