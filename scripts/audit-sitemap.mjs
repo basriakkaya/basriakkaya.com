@@ -5,6 +5,7 @@ import process from 'node:process';
 const root = process.cwd();
 const dist = path.join(root, 'dist');
 const origin = 'https://www.basriakkaya.com';
+const isPreviewBuild = process.env.VERCEL_ENV === 'preview';
 const sitemapIndexPath = path.join(dist, 'sitemap-index.xml');
 const robotsPath = path.join(dist, 'robots.txt');
 const failures = [];
@@ -138,7 +139,7 @@ for (const file of htmlFiles) {
   const html = await readFile(file, 'utf8');
   const robotsContent = html.match(/<meta name="robots" content="([^"]+)"/u)?.[1] ?? '';
   const canonicalValue = html.match(/<link rel="canonical" href="([^"]+)"/u)?.[1] ?? '';
-  const excluded = route === '/404' || /(?:^|\/)test(?:-|\/|$)/iu.test(route) || robotsContent.toLowerCase().includes('noindex');
+  const excluded = route === '/404' || /(?:^|\/)test(?:-|\/|$)/iu.test(route) || (!isPreviewBuild && robotsContent.toLowerCase().includes('noindex'));
   if (excluded) continue;
 
   let canonical;
@@ -168,8 +169,12 @@ const sitemapDeclaration = `Sitemap: ${origin}/sitemap-index.xml`;
 const sitemapLines = robots.split(/\r?\n/u).filter((line) => /^Sitemap:/iu.test(line.trim()));
 if (sitemapLines.length !== 1) failures.push(`dist/robots.txt: sitemap declaration sayısı ${sitemapLines.length}, beklenen 1`);
 if (sitemapLines[0]?.trim() !== sitemapDeclaration) failures.push(`dist/robots.txt: sitemap declaration yanlış (${sitemapLines[0]?.trim() || 'eksik'})`);
-if (!robots.includes('User-agent: OAI-SearchBot') || !robots.includes('Allow: /')) failures.push('dist/robots.txt: OAI-SearchBot kuralı kayıp');
-if (!robots.includes('User-agent: GPTBot') || !robots.includes('Disallow: /')) failures.push('dist/robots.txt: GPTBot kuralı kayıp');
+if (isPreviewBuild) {
+  if (!robots.includes('User-agent: *') || !robots.includes('Disallow: /')) failures.push('dist/robots.txt: preview ortamı crawler engeli eksik');
+} else {
+  if (!robots.includes('User-agent: OAI-SearchBot') || !robots.includes('Allow: /')) failures.push('dist/robots.txt: OAI-SearchBot kuralı kayıp');
+  if (!robots.includes('User-agent: GPTBot') || !robots.includes('Disallow: /')) failures.push('dist/robots.txt: GPTBot kuralı kayıp');
+}
 if (/Sitemap:\s*.*(?:localhost|127\.0\.0\.1|\.vercel\.app)/iu.test(robots)) failures.push('dist/robots.txt: production dışı sitemap declaration bulundu');
 
 for (const file of htmlFiles) {
