@@ -1,5 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Terminal işareti">
-  <rect width="64" height="64" rx="12" fill="#090b10"/>
-  <path d="M15 19 29 32 15 45" fill="none" stroke="#a78bfa" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M34 45h16" fill="none" stroke="#c4b5fd" stroke-width="7" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Basri Akkaya terminal logosu">
+  <rect width="512" height="512" fill="#0b0f14"/>
+  <rect x="32" y="32" width="448" height="448" rx="96" fill="#111821" stroke="#263241" stroke-width="16"/>
+  <path d="M144 176 232 256 144 336" fill="none" stroke="#7ee787" stroke-width="52" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M272 336h104" fill="none" stroke="#58a6ff" stroke-width="52" stroke-linecap="round"/>
 </svg>

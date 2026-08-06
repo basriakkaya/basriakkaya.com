@@ -102,6 +102,7 @@ for (const file of sitemapFiles) {
 
 const forbiddenPathPatterns = [
   /^\/404(?:\/|$)/u,
+  /^\/offline(?:\.html)?(?:\/|$)/u,
   /^\/en(?:\/|$)/u,
   /(?:^|\/)test(?:-|\/|$)/iu,
   /(?:^|\/)admin(?:\/|$)/iu,
@@ -139,7 +140,7 @@ for (const file of htmlFiles) {
   const html = await readFile(file, 'utf8');
   const robotsContent = html.match(/<meta name="robots" content="([^"]+)"/u)?.[1] ?? '';
   const canonicalValue = html.match(/<link rel="canonical" href="([^"]+)"/u)?.[1] ?? '';
-  const excluded = route === '/404' || /(?:^|\/)test(?:-|\/|$)/iu.test(route) || (!isPreviewBuild && robotsContent.toLowerCase().includes('noindex'));
+  const excluded = route === '/404' || route === '/offline' || /(?:^|\/)test(?:-|\/|$)/iu.test(route) || (!isPreviewBuild && robotsContent.toLowerCase().includes('noindex'));
   if (excluded) continue;
 
   let canonical;
@@ -179,6 +180,8 @@ if (/Sitemap:\s*.*(?:localhost|127\.0\.0\.1|\.vercel\.app)/iu.test(robots)) fail
 
 for (const file of htmlFiles) {
   const html = await readFile(file, 'utf8');
+  const robotsContent = html.match(/<meta name="robots" content="([^"]+)"/u)?.[1] ?? '';
+  if (robotsContent.toLowerCase().includes('noindex')) continue;
   const count = (html.match(/<link rel="sitemap" type="application\/xml" href="\/sitemap-index\.xml"\s*\/?\s*>/gu) ?? []).length;
   if (count !== 1) failures.push(`${path.relative(root, file)}: rel=sitemap sayısı ${count}, beklenen 1`);
 }

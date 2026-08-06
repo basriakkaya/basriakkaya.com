@@ -38,6 +38,7 @@ for (const file of htmlFiles) {
   const robots = attr(html, /<meta name="robots" content="([^"]+)"/);
   const title = attr(html, /<title>([^<]+)<\/title>/);
   const description = attr(html, /<meta name="description" content="([^"]+)"/);
+  if (route === '/offline' && robots.toLowerCase().includes('noindex')) continue;
   const required = [
     [/<title>[^<]+<\/title>/, 'title'], [/<meta name="description" content="[^"]+"/, 'description'],
     [/<meta property="og:title" content="[^"]+"/, 'og:title'], [/<meta property="og:description" content="[^"]+"/, 'og:description'],

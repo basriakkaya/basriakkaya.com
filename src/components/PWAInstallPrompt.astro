@@ -1,0 +1,64 @@
+<div class="pwa-install" data-pwa-install hidden>
+  <p><span aria-hidden="true">$</span> install_app</p>
+  <button type="button" class="pwa-utility-button" data-pwa-install-trigger>Uygulamayı Yükle</button>
+</div>
+
+<dialog class="pwa-ios-dialog" data-pwa-ios-dialog aria-labelledby="pwa-ios-title">
+  <div class="pwa-ios-header"><p>$ install_ios</p><button type="button" data-pwa-ios-close aria-label="Kurulum yönergesini kapat">×</button></div>
+  <div class="pwa-ios-body">
+    <h2 id="pwa-ios-title">Ana ekrana ekle</h2>
+    <ol><li>Paylaş simgesine dokun.</li><li>“Ana Ekrana Ekle” seçeneğini seç.</li><li>Sağ üstteki “Ekle” düğmesine dokun.</li></ol>
+  </div>
+</dialog>
+
+<script>
+  interface InstallPromptEvent extends Event {
+    prompt(): Promise<void>;
+    userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>;
+  }
+  interface NavigatorWithStandalone extends Navigator { standalone?: boolean }
+
+  const root = document.querySelector<HTMLElement>('[data-pwa-install]');
+  const trigger = root?.querySelector<HTMLButtonElement>('[data-pwa-install-trigger]');
+  const dialog = document.querySelector<HTMLDialogElement>('[data-pwa-ios-dialog]');
+  const closeButton = dialog?.querySelector<HTMLButtonElement>('[data-pwa-ios-close]');
+  let deferredPrompt: InstallPromptEvent | null = null;
+  const standalone = window.matchMedia('(display-mode: standalone)').matches || (navigator as NavigatorWithStandalone).standalone === true;
+  const isAppleMobile = /iPad|iPhone|iPod/u.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+  const hideInstall = () => {
+    deferredPrompt = null;
+    if (root) root.hidden = true;
+    dialog?.close();
+  };
+
+  if (!standalone && root && trigger) {
+    if (isAppleMobile) root.hidden = false;
+
+    window.addEventListener('beforeinstallprompt', (event) => {
+      event.preventDefault();
+      deferredPrompt = event as InstallPromptEvent;
+      root.hidden = false;
+    }, { once: true });
+
+    window.addEventListener('appinstalled', hideInstall, { once: true });
+
+    trigger.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        const promptEvent = deferredPrompt;
+        deferredPrompt = null;
+        await promptEvent.prompt();
+        await promptEvent.userChoice;
+        root.hidden = true;
+        return;
+      }
+      if (isAppleMobile && dialog) {
+        dialog.showModal();
+        closeButton?.focus();
+      }
+    });
+
+    closeButton?.addEventListener('click', () => dialog?.close());
+    dialog?.addEventListener('close', () => trigger.focus());
+  }
+</script>
