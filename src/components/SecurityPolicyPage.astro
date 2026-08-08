@@ -1,0 +1,65 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SectionHeading from './SectionHeading.astro';
+import { siteConfig, absoluteUrl } from '../config/site';
+import { localeConfig, type Locale } from '../i18n/config';
+import { alternateLinks } from '../i18n/helpers';
+import { route } from '../i18n/routes';
+import { breadcrumbSchema, schemaGraph } from '../lib/schema';
+
+const { locale } = Astro.props as { locale: Locale };
+const isEnglish = locale === 'en';
+const path = route(locale, 'security');
+const counterpartPath = route(isEnglish ? 'tr' : 'en', 'security');
+const title = isEnglish ? 'Security Disclosure and Responsible Reporting' : 'Güvenlik Bildirimi ve Sorumlu Açıklama';
+const description = isEnglish
+  ? 'Learn how to report security vulnerabilities affecting Basri Akkaya’s website safely, clearly, and responsibly.'
+  : 'Basri Akkaya web sitesinde tespit edilen güvenlik açıklarının iyi niyetli, güvenli ve sorumlu biçimde nasıl bildirileceğini öğrenin.';
+const copy = isEnglish ? {
+  heading: 'Security Disclosure',
+  intro: [
+    'When I build this site, I do not see security as a collection of headers, an audit result, or a green check mark at the end of a build.',
+    'To me, security becomes real in what we choose to do when something goes wrong. There is a meaningful difference between quietly abusing a vulnerability and reporting it clearly to the person who can fix it. I believe that difference is responsibility.',
+    'If you discover a genuine vulnerability, a misconfiguration, accidentally exposed sensitive information, or another issue that could affect visitors to this site, you are welcome to report it to me.',
+  ],
+  sections: [
+    { title: 'How to report an issue', paragraphs: [`You can send your report to ${siteConfig.email}.`, 'When possible, include the affected URL or component, a concise explanation, the steps required to reproduce the issue, the expected and actual behavior, and a harmless screenshot or proof of concept if one is useful.', 'Your report does not need to be perfect. It only needs to contain enough clear information for me to understand and investigate the issue.'] },
+    { title: 'Research guidelines', paragraphs: ['Please do not cause service disruption or use high-volume automated scanning, DDoS, social engineering, or phishing. Do not attempt to access another person’s data. Do not download, modify, retain, or share personal or sensitive information you encounter.', 'Once an issue is confirmed, do not go beyond what is necessary to demonstrate it. If you accidentally encounter sensitive information, stop testing and report the issue while retaining as little of that information as possible.', 'Please allow a reasonable amount of time for remediation before making the issue public.'] },
+    { title: 'What happens after a report?', paragraphs: ['When I receive a report, I will first try to understand and reproduce the issue. If it is a genuine security problem, I will assess its impact and prepare a safe fix.', 'I cannot promise that every report will be resolved on the same day. I do take good-faith, clearly written reports seriously, and I will try to communicate openly about the process.', 'If the report is valid and you would like to be credited, I may acknowledge your contribution by name or by your preferred handle after the issue has been resolved. If you prefer to remain anonymous, simply mention that in your report.'] },
+    { title: 'Good-faith research', paragraphs: ['My approach toward researchers who follow this policy, avoid harm to visitor data, and remain within the minimum steps needed to verify an issue is to understand and remediate the problem—not to punish the person who reported it.', 'This policy is not unlimited authorization to test. If you are unsure whether a method is appropriate, contacting me before using it is the safest option.'] },
+  ],
+  report: 'Send a Security Report', file: 'View the machine-readable security contact file', flowTitle: 'report_flow', steps: ['Report', 'Verification', 'Remediation'], finalTitle: 'Final note', final: ['Keeping the internet a little safer often begins with someone choosing not to ignore a problem they noticed.', 'If you find something, please do not hesitate to let me know.'], motto: 'Cybersecurity is not a hobby; it is a responsibility.', home: 'Home',
+} : {
+  heading: 'Güvenlik Bildirimi',
+  intro: [
+    'Bu siteyi geliştirirken güvenliği yalnızca birkaç header, bir audit sonucu veya build sonunda görünen yeşil tiklerden ibaret görmüyorum.',
+    'Bence güvenlik, bir sorunla karşılaşıldığında ne yapıldığında ortaya çıkıyor. Bir açığı sessizce kötüye kullanmakla, doğru kişiye açık ve anlaşılır biçimde bildirmek arasında büyük bir fark var. Ben bu farkın sorumluluk olduğuna inanıyorum.',
+    'Bu sitede gerçek bir güvenlik açığı, yanlış yapılandırma, istemeden yayımlanmış hassas bilgi veya ziyaretçileri etkileyebilecek başka bir problem fark ettiysen bana bildirebilirsin.',
+  ],
+  sections: [
+    { title: 'Nasıl bildirebilirsin?', paragraphs: [`Raporunu ${siteConfig.email} adresine gönderebilirsin.`, 'Mümkünse raporunda sorunun bulunduğu URL veya bileşeni, kısa bir açıklamayı, tekrar üretmek için gereken adımları, beklenen ve gerçekleşen davranışı ve varsa zararsız bir ekran görüntüsünü paylaş.', 'Mükemmel hazırlanmış bir rapor göndermek zorunda değilsin. Sorunu anlayabilmemi sağlayacak kadar açık bilgi paylaşman yeterli.'] },
+    { title: 'Test sırasında dikkat edilmesi gerekenler', paragraphs: ['Araştırma yaparken hizmet kesintisi oluşturma; yoğun otomatik tarama, DDoS, sosyal mühendislik veya kimlik avı yöntemleri kullanma. Başka insanlara ait verilere erişmeye çalışma. Karşılaştığın kişisel ya da hassas veriyi indirme, değiştirme veya paylaşma.', 'Bir açık doğrulandığında gerekli olandan daha ileri gitme. Kazara hassas bir bilgiyle karşılaşırsan testi durdur ve gördüğün veriyi mümkün olduğunca az tutarak bana bildir.', 'Sorunu düzeltmem için makul süre tanımadan herkese açık biçimde yayımlamamanı rica ediyorum.'] },
+    { title: 'Bildirimden sonra ne olacak?', paragraphs: ['Raporunu aldığımda önce sorunu anlamaya ve tekrar üretmeye çalışacağım. Gerçek bir güvenlik problemi olduğunu doğrularsam etkisini değerlendirecek ve güvenli bir düzeltme hazırlayacağım.', 'Her rapora aynı gün kesin çözüm sözü veremem. Ancak iyi niyetli ve açıklayıcı bildirimleri ciddiye alır, süreç hakkında mümkün olduğunca açık iletişim kurmaya çalışırım.', 'Rapor geçerliyse ve istersen, sorun giderildikten sonra katkını adınla veya tercih ettiğin kullanıcı adıyla paylaşabilirim. İsminin yayımlanmasını istemiyorsan raporunda belirtmen yeterli.'] },
+    { title: 'İyi niyetli araştırma', paragraphs: ['Bu politika kapsamında hareket eden, ziyaretçi verisine zarar vermeyen ve yalnızca açığı doğrulamak için gerekli sınırlar içinde kalan araştırmacılara karşı yaklaşımım cezalandırmak değil, sorunu anlamak ve düzeltmektir.', 'Bu metin sınırsız test izni vermez. Bir yöntemden emin değilsen uygulamadan önce iletişime geçmen en güvenli yoldur.'] },
+  ],
+  report: 'Güvenlik Bildirimi Gönder', file: 'Makine tarafından okunabilir güvenlik iletişim dosyasını görüntüle', flowTitle: 'bildirim_akisi', steps: ['Raporla', 'Doğrulama', 'Düzeltme'], finalTitle: 'Son söz', final: ['İnternetin biraz daha güvenli kalması çoğu zaman birinin gördüğü problemi görmezden gelmemesiyle başlıyor.', 'Bir şey fark ettiysen haber vermekten çekinme.'], motto: 'Siber güvenlik bir hobi değil, sorumluluktur.', home: 'Ana Sayfa',
+};
+const jsonLd = schemaGraph([
+  { '@type': 'WebPage', '@id': `${absoluteUrl(path)}#webpage`, name: title, description, url: absoluteUrl(path), inLanguage: localeConfig[locale].languageTag, isPartOf: { '@id': `${absoluteUrl(route(locale, 'home'))}#website` }, author: { '@id': `${absoluteUrl('/')}#person` } },
+  breadcrumbSchema([{ name: copy.home, path: route(locale, 'home') }, { name: copy.heading, path }]),
+]);
+---
+<BaseLayout locale={locale} title={title} description={description} canonicalPath={path} alternates={alternateLinks('/guvenlik', '/en/security')} switchPath={counterpartPath} jsonLd={jsonLd}>
+  <section class="page-intro shell security-intro"><SectionHeading eyebrow="responsible_disclosure --start" title={copy.heading} description={description} as="h1" /></section>
+  <section class="section shell security-layout">
+    <div class="security-copy">
+      <div class="security-lead">{copy.intro.map((paragraph) => <p>{paragraph}</p>)}</div>
+      {copy.sections.map((section) => <section><h2>{section.title}</h2>{section.paragraphs.map((paragraph) => <p>{paragraph}</p>)}</section>)}
+      <section><h2>{copy.finalTitle}</h2>{copy.final.map((paragraph) => <p>{paragraph}</p>)}<p class="security-command">$ security_report --send responsibly</p><p><strong>{copy.motto}</strong></p></section>
+    </div>
+    <aside class="security-sidebar" aria-label={copy.flowTitle}>
+      <div class="focus-panel report-flow"><p class="panel-title">{copy.flowTitle}</p><ol>{copy.steps.map((step, index) => <li><span aria-hidden="true">{String(index + 1).padStart(2, '0')}</span> {step}</li>)}</ol></div>
+      <div class="focus-panel security-contact"><p class="panel-title">contact</p><a class="button primary" href={`mailto:${siteConfig.email}`}>{copy.report}</a><a class="security-email" href={`mailto:${siteConfig.email}`}>{siteConfig.email}</a><a class="read-link" href="/.well-known/security.txt">{copy.file} <span aria-hidden="true">→</span></a></div>
+    </aside>
+  </section>
+</BaseLayout>

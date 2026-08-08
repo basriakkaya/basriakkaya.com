@@ -1,11 +1,11 @@
 import type { Locale } from './config';
 
 const routeSegments = {
-  tr: { home: '', articles: 'yazilar', category: 'kategori', series: 'seri', about: 'ben-kimim', rss: 'rss.xml' },
-  en: { home: 'en', articles: 'articles', category: 'category', series: 'series', about: 'about', rss: 'rss.xml' },
+  tr: { home: '', articles: 'yazilar', category: 'kategori', series: 'seri', about: 'ben-kimim', security: 'guvenlik', rss: 'rss.xml' },
+  en: { home: 'en', articles: 'articles', category: 'category', series: 'series', about: 'about', security: 'security', rss: 'rss.xml' },
 } as const;
 
-export type RouteName = 'home' | 'articles' | 'about' | 'rss';
+export type RouteName = 'home' | 'articles' | 'about' | 'security' | 'rss';
 
 export function route(locale: Locale, name: RouteName): string {
   const segment = routeSegments[locale][name];

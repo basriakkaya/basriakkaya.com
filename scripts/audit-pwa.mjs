@@ -63,6 +63,7 @@ else {
   if (/unsafe-eval|BEGIN (?:RSA|OPENSSH)|PRIVATE_KEY|SERVICE_ROLE|API_KEY[=:]|TOKEN[=:]|PASSWORD[=:]|SECRET[=:]/iu.test(sw)) failures.push('Service Worker yasaklı güvenlik ifadesi içeriyor');
   if (/importScripts\s*\(\s*["']https?:/iu.test(sw)) failures.push('Service Worker harici importScripts kullanıyor');
   if (!sw.includes('offline.html')) failures.push('offline.html Service Worker precache manifestinde yok');
+  if (sw.includes('"url":"/.well-known/security.txt"')) failures.push('security.txt Service Worker precache manifestinde olmamalı');
 }
 
 const offline = await read('dist/offline.html');
@@ -102,6 +103,7 @@ if (occurrences(sourceText, /navigator\.serviceWorker\.register\s*\(/gu) !== 0) 
 if (occurrences(layout, /scripts\/pwa-client\.ts/gu) !== 1) failures.push('PWA client BaseLayout içinde tam bir kez yüklenmeli');
 if (/new\s+CacheFirst[\s\S]{0,500}request\.mode\s*===?\s*['"]navigate/u.test(serviceWorkerSource ?? '')) failures.push('HTML navigation için CacheFirst kullanılıyor');
 if (!/new\s+NetworkFirst/u.test(serviceWorkerSource ?? '')) failures.push('HTML NetworkFirst stratejisi bulunamadı');
+if (!serviceWorkerSource?.includes('\\.well-known\\/security\\.txt')) failures.push('security.txt Service Worker sistem URL/NetworkOnly listesinde değil');
 if (/googleAnalytics|analytics\.js|collect\?/iu.test(serviceWorkerSource ?? '')) failures.push('Service Worker Analytics cache kuralı içeriyor');
 
 if (failures.length) {

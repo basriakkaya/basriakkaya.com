@@ -30,6 +30,8 @@ Bu belge, route, içerik, layout, PWA ve deployment değişikliklerinde korunaca
 - Sitemap yalnızca indexlenebilir production canonical HTML URL'lerini içerir; RSS, robots, offline, manifest, Service Worker ve preview URL'leri içermez.
 - `/rss.xml` yalnızca Türkçe, `/en/rss.xml` yalnızca İngilizce içerik taşır. İngilizce içerik yoksa boş feed geçerlidir.
 - Manifest ve Service Worker registration tek instance'dır. `/rss.xml`, `/en/rss.xml`, robots, sitemap, manifest ve SW sistem URL'leri NetworkOnly kapsamındadır.
+- RFC 9116 kaynağı yalnızca `/.well-known/security.txt` adresindedir; `/guvenlik` ve `/en/security` karşılıklı locale politika sayfalarıdır. Public contact için tek kaynak `siteConfig.email` değeridir.
+- `security.txt` sitemap ve PWA precache dışında, Service Worker NetworkOnly kapsamındadır. Sabit `Expires` tarihi build sırasında ileri taşınmaz; `audit:security` geçmiş/60 günden yakın veya bir yıldan uzak tarihi reddeder. Tarih en geç 60 gün kala yenilenmelidir.
 - Türkçe reaction anahtarı `basri:post-reaction:<slug>` olarak korunur; İngilizce anahtar `basri:post-reaction:en:<slug>` biçimindedir.
 
 ## Değişiklik sınıfları ve kalite kapısı

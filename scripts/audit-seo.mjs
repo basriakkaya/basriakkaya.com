@@ -94,6 +94,7 @@ for (const file of htmlFiles) {
 
 const structured = {
   '/': ['Person', 'WebSite'], '/ben-kimim': ['ProfilePage', 'Person', 'BreadcrumbList'],
+  '/guvenlik': ['WebPage', 'BreadcrumbList'], '/en/security': ['WebPage', 'BreadcrumbList'],
   '/yazilar': ['CollectionPage', 'ItemList', 'BreadcrumbList'], '/yazilar/neden-bu-blogu-actim': ['BlogPosting', 'BreadcrumbList'],
   '/yazilar/kategori/ag-ve-linux': ['CollectionPage', 'ItemList', 'BreadcrumbList'],
   '/yazilar/kategori/kisisel-notlar': ['CollectionPage', 'ItemList', 'BreadcrumbList'],
