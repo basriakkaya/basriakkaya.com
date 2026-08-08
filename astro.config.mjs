@@ -5,7 +5,7 @@ import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 const productionOrigin = 'https://www.basriakkaya.com';
-const excludedSitemapPaths = new Set(['/404']);
+const excludedSitemapPaths = new Set(['/404', '/admin']);
 const pwaPlugins = VitePWA({
 	strategies: 'injectManifest',
 	srcDir: 'src',

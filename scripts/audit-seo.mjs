@@ -31,6 +31,7 @@ const routeFor = (file) => {
 const routeFiles = new Set(htmlFiles.map(routeFor));
 const seenTitles = new Map();
 const seenDescriptions = new Map();
+let adminSeen = false;
 
 for (const file of htmlFiles) {
   const html = await readFile(file, 'utf8');
@@ -42,6 +43,15 @@ for (const file of htmlFiles) {
   const ogUrl = attr(html, /<meta property="og:url" content="([^"]+)"/);
   const ogLocale = attr(html, /<meta property="og:locale" content="([^"]+)"/);
   const rssDiscovery = attr(html, /<link rel="alternate" type="application\/rss\+xml"[^>]+href="([^"]+)"/);
+  if (route === '/admin') {
+    adminSeen = true;
+    if (!html.includes('<html lang="en"')) failures.push('/admin: html lang en değil');
+    if ((html.match(/<title>/g) ?? []).length !== 1 || title !== 'Restricted Operations Console') failures.push('/admin: title yanlış veya duplicate');
+    if (robots !== 'noindex, nofollow, noarchive, nosnippet, noimageindex') failures.push(`/admin: robots meta yanlış (${robots})`);
+    if ((html.match(/<h1(?:\s|>)/g) ?? []).length !== 1) failures.push('/admin: H1 sayısı 1 değil');
+    for (const [pattern, label] of [[/<link rel="canonical"/g, 'canonical'], [/hreflang=/g, 'hreflang'], [/application\/ld\+json/g, 'JSON-LD'], [/<meta property="og:/g, 'Open Graph'], [/<meta name="twitter:/g, 'Twitter'], [/application\/rss\+xml/g, 'RSS discovery']]) if (pattern.test(html)) failures.push(`/admin: ${label} bulunmamalı`);
+    continue;
+  }
   if (route === '/offline' && robots.toLowerCase().includes('noindex')) continue;
   const required = [
     [/<title>[^<]+<\/title>/, 'title'], [/<meta name="description" content="[^"]+"/, 'description'],
@@ -107,12 +117,16 @@ for (const [route, types] of Object.entries(structured)) {
 }
 
 for (const required of ['rss.xml', 'robots.txt', 'sitemap-index.xml', 'sitemap-0.xml', '404.html']) if (!files.some((file) => file.endsWith(required))) failures.push(`${required} eksik`);
+if (!adminSeen) failures.push('/admin build çıktısı eksik');
 for (const draft of ['linux-terminalinde-her-gun-kullandigim-temel-komutlar', '/yazilar/test']) if (routeFiles.has(`/yazilar/${draft}`) || routeFiles.has(draft)) failures.push(`Draft route üretildi: ${draft}`);
 const sitemap = await readFile(path.join(dist, 'sitemap-0.xml'), 'utf8').catch(() => '');
-if (/localhost|\.vercel\.app|\/404|\/rss\.xml|\/robots\.txt|linux-terminalinde|\/yazilar\/test/.test(sitemap)) failures.push('Sitemap yasaklı veya draft URL içeriyor');
+if (/localhost|\.vercel\.app|\/404|\/admin(?:\/|<)|\/rss\.xml|\/robots\.txt|linux-terminalinde|\/yazilar\/test/.test(sitemap)) failures.push('Sitemap yasaklı veya draft URL içeriyor');
 for (const match of sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)) if (!match[1].startsWith(origin)) failures.push(`Sitemap production dışı URL: ${match[1]}`);
 
 const robots = await readFile(path.join(dist, 'robots.txt'), 'utf8').catch(() => '');
+const trRss = await readFile(path.join(dist, 'rss.xml'), 'utf8').catch(() => '');
+const enRss = await readFile(path.join(dist, 'en', 'rss.xml'), 'utf8').catch(() => '');
+if (/\/admin(?:\/|\b)/u.test(robots) || /\/admin(?:\/|<)/u.test(trRss) || /\/admin(?:\/|<)/u.test(enRss)) failures.push('/admin robots.txt veya RSS içinde ilan edilmiş');
 const expectedRobotsLines = isPreviewBuild
   ? ['User-agent: *', 'Disallow: /', `Sitemap: ${origin}/sitemap-index.xml`]
   : ['User-agent: OAI-SearchBot', 'Allow: /', 'User-agent: GPTBot', 'Disallow: /', `Sitemap: ${origin}/sitemap-index.xml`];

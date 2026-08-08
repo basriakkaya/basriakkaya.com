@@ -64,6 +64,10 @@ else {
   if (/importScripts\s*\(\s*["']https?:/iu.test(sw)) failures.push('Service Worker harici importScripts kullanıyor');
   if (!sw.includes('offline.html')) failures.push('offline.html Service Worker precache manifestinde yok');
   if (sw.includes('"url":"/.well-known/security.txt"')) failures.push('security.txt Service Worker precache manifestinde olmamalı');
+  const adminPrecacheEntries = [...sw.matchAll(/"url":"([^"]+)"/gu)]
+    .map((match) => match[1])
+    .filter((url) => /^\/?admin(?:\/(?:index\.html)?)?$/u.test(url));
+  if (adminPrecacheEntries.length) failures.push('admin HTML Service Worker precache manifestinde olmamalı');
 }
 
 const offline = await read('dist/offline.html');
@@ -80,7 +84,7 @@ for (const file of sitemapFiles) {
   if (/\/(?:site\.webmanifest|sw\.js|pwa-(?:192x192|512x512|maskable-512x512)\.png)/u.test(xml ?? '')) failures.push(`${file} PWA sistem dosyası içeriyor`);
 }
 
-const htmlFiles = (await walk(dist).catch(() => [])).filter((file) => file.endsWith('.html') && path.basename(file) !== 'offline.html');
+const htmlFiles = (await walk(dist).catch(() => [])).filter((file) => file.endsWith('.html') && path.basename(file) !== 'offline.html' && path.relative(dist, file).replaceAll(path.sep, '/') !== 'admin/index.html');
 for (const file of htmlFiles) {
   const html = await readFile(file, 'utf8');
   const label = path.relative(root, file);
@@ -104,7 +108,19 @@ if (occurrences(layout, /scripts\/pwa-client\.ts/gu) !== 1) failures.push('PWA c
 if (/new\s+CacheFirst[\s\S]{0,500}request\.mode\s*===?\s*['"]navigate/u.test(serviceWorkerSource ?? '')) failures.push('HTML navigation için CacheFirst kullanılıyor');
 if (!/new\s+NetworkFirst/u.test(serviceWorkerSource ?? '')) failures.push('HTML NetworkFirst stratejisi bulunamadı');
 if (!serviceWorkerSource?.includes('\\.well-known\\/security\\.txt')) failures.push('security.txt Service Worker sistem URL/NetworkOnly listesinde değil');
+for (const route of ['/admin', '/admin/', '/admin/index.html']) {
+  if (!serviceWorkerSource?.includes(`'${route}'`)) failures.push(`${route} Service Worker sistem URL/NetworkOnly listesinde değil`);
+}
+if (occurrences(serviceWorkerSource, /isSystemPath\(url\.pathname\)/gu) !== 2) failures.push('/admin NetworkOnly ve navigation exclusion aynı sistem yolu kontrolünü kullanmalı');
 if (/googleAnalytics|analytics\.js|collect\?/iu.test(serviceWorkerSource ?? '')) failures.push('Service Worker Analytics cache kuralı içeriyor');
+
+const adminHtml = await read('dist/admin/index.html');
+if (!adminHtml) failures.push('dist/admin/index.html eksik');
+else {
+  if (/<link rel="manifest"|site\.webmanifest/iu.test(adminHtml)) failures.push('/admin manifest yüklememeli');
+  if (/pwa-client|virtual:pwa-register|navigator\.serviceWorker\.register/iu.test(adminHtml)) failures.push('/admin Service Worker registration yüklememeli');
+  if (/<link rel="canonical"/iu.test(adminHtml)) failures.push('/admin canonical yüklememeli');
+}
 
 if (failures.length) {
   console.error('PWA audit failed');

@@ -24,6 +24,11 @@ for (const file of htmlFiles) {
 
 for (const [route, page] of pages) {
   if (route === '/offline') continue;
+  if (route === '/admin') {
+    if (!page.html.includes('<html lang="en"')) failures.push('/admin: html lang en değil');
+    if (page.alternates.size !== 0) failures.push('/admin: hreflang bulunmamalı');
+    continue;
+  }
   const expectedLang = route === '/en' || route.startsWith('/en/') ? 'en' : 'tr';
   if (!page.html.includes(`<html lang="${expectedLang}"`)) failures.push(`${route}: html lang ${expectedLang} değil`);
   const canonical = page.html.match(/<link rel="canonical" href="([^"]+)"/u)?.[1];

@@ -10,8 +10,10 @@ import { CacheFirst, NetworkFirst, NetworkOnly, StaleWhileRevalidate } from 'wor
 declare let self: ServiceWorkerGlobalScope & { __WB_MANIFEST: Array<{ url: string; revision?: string }> };
 
 const DAY = 24 * 60 * 60;
+const operationsConsolePaths = new Set(['/admin', '/admin/', '/admin/index.html']);
 const systemPath = /^\/(?:\.well-known\/security\.txt|en\/rss\.xml|robots\.txt|rss\.xml|site\.webmanifest|sw\.js|registerSW\.js|sitemap(?:-index|-\d+)?\.xml)$/u;
 const analyticsPath = /^\/_vercel\/(?:insights|speed-insights)(?:\/|$)/u;
+const isSystemPath = (pathname: string) => operationsConsolePaths.has(pathname) || systemPath.test(pathname);
 
 const safeResponsePlugin: WorkboxPlugin = {
   cacheWillUpdate: async ({ response }) => {
@@ -29,7 +31,7 @@ self.addEventListener('message', (event) => {
 });
 
 registerRoute(
-  ({ request, url }) => request.method === 'GET' && url.origin === self.location.origin && (systemPath.test(url.pathname) || analyticsPath.test(url.pathname)),
+  ({ request, url }) => request.method === 'GET' && url.origin === self.location.origin && (isSystemPath(url.pathname) || analyticsPath.test(url.pathname)),
   new NetworkOnly(),
 );
 
@@ -47,7 +49,7 @@ registerRoute(
     && request.mode === 'navigate'
     && url.origin === self.location.origin
     && !request.headers.has('authorization')
-    && !systemPath.test(url.pathname)
+    && !isSystemPath(url.pathname)
     && !analyticsPath.test(url.pathname),
   async (context) => {
     try {

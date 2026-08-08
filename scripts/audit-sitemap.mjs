@@ -139,7 +139,7 @@ for (const file of htmlFiles) {
   const html = await readFile(file, 'utf8');
   const robotsContent = html.match(/<meta name="robots" content="([^"]+)"/u)?.[1] ?? '';
   const canonicalValue = html.match(/<link rel="canonical" href="([^"]+)"/u)?.[1] ?? '';
-  const excluded = route === '/404' || route === '/offline' || /(?:^|\/)test(?:-|\/|$)/iu.test(route) || (!isPreviewBuild && robotsContent.toLowerCase().includes('noindex'));
+  const excluded = route === '/404' || route === '/admin' || route === '/offline' || /(?:^|\/)test(?:-|\/|$)/iu.test(route) || (!isPreviewBuild && robotsContent.toLowerCase().includes('noindex'));
   if (excluded) continue;
 
   let canonical;

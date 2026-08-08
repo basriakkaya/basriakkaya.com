@@ -1,0 +1,99 @@
+---
+const metrics = [
+  { label: 'ACTIVE NODES', value: '07', note: 'ALL RESPONDING', tone: 'ok' },
+  { label: 'FAILED AUTH', value: '143', note: '+19 LAST HOUR', tone: 'deny' },
+  { label: 'UPTIME', value: '99.97%', note: '43D 08H 11M', tone: 'info' },
+  { label: 'DATA EGRESS', value: '0 B', note: 'UPLINK DISABLED', tone: 'ok' },
+];
+const events = [
+  { time: '04:13:05', state: 'OK', text: 'policy checksum verified: sha256:9f2a…c871' },
+  { time: '04:12:48', state: 'DENY', text: '/internal/vault · principal: unknown' },
+  { time: '04:12:41', state: 'WARN', text: 'rate threshold exceeded · edge-03' },
+  { time: '04:12:19', state: 'OK', text: 'canary token rotation complete' },
+  { time: '04:11:57', state: 'DENY', text: 'privilege escalation blocked' },
+  { time: '04:11:22', state: 'OK', text: 'snapshot integrity: clean' },
+  { time: '04:10:58', state: 'WARN', text: 'unknown client signature discarded' },
+  { time: '04:10:31', state: 'DENY', text: 'operator session expired' },
+];
+const nodes = [
+  ['AUTH-GATE', 'policy enforcement', '10.7.0.4'],
+  ['VAULT-01', 'sealed storage', '10.7.0.8'],
+  ['EDGE-03', 'rate anomaly', '10.7.1.3'],
+  ['TRACE-SINK', 'volatile memory', '10.7.2.9'],
+];
+const accessRows = [
+  ['root', 'vault/*', 'SEALED', '04:00 UTC'],
+  ['operator', 'audit/read', 'ACTIVE', '03:30 UTC'],
+  ['service.edge', 'network/read', 'ACTIVE', '02:45 UTC'],
+  ['unknown', 'internal/*', 'DENIED', '—'],
+];
+const systemRows = [
+  ['NODE-7F', 'CONTROL PLANE', 'HEALTHY', '12 ms'],
+  ['AUTH-GATE', 'POLICY ENGINE', 'HEALTHY', '18 ms'],
+  ['VAULT-01', 'SEALED STORAGE', 'HEALTHY', '21 ms'],
+  ['EDGE-03', 'EDGE FILTER', 'DEGRADED', '47 ms'],
+  ['TRACE-SINK', 'VOLATILE AUDIT', 'HEALTHY', '24 ms'],
+];
+---
+<div class="ops-frame">
+  <header class="ops-topbar">
+    <div class="ops-identity"><span class="ops-mark" aria-hidden="true">B_</span><div><strong>BLACKSITE // CONTROL</strong><span>[RESTRICTED]</span></div></div>
+    <p>UTC 04:13:37 <span aria-hidden="true">·</span> NODE-7F</p>
+  </header>
+  <div class="ops-status-line" aria-hidden="true"><span></span><span></span><span></span></div>
+
+  <div class="ops-grid">
+    <aside class="ops-rail">
+      <div class="ops-operator"><span>ACTIVE OPERATOR</span><strong>root@blacksite</strong></div>
+      <nav class="ops-nav" aria-label="Operations console sections">
+        <button type="button" aria-pressed="true" aria-controls="ops-overview" data-ops-target="overview"><span>01 /</span> OVERVIEW</button>
+        <button type="button" aria-pressed="false" aria-controls="ops-access" data-ops-target="access"><span>02 /</span> ACCESS</button>
+        <button type="button" aria-pressed="false" aria-controls="ops-systems" data-ops-target="systems"><span>03 /</span> SYSTEMS</button>
+      </nav>
+      <dl class="ops-build"><div><dt>BUILD</dt><dd>dc33-r7</dd></div><div><dt>MODE</dt><dd>AIR-GAPPED</dd></div><div><dt>UPLINK</dt><dd>DISABLED</dd></div></dl>
+    </aside>
+
+    <main id="ops-main" class="ops-main">
+      <h1 class="sr-only">Restricted Operations Console</h1>
+      <section id="ops-overview" class="ops-view" data-ops-view="overview">
+        <header class="ops-view-heading"><div><p>$ system_overview --live</p><h2>THREAT LEVEL: <span>ELEVATED</span></h2></div><span class="ops-mode">CONTROL ACTIVE</span></header>
+        <div class="ops-metrics">
+          {metrics.map((metric) => <article class:list={['ops-panel', 'ops-metric', `is-${metric.tone}`]}><p>{metric.label}</p><strong>{metric.value}</strong><span>{metric.note}</span></article>)}
+        </div>
+        <div class="ops-primary-grid">
+          <section class="ops-panel ops-events" aria-labelledby="event-stream-title"><header><h3 id="event-stream-title">EVENT STREAM // AUTH-GATE</h3><span><i aria-hidden="true"></i> LIVE</span></header><ol>{events.map((event) => <li class={`is-${event.state.toLowerCase()}`}><time>{event.time}</time><strong>[{event.state}]</strong><span>{event.text}</span></li>)}</ol></section>
+          <section class="ops-panel ops-nodes" aria-labelledby="network-nodes-title"><header><h3 id="network-nodes-title">NETWORK NODES</h3><span>4 ACTIVE</span></header><ul>{nodes.map(([name, role, address]) => <li><strong>{name}</strong><span>{role}</span><code>{address}</code></li>)}</ul></section>
+        </div>
+        <div class="ops-secondary-grid">
+          <section class="ops-panel ops-summary" aria-labelledby="access-summary-title"><header><h3 id="access-summary-title">ACCESS MATRIX</h3><span>POLICY SEALED</span></header><div class="ops-table"><div class="ops-row"><span>root</span><span>vault/*</span><strong>GRANTED</strong></div><div class="ops-row"><span>operator</span><span>audit/read</span><strong>GRANTED</strong></div><div class="ops-row is-denied"><span>unknown</span><span>internal/*</span><strong>DENIED</strong></div></div></section>
+          <section class="ops-panel ops-integrity" aria-labelledby="integrity-title"><p>INTEGRITY CONTROL</p><h3 id="integrity-title">VAULT INTEGRITY</h3><strong>SEALED EXECUTION MODE</strong><p>Outbound uplink disabled. Volatile session state will be destroyed on operator exit.</p><button type="button" data-integrity-check>RUN INTEGRITY CHECK</button><span data-integrity-status aria-live="polite">STANDBY</span></section>
+        </div>
+      </section>
+
+      <section id="ops-access" class="ops-view" data-ops-view="access" hidden>
+        <header class="ops-view-heading"><div><p>$ access_matrix --verify</p><h2>LOCKDOWN <span>ENABLED</span></h2></div><span class="ops-mode">POLICY SEALED</span></header>
+        <section class="ops-panel ops-policy"><p>ACCESS POLICY SEALED</p><h3>Offline verification required</h3><p>All privileged operations require an offline hardware challenge. No interactive credential exchange is available on this terminal.</p></section>
+        <section class="ops-panel ops-data-table" aria-labelledby="access-table-title">
+          <header><h3 id="access-table-title">PRIVILEGE MATRIX</h3><span>READ ONLY</span></header>
+          <table aria-labelledby="access-table-title">
+            <thead><tr><th scope="col">PRINCIPAL</th><th scope="col">SCOPE</th><th scope="col">STATE</th><th scope="col">LAST ROTATION</th></tr></thead>
+            <tbody>{accessRows.map(([principal, scope, state, rotation]) => <tr class:list={[state === 'DENIED' && 'is-denied']}><th scope="row">{principal}</th><td>{scope}</td><td class="ops-state">{state}</td><td>{rotation}</td></tr>)}</tbody>
+          </table>
+        </section>
+      </section>
+
+      <section id="ops-systems" class="ops-view" data-ops-view="systems" hidden>
+        <header class="ops-view-heading"><div><p>$ node_health --all</p><h2>UPLINK <span>DISABLED</span></h2></div><span class="ops-mode">7 / 7 NODES RESPONDING</span></header>
+        <section class="ops-panel ops-data-table" aria-labelledby="systems-table-title">
+          <header><h3 id="systems-table-title">NODE HEALTH</h3><span>CONTROL PLANE</span></header>
+          <table aria-labelledby="systems-table-title">
+            <thead><tr><th scope="col">NODE</th><th scope="col">ROLE</th><th scope="col">STATE</th><th scope="col">LATENCY</th></tr></thead>
+            <tbody>{systemRows.map(([name, role, state, latency]) => <tr class:list={[state === 'DEGRADED' && 'is-warning']}><th scope="row">{name}</th><td>{role}</td><td class="ops-state">{state}</td><td>{latency}</td></tr>)}</tbody>
+          </table>
+        </section>
+        <section class="ops-panel ops-node-control"><div><p>NODE CONTROL</p><h3>Deterministic health verification</h3><span>All checks execute inside volatile session memory.</span></div><button type="button" data-node-check>RUN NODE CHECK</button><strong data-node-status aria-live="polite">READY // 7 TARGETS</strong></section>
+      </section>
+    </main>
+  </div>
+</div>
+<script src="../../scripts/operations-console.ts"></script>

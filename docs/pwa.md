@@ -16,3 +16,5 @@ npm run preview -- --host 127.0.0.1
 Service Worker’ı temizlemek için tarayıcının Application/Storage panelinden kaydı kaldırıp site verilerini temizleyin. Cache temizliği de aynı paneldeki Cache Storage bölümünden yapılabilir.
 
 Bu PWA katmanında push notification, backend, üyelik, cookie veya kurulum takibi yoktur. Authorization içeren, cross-origin ve non-GET istekler cache’lenmez.
+
+`/admin`, `/admin/` ve doğrudan statik artefakt yolu `/admin/index.html` PWA kapsamı dışında tutulur: HTML precache veya runtime cache’e yazılmaz, offline fallback ile sunulmaz ve route’un minimal layout’u manifest ya da Service Worker registration yüklemez. Vercel no-store header kuralı bütün `/admin` path varyantlarını kapsamalıdır.

@@ -18,6 +18,7 @@ let nextId = 0;
 const pending = new Map();
 const consoleErrors = [];
 const networkErrors = [];
+const networkRequests = [];
 
 socket.addEventListener('message', ({ data }) => {
   const message = JSON.parse(data);
@@ -34,6 +35,8 @@ socket.addEventListener('message', ({ data }) => {
   if (message.method === 'Network.loadingFailed' && !message.params.canceled) {
     networkErrors.push(message.params.errorText);
   }
+
+  if (message.method === 'Network.requestWillBeSent') networkRequests.push(message.params.request.url);
 });
 
 const send = (method, params = {}) => new Promise((resolve, reject) => {
@@ -65,7 +68,7 @@ const navigate = async (path) => {
 
 await Promise.all([send('Page.enable'), send('Runtime.enable'), send('Network.enable')]);
 
-const viewports = [360, 390, 768, 1024, 1440];
+const viewports = [320, 360, 390, 768, 1024, 1440];
 const layoutResults = [];
 for (const width of viewports) {
   await send('Emulation.setDeviceMetricsOverride', {
@@ -124,6 +127,77 @@ const links = await evaluate(`(() => {
   };
 })()`);
 
+const adminLayoutResults = [];
+for (const width of viewports) {
+  await send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: width < 768 });
+  await navigate('/admin');
+  adminLayoutResults.push(await evaluate(`(() => {
+    const buttons = [...document.querySelectorAll('[data-ops-target]')];
+    return {
+      width: ${width},
+      overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+      minTouchHeight: Math.min(...buttons.map((button) => button.getBoundingClientRect().height)),
+      overviewVisible: !document.querySelector('[data-ops-view="overview"]').hidden,
+      hiddenViews: [...document.querySelectorAll('[data-ops-view][hidden]')].length
+    };
+  })()`));
+}
+
+await send('Emulation.setScriptExecutionDisabled', { value: true });
+await navigate('/admin');
+const adminWithoutJs = await evaluate(`(() => {
+  const overview = document.querySelector('[data-ops-view="overview"]');
+  return { overviewVisible: overview && !overview.hidden && getComputedStyle(overview).display !== 'none', text: overview?.innerText.includes('THREAT LEVEL:') };
+})()`);
+await send('Emulation.setScriptExecutionDisabled', { value: false });
+
+await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 900, deviceScaleFactor: 1, mobile: true });
+const adminLoadStart = networkRequests.length;
+await navigate('/admin');
+await new Promise((resolve) => setTimeout(resolve, 50));
+const adminLoadRequests = networkRequests.slice(adminLoadStart);
+const adminInteractionStart = networkRequests.length;
+const adminInteraction = await evaluate(`(async () => {
+  const access = document.querySelector('[data-ops-target="access"]');
+  const systems = document.querySelector('[data-ops-target="systems"]');
+  const overview = document.querySelector('[data-ops-target="overview"]');
+  const nodeCheck = document.querySelector('[data-node-check]');
+  const integrityCheck = document.querySelector('[data-integrity-check]');
+
+  access.focus(); access.click();
+  const accessVisible = !document.querySelector('[data-ops-view="access"]').hidden && access.getAttribute('aria-pressed') === 'true';
+  const accessFocus = document.activeElement === access;
+
+  systems.focus(); systems.click();
+  const systemsVisible = !document.querySelector('[data-ops-view="systems"]').hidden && systems.getAttribute('aria-pressed') === 'true';
+  const systemsFocus = document.activeElement === systems;
+  nodeCheck.focus(); nodeCheck.click();
+  const nodeCheckFocus = document.activeElement === nodeCheck;
+  await new Promise((resolve) => setTimeout(resolve, 1250));
+  const nodeComplete = document.querySelector('[data-node-status]').textContent === 'COMPLETE // 7 RESPONDING';
+
+  overview.focus(); overview.click();
+  const overviewVisible = !document.querySelector('[data-ops-view="overview"]').hidden && overview.getAttribute('aria-pressed') === 'true';
+  const overviewFocus = document.activeElement === overview;
+  integrityCheck.focus(); integrityCheck.click();
+  const integrityCheckFocus = document.activeElement === integrityCheck;
+  await new Promise((resolve) => setTimeout(resolve, 1250));
+  return {
+    accessVisible,
+    systemsVisible,
+    overviewVisible,
+    nodeComplete,
+    integrityComplete: document.querySelector('[data-integrity-status]').textContent === 'INTEGRITY: VERIFIED',
+    focusNatural: accessFocus && systemsFocus && nodeCheckFocus && overviewFocus && integrityCheckFocus
+  };
+})()`);
+const adminInteractionRequests = networkRequests.slice(adminInteractionStart);
+const baseOrigin = new URL(baseUrl).origin;
+const invalidAdminLoadRequests = adminLoadRequests.filter((requestUrl) => {
+  const parsed = new URL(requestUrl);
+  return parsed.origin !== baseOrigin || !(/^\/admin\/?$/u.test(parsed.pathname) || parsed.pathname === '/favicon.svg' || parsed.pathname.startsWith('/_astro/'));
+});
+
 socket.close();
 
 const failures = [
@@ -133,9 +207,16 @@ const failures = [
   ...consoleErrors.map((error) => `Console: ${error}`),
   ...networkErrors.map((error) => `Network: ${error}`),
   ...Object.entries(links).filter(([name, passed]) => name === 'exposedEmailText' ? passed : !passed).map(([name]) => `${name} başarısız`),
+  ...adminLayoutResults.filter((result) => result.overflow).map((result) => `/admin ${result.width}px yatay taşma`),
+  ...adminLayoutResults.filter((result) => result.minTouchHeight < 44).map((result) => `/admin ${result.width}px touch target ${result.minTouchHeight}`),
+  ...adminLayoutResults.filter((result) => !result.overviewVisible || result.hiddenViews !== 2).map((result) => `/admin ${result.width}px initial panel state yanlış`),
+  ...Object.entries(adminWithoutJs).filter(([, passed]) => !passed).map(([name]) => `/admin JavaScript-off ${name} başarısız`),
+  ...Object.entries(adminInteraction).filter(([, passed]) => !passed).map(([name]) => `/admin ${name} başarısız`),
+  ...invalidAdminLoadRequests.map((url) => `/admin izin verilmeyen load request: ${url}`),
+  ...adminInteractionRequests.map((url) => `/admin interaction sonrası request: ${url}`),
 ];
 
-console.log(JSON.stringify({ baseUrl, layoutResults, interactions, statuses, links, consoleErrors, networkErrors }, null, 2));
+console.log(JSON.stringify({ baseUrl, layoutResults, interactions, statuses, links, adminLayoutResults, adminWithoutJs, adminInteraction, adminLoadRequests, adminInteractionRequests, consoleErrors, networkErrors }, null, 2));
 if (failures.length) {
   console.error(`Tarayıcı denetimi başarısız:\n- ${failures.join('\n- ')}`);
   process.exitCode = 1;
