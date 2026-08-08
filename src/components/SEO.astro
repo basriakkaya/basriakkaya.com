@@ -1,5 +1,9 @@
 ---
 import { absoluteUrl, siteConfig } from '../config/site';
+import { localeConfig, type Locale } from '../i18n/config';
+import { route } from '../i18n/routes';
+import { t } from '../i18n/translations';
+import type { AlternateLink } from '../i18n/helpers';
 
 interface Props {
   title?: string;
@@ -9,6 +13,8 @@ interface Props {
   canonicalPath?: string;
   jsonLd?: Record<string, unknown>;
   noindex?: boolean;
+  locale?: Locale;
+  alternates?: AlternateLink[];
 }
 
 const {
@@ -19,8 +25,11 @@ const {
   canonicalPath = Astro.url.pathname,
   jsonLd,
   noindex = false,
+  locale = 'tr',
+  alternates = [],
 } = Astro.props;
-const fullTitle = title === siteConfig.defaultTitle || title.includes(siteConfig.name) ? title : `${title} | ${siteConfig.name}`;
+const copy = t(locale);
+const fullTitle = title === siteConfig.defaultTitle ? copy.defaultTitle : title.includes(siteConfig.name) ? title : `${title} | ${siteConfig.name}`;
 const canonical = absoluteUrl(canonicalPath);
 const socialImage = absoluteUrl(image);
 const shouldIndex = siteConfig.indexable && !noindex;
@@ -35,17 +44,19 @@ const bingVerification = import.meta.env.PUBLIC_BING_SITE_VERIFICATION?.trim();
 {bingVerification && <meta name="msvalidate.01" content={bingVerification} />}
 <link rel="canonical" href={canonical} />
 <meta property="og:type" content={type} />
-<meta property="og:locale" content="tr_TR" />
+<meta property="og:locale" content={localeConfig[locale].ogLocale} />
+<meta property="og:locale:alternate" content={localeConfig[locale === 'tr' ? 'en' : 'tr'].ogLocale} />
 <meta property="og:title" content={fullTitle} />
 <meta property="og:description" content={description} />
 <meta property="og:url" content={canonical} />
 <meta property="og:site_name" content={siteConfig.name} />
 <meta property="og:image" content={socialImage} />
-<meta property="og:image:alt" content={`${siteConfig.name} — güvenlik araştırmaları`} />
+<meta property="og:image:alt" content={copy.socialAlt} />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content={fullTitle} />
 <meta name="twitter:description" content={description} />
 <meta name="twitter:image" content={socialImage} />
 <meta name="theme-color" content="#0b0f14" />
-<link rel="alternate" type="application/rss+xml" title={`${siteConfig.name} RSS`} href={absoluteUrl('/rss.xml')} />
+<link rel="alternate" type="application/rss+xml" title={`${siteConfig.name} RSS (${localeConfig[locale].name})`} href={absoluteUrl(route(locale, 'rss'))} />
+{alternates.map((alternate) => <link rel="alternate" hreflang={alternate.locale} href={absoluteUrl(alternate.path)} />)}
 {jsonLd && <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}

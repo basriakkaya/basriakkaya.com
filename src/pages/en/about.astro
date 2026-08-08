@@ -1,0 +1,11 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SectionHeading from '../../components/SectionHeading.astro';
+import { siteConfig, absoluteUrl } from '../../config/site';
+import { breadcrumbSchema, personSchema, schemaGraph } from '../../lib/schema';
+import { alternateLinks } from '../../i18n/helpers';
+const jsonLd = schemaGraph([personSchema, { '@type': 'ProfilePage', '@id': `${absoluteUrl('/en/about')}#profile`, name: `About | ${siteConfig.name}`, url: absoluteUrl('/en/about'), inLanguage: 'en-US', mainEntity: { '@id': `${absoluteUrl('/')}#person` } }, breadcrumbSchema([{ name: 'Home', path: '/en' }, { name: 'About', path: '/en/about' }])]);
+---
+<BaseLayout locale="en" title="About Basri Akkaya | Security Researcher" description="Learn about cybersecurity researcher and computer engineering student Basri Akkaya, his CVE work, projects, and technical experience." alternates={alternateLinks('/ben-kimim', '/en/about')} switchPath="/ben-kimim" jsonLd={jsonLd}>
+  <section class="page-intro shell about-page"><div class="about-intro"><SectionHeading eyebrow="profile.summary" title="About me" as="h1" /><p class="lead">I am a computer engineering student focused on web and application security, penetration testing, and responsible disclosure.</p><div class="about-story"><p>I spend much of my time researching web and network security and reporting spam, fraud, and malicious infrastructure.</p><p>A vulnerability I responsibly disclosed at my university brought visibility to my work and led to an internship opportunity at my faculty.</p><p>I help manage BugHane Academy and use this blog to keep technical knowledge concise, verifiable, and practical.</p></div><blockquote>“Cybersecurity is not a hobby; it is a responsibility.”</blockquote></div><figure class="about-visual"><img src="/images/security-researcher.png" alt="Basri Akkaya conducting security research in a dark workspace" width="960" height="1200" /><figcaption><span>security.research</span><span>learn · test · disclose</span></figcaption></figure></section>
+</BaseLayout>

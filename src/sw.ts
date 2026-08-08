@@ -10,7 +10,7 @@ import { CacheFirst, NetworkFirst, NetworkOnly, StaleWhileRevalidate } from 'wor
 declare let self: ServiceWorkerGlobalScope & { __WB_MANIFEST: Array<{ url: string; revision?: string }> };
 
 const DAY = 24 * 60 * 60;
-const systemPath = /^\/(?:robots\.txt|rss\.xml|site\.webmanifest|sw\.js|registerSW\.js|sitemap(?:-index|-\d+)?\.xml)$/u;
+const systemPath = /^\/(?:en\/rss\.xml|robots\.txt|rss\.xml|site\.webmanifest|sw\.js|registerSW\.js|sitemap(?:-index|-\d+)?\.xml)$/u;
 const analyticsPath = /^\/_vercel\/(?:insights|speed-insights)(?:\/|$)/u;
 
 const safeResponsePlugin: WorkboxPlugin = {

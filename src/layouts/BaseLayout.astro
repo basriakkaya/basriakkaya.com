@@ -5,6 +5,12 @@ import SEO from '../components/SEO.astro';
 import Analytics from '@vercel/analytics/astro';
 import SpeedInsights from '@vercel/speed-insights/astro';
 import '../styles/global.css';
+import '../styles/i18n.css';
+import type { Locale } from '../i18n/config';
+import { localeConfig } from '../i18n/config';
+import { t } from '../i18n/translations';
+import { route } from '../i18n/routes';
+import type { AlternateLink } from '../i18n/helpers';
 
 interface Props {
   title?: string;
@@ -14,11 +20,17 @@ interface Props {
   image?: string;
   jsonLd?: Record<string, unknown>;
   noindex?: boolean;
+  locale?: Locale;
+  alternates?: AlternateLink[];
+  switchPath?: string;
 }
 const props = Astro.props;
+const locale = props.locale ?? 'tr';
+const copy = t(locale);
+const switchPath = props.switchPath ?? route(locale === 'tr' ? 'en' : 'tr', 'home');
 ---
 <!doctype html>
-<html lang="tr">
+<html lang={locale} dir={localeConfig[locale].direction}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -29,17 +41,17 @@ const props = Astro.props;
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
     <link rel="manifest" href="/site.webmanifest" />
     <link rel="sitemap" type="application/xml" href="/sitemap-index.xml" />
-    <SEO {...props} />
+    <SEO {...props} locale={locale} />
   </head>
   <body>
-    <a class="skip-link" href="#main-content">İçeriğe geç</a>
-    <Header />
+    <a class="skip-link" href="#main-content">{copy.skip}</a>
+    <Header locale={locale} switchPath={switchPath} />
     <main id="main-content"><slot /></main>
-    <Footer />
+    <Footer locale={locale} switchPath={switchPath} />
     <aside class="pwa-update" data-pwa-update aria-live="polite" hidden>
       <p><span aria-hidden="true">$</span> system_update</p>
-      <strong>Yeni sürüm hazır.</strong>
-      <div><button type="button" data-pwa-update-now>Şimdi Güncelle</button><button type="button" data-pwa-update-later>Daha Sonra</button></div>
+      <strong>{copy.updateReady}</strong>
+      <div><button type="button" data-pwa-update-now>{copy.updateNow}</button><button type="button" data-pwa-update-later>{copy.updateLater}</button></div>
     </aside>
     <Analytics />
     <SpeedInsights />

@@ -1,0 +1,8 @@
+---
+import type { Locale } from '../i18n/config';
+import { localeConfig } from '../i18n/config';
+import { t } from '../i18n/translations';
+const { locale, href } = Astro.props as { locale: Locale; href: string };
+const target = locale === 'tr' ? 'en' : 'tr';
+---
+<nav class="language-switcher" aria-label={t(locale).languageSwitch}><a href={href} hreflang={target} lang={target} aria-label={t(locale).switchTo} title={t(locale).switchTo}>{localeConfig[target].name}</a></nav>

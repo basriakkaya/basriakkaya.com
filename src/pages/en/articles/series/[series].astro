@@ -1,0 +1,8 @@
+---
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import { seriesEntries, seriesTranslations } from '../../../../config/series';
+import { getPostsBySeries, postSlug } from '../../../../lib/posts';
+export async function getStaticPaths() { const entries = await Promise.all(seriesEntries.map(async ([key]) => ({ key, metadata: seriesTranslations[key], posts: await getPostsBySeries(key, 'en') }))); return entries.filter(({ posts }) => posts.length).map((entry) => ({ params: { series: entry.metadata.slug }, props: entry })); }
+const { metadata, posts } = Astro.props;
+---
+<BaseLayout locale="en" title={`${metadata.title} Series`} description={metadata.description} switchPath="/yazilar"><section class="page-intro shell"><p class="eyebrow">series / ongoing</p><h1>{metadata.title}</h1><p class="lead">{metadata.description}</p></section><section class="section shell"><ol class="series-chapters">{posts.map((post: any) => <li><span>Part {post.data.seriesOrder}</span><div><h2><a href={`/en/articles/${postSlug(post)}`}>{post.data.title}</a></h2><p>{post.data.description}</p></div></li>)}</ol></section></BaseLayout>

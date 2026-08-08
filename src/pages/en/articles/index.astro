@@ -1,0 +1,12 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import SectionHeading from '../../../components/SectionHeading.astro';
+import PostCard from '../../../components/PostCard.astro';
+import { getPublishedPosts, postSlug } from '../../../lib/posts';
+import { absoluteUrl } from '../../../config/site';
+import { breadcrumbSchema, schemaGraph } from '../../../lib/schema';
+import { alternateLinks } from '../../../i18n/helpers';
+const posts = await getPublishedPosts('en');
+const jsonLd = schemaGraph([{ '@type': 'CollectionPage', '@id': `${absoluteUrl('/en/articles')}#collection`, name: 'Cybersecurity Articles', url: absoluteUrl('/en/articles'), description: 'English technical articles about web security, networking, Linux, and security research.', inLanguage: 'en-US' }, { '@type': 'ItemList', itemListElement: posts.map((post, index) => ({ '@type': 'ListItem', position: index + 1, name: post.data.title, url: absoluteUrl(`/en/articles/${postSlug(post)}`) })) }, breadcrumbSchema([{ name: 'Home', path: '/en' }, { name: 'Articles', path: '/en/articles' }])]);
+---
+<BaseLayout locale="en" title="Cybersecurity Articles" description="English technical articles about web security, networking, Linux, and security research." alternates={alternateLinks('/yazilar', '/en/articles')} switchPath="/yazilar" jsonLd={jsonLd}><section class="page-intro shell"><SectionHeading eyebrow="ls ./articles" title="Articles" description="Concise and practical notes on cybersecurity, Linux, and software development." as="h1" /></section><section class="section shell" aria-labelledby="latest-posts"><h2 id="latest-posts" class="list-heading">Latest articles</h2>{posts.length ? <div class="post-grid">{posts.map((post) => <PostCard post={post} locale="en" />)}</div> : <p class="lead">No English articles have been published yet.</p>}</section></BaseLayout>

@@ -2,12 +2,18 @@
 import { siteConfig } from '../config/site';
 import { getExternalProfileLinkTitle, getNavigationLinkTitle } from '../lib/linkTitles';
 import PWAInstallPrompt from './PWAInstallPrompt.astro';
+import LanguageSwitcher from './LanguageSwitcher.astro';
+import type { Locale } from '../i18n/config';
+import { route } from '../i18n/routes';
+import { t } from '../i18n/translations';
+const { locale = 'tr', switchPath } = Astro.props as { locale?: Locale; switchPath: string };
+const copy = t(locale);
 ---
 <footer class="footer">
   <div class="shell footer-main">
-    <div class="footer-brand"><a href="/" title={getNavigationLinkTitle('home')}><img src="/favicon.svg" width="36" height="36" alt="" aria-hidden="true" /> {siteConfig.name}</a><p>Güvenlik araştırmaları, Linux ve uygulama güvenliği üzerine notlar.</p></div>
-    <nav class="footer-nav" aria-label="Alt bilgi navigasyonu"><p>Sayfalar</p><a href="/" title={getNavigationLinkTitle('home')}>Ana Sayfa</a><a href="/yazilar" title={getNavigationLinkTitle('articles')}>Yazılar</a><a href="/ben-kimim" title={getNavigationLinkTitle('about')}>Ben Kimim?</a></nav>
-    <div class="footer-nav"><p>Bağlantılar</p><a href={siteConfig.linkedin} title={getExternalProfileLinkTitle('LinkedIn')} target="_blank" rel="noopener noreferrer">LinkedIn <span aria-hidden="true">↗</span><span class="sr-only"> (yeni sekmede açılır)</span></a><a href={siteConfig.youtube} title={getExternalProfileLinkTitle('YouTube')} target="_blank" rel="noopener noreferrer">YouTube <span aria-hidden="true">↗</span><span class="sr-only"> (yeni sekmede açılır)</span></a><a href={`mailto:${siteConfig.email}`}>E-posta</a></div>
+    <div class="footer-brand"><a href={route(locale, 'home')} title={getNavigationLinkTitle('home')}><img src="/favicon.svg" width="36" height="36" alt="" aria-hidden="true" /> {siteConfig.name}</a><p>{copy.footerCopy}</p></div>
+    <nav class="footer-nav" aria-label={copy.footerNavLabel}><p>{copy.pages}</p><a href={route(locale, 'home')} title={getNavigationLinkTitle('home')}>{copy.home}</a><a href={route(locale, 'articles')} title={getNavigationLinkTitle('articles')}>{copy.articles}</a><a href={route(locale, 'about')} title={getNavigationLinkTitle('about')}>{copy.about}</a></nav>
+    <div class="footer-nav"><p>{copy.links}</p><a href={siteConfig.linkedin} title={getExternalProfileLinkTitle('LinkedIn')} target="_blank" rel="noopener noreferrer">LinkedIn <span aria-hidden="true">↗</span><span class="sr-only">{copy.newTab}</span></a><a href={siteConfig.youtube} title={getExternalProfileLinkTitle('YouTube')} target="_blank" rel="noopener noreferrer">YouTube <span aria-hidden="true">↗</span><span class="sr-only">{copy.newTab}</span></a><a href={`mailto:${siteConfig.email}`}>{copy.email}</a></div>
   </div>
-  <div class="shell footer-bottom"><p>© {new Date().getFullYear()} {siteConfig.name}</p><p>Astro ile geliştirildi · <a href="/rss.xml">RSS</a></p><PWAInstallPrompt /></div>
+  <div class="shell footer-bottom"><p>© {new Date().getFullYear()} {siteConfig.name}</p><p>{copy.builtWith} · <a href={route(locale, 'rss')}>RSS</a></p><LanguageSwitcher locale={locale} href={switchPath} /><PWAInstallPrompt locale={locale} /></div>
 </footer>
