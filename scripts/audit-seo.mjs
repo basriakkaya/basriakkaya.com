@@ -38,6 +38,9 @@ for (const file of htmlFiles) {
   const robots = attr(html, /<meta name="robots" content="([^"]+)"/);
   const title = attr(html, /<title>([^<]+)<\/title>/);
   const description = attr(html, /<meta name="description" content="([^"]+)"/);
+  const ogUrl = attr(html, /<meta property="og:url" content="([^"]+)"/);
+  const ogLocale = attr(html, /<meta property="og:locale" content="([^"]+)"/);
+  const rssDiscovery = attr(html, /<link rel="alternate" type="application\/rss\+xml"[^>]+href="([^"]+)"/);
   if (route === '/offline' && robots.toLowerCase().includes('noindex')) continue;
   const required = [
     [/<title>[^<]+<\/title>/, 'title'], [/<meta name="description" content="[^"]+"/, 'description'],
@@ -47,7 +50,15 @@ for (const file of htmlFiles) {
     [/<meta name="twitter:title" content="[^"]+"/, 'twitter:title'], [/<meta name="twitter:description" content="[^"]+"/, 'twitter:description'], [/<meta name="twitter:image" content="https:\/\/[^" ]+"/, 'twitter:image'],
   ];
   for (const [pattern, label] of required) if (!pattern.test(html)) failures.push(`${route}: ${label} eksik`);
+  for (const [pattern, label] of [[/<title>/g, 'title'], [/<meta name="description"/g, 'description'], [/<link rel="canonical"/g, 'canonical'], [/<meta property="og:url"/g, 'og:url']]) {
+    const count = (html.match(pattern) ?? []).length;
+    if (count !== 1) failures.push(`${route}: ${label} sayısı ${count}, beklenen 1`);
+  }
   if (!canonical.startsWith(origin) || canonical.includes('localhost') || canonical.includes('.vercel.app')) failures.push(`${route}: canonical production domaininde değil (${canonical})`);
+  if (ogUrl !== canonical) failures.push(`${route}: og:url canonical ile eşleşmiyor (${ogUrl})`);
+  const expectedEnglish = route === '/en' || route.startsWith('/en/');
+  if (ogLocale !== (expectedEnglish ? 'en_US' : 'tr_TR')) failures.push(`${route}: og:locale yanlış (${ogLocale})`);
+  if (rssDiscovery !== `${origin}${expectedEnglish ? '/en/rss.xml' : '/rss.xml'}`) failures.push(`${route}: RSS discovery locale ile uyumsuz (${rssDiscovery})`);
   if (route !== '/404') {
     const canonicalPath = new URL(canonical).pathname.replace(/\/$/, '') || '/';
     if (canonicalPath !== route) failures.push(`${route}: canonical kendisini göstermiyor (${canonical})`);
@@ -58,7 +69,18 @@ for (const file of htmlFiles) {
   const h1Count = (html.match(/<h1(?:\s|>)/g) ?? []).length;
   if (h1Count !== 1) failures.push(`${route}: H1 sayısı ${h1Count}`);
   for (const match of html.matchAll(/<script[^>]+type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g)) {
-    try { JSON.parse(match[1]); } catch { failures.push(`${route}: geçersiz JSON-LD`); }
+    try {
+      const data = JSON.parse(match[1]);
+      const graph = Array.isArray(data['@graph']) ? data['@graph'] : [data];
+      for (const entity of graph) {
+        if (entity['@type'] === 'BlogPosting') {
+          if (entity.url !== canonical || entity.mainEntityOfPage?.['@id'] !== canonical) failures.push(`${route}: BlogPosting URL canonical ile eşleşmiyor`);
+          if (entity.inLanguage !== (expectedEnglish ? 'en-US' : 'tr-TR')) failures.push(`${route}: BlogPosting inLanguage yanlış (${entity.inLanguage})`);
+          if (!entity.headline || !entity.description || !entity.datePublished || !entity.dateModified || !entity.image) failures.push(`${route}: BlogPosting zorunlu proje alanları eksik`);
+        }
+        if (entity.inLanguage && entity.inLanguage !== (expectedEnglish ? 'en-US' : 'tr-TR')) failures.push(`${route}: JSON-LD inLanguage yanlış (${entity.inLanguage})`);
+      }
+    } catch { failures.push(`${route}: geçersiz JSON-LD`); }
   }
   for (const match of html.matchAll(/href="(\/[^"]*)"/g)) {
     const href = match[1].split(/[?#]/)[0];
