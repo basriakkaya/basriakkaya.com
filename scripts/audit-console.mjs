@@ -208,9 +208,11 @@ if ((swSource.match(/isSystemPath\(url\.pathname\)/gu) ?? []).length !== 2 || !/
 
 let vercel;
 try { vercel = JSON.parse(await read('vercel.json')); } catch { failures.push('vercel.json geçerli JSON değil'); }
-const adminRule = vercel?.headers?.find(({ source }) => source === '/admin/:path*');
-const adminHeaders = new Map((adminRule?.headers ?? []).map(({ key, value }) => [key.toLowerCase(), value.toLowerCase()]));
-if (adminHeaders.get('cache-control') !== 'private, no-store, max-age=0, must-revalidate') failures.push('/admin ve alt path varyantları için Vercel no-store header eksik');
+for (const source of ['/admin', '/admin/(.*)']) {
+  const adminRule = vercel?.headers?.find((rule) => rule.source === source);
+  const adminHeaders = new Map((adminRule?.headers ?? []).map(({ key, value }) => [key.toLowerCase(), value.toLowerCase()]));
+  if (adminHeaders.get('cache-control') !== 'private, no-store, max-age=0, must-revalidate') failures.push(`${source} için Vercel no-store header eksik`);
+}
 
 if (failures.length) {
   console.error('Operations console audit failed');
