@@ -17,6 +17,8 @@ const blog = defineCollection({
     toc: z.boolean().default(true),
     cover: z.string().optional(),
     coverAlt: z.string().optional(),
+    lang: z.enum(['tr', 'en']).default('tr'),
+    translationKey: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).optional(),
   }).superRefine((data, context) => {
     if (data.cover && !data.coverAlt) context.addIssue({ code: 'custom', path: ['coverAlt'], message: 'cover kullanıldığında coverAlt zorunludur.' });
     if (data.updatedAt && data.updatedAt < data.publishedAt) context.addIssue({ code: 'custom', path: ['updatedAt'], message: 'updatedAt, publishedAt tarihinden önce olamaz.' });

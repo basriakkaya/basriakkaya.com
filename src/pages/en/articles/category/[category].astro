@@ -1,0 +1,10 @@
+---
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import PostCard from '../../../../components/PostCard.astro';
+import SectionHeading from '../../../../components/SectionHeading.astro';
+import { categoryEntries, categoryTranslations } from '../../../../config/categories';
+import { getPostsByCategory } from '../../../../lib/posts';
+export async function getStaticPaths() { const entries = await Promise.all(categoryEntries.map(async ([key]) => ({ key, metadata: categoryTranslations[key], posts: await getPostsByCategory(key, 'en') }))); return entries.filter(({ posts }) => posts.length).map((entry) => ({ params: { category: entry.metadata.slug }, props: entry })); }
+const { metadata, posts } = Astro.props;
+---
+<BaseLayout locale="en" title={`${metadata.name} Articles`} description={metadata.description} switchPath="/yazilar"><section class="page-intro shell"><SectionHeading eyebrow={`category / ${metadata.slug}`} title={`${metadata.name} Articles`} description={metadata.description} as="h1" /></section><section class="section shell"><div class="post-grid">{posts.map((post: any) => <PostCard post={post} locale="en" />)}</div></section></BaseLayout>

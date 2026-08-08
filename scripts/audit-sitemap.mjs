@@ -103,7 +103,6 @@ for (const file of sitemapFiles) {
 const forbiddenPathPatterns = [
   /^\/404(?:\/|$)/u,
   /^\/offline(?:\.html)?(?:\/|$)/u,
-  /^\/en(?:\/|$)/u,
   /(?:^|\/)test(?:-|\/|$)/iu,
   /(?:^|\/)admin(?:\/|$)/iu,
   /(?:^|\/)private(?:\/|$)/iu,

@@ -2,21 +2,23 @@
 import type { BlogPost } from '../lib/posts';
 import { postSlug } from '../lib/posts';
 import { readingTime } from '../lib/reading-time';
-import { getCategory } from '../config/categories';
-import { getSeries } from '../config/series';
+import { getLocalizedCategory } from '../config/categories';
+import { getLocalizedSeries } from '../config/series';
 import { getArticleLinkTitle, getCategoryLinkTitle, getSeriesLinkTitle } from '../lib/linkTitles';
-
-interface Props { post: BlogPost }
-const { post } = Astro.props;
-const date = post.data.publishedAt.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
-const category = getCategory(post.data.category);
-const series = getSeries(post.data.series);
+import type { Locale } from '../i18n/config';
+import { articleRoute, categoryRoute, seriesRoute } from '../i18n/routes';
+import { formatDate } from '../i18n/helpers';
+interface Props { post: BlogPost; locale?: Locale }
+const { post, locale = post.data.lang } = Astro.props;
+const date = formatDate(post.data.publishedAt, locale);
+const category = getLocalizedCategory(post.data.category, locale);
+const series = post.data.series ? getLocalizedSeries(post.data.series, locale) : undefined;
+const slug = postSlug(post);
 ---
 <article class="post-card">
-  <div class="post-taxonomy"><a href={`/yazilar/kategori/${post.data.category}`} title={getCategoryLinkTitle(category.name)}>{category.name}</a>{series && <a href={`/yazilar/seri/${post.data.series}`} title={getSeriesLinkTitle(series.title)}>{series.shortTitle ?? series.title} · Bölüm {post.data.seriesOrder}</a>}</div>
-  <div class="post-meta"><time datetime={post.data.publishedAt.toISOString()}>{date}</time><span aria-hidden="true">·</span><span>{readingTime(post.body ?? '')}</span>{post.data.draft && <span class="draft">Taslak</span>}</div>
-  <h3><a href={`/yazilar/${postSlug(post)}`} title={getArticleLinkTitle(post.data.title)}>{post.data.title}</a></h3>
-  <p>{post.data.description}</p>
-  <ul class="tag-list" aria-label="Etiketler">{post.data.tags.map((tag) => <li>{tag}</li>)}</ul>
-  <a class="read-link" href={`/yazilar/${postSlug(post)}`} title={getArticleLinkTitle(post.data.title)} aria-label={getArticleLinkTitle(post.data.title)}>Yazıyı oku <span aria-hidden="true">→</span></a>
+  <div class="post-taxonomy"><a href={categoryRoute(locale, category.slug)} title={getCategoryLinkTitle(category.name)}>{category.name}</a>{series && <a href={seriesRoute(locale, series.slug)} title={getSeriesLinkTitle(series.title)}>{series.shortTitle ?? series.title} · {locale === 'tr' ? 'Bölüm' : 'Part'} {post.data.seriesOrder}</a>}</div>
+  <div class="post-meta"><time datetime={post.data.publishedAt.toISOString()}>{date}</time><span aria-hidden="true">·</span><span>{readingTime(post.body ?? '')}</span>{post.data.draft && <span class="draft">{locale === 'tr' ? 'Taslak' : 'Draft'}</span>}</div>
+  <h3><a href={articleRoute(locale, slug)} title={getArticleLinkTitle(post.data.title)}>{post.data.title}</a></h3><p>{post.data.description}</p>
+  <ul class="tag-list" aria-label={locale === 'tr' ? 'Etiketler' : 'Tags'}>{post.data.tags.map((tag) => <li>{tag}</li>)}</ul>
+  <a class="read-link" href={articleRoute(locale, slug)} title={getArticleLinkTitle(post.data.title)} aria-label={getArticleLinkTitle(post.data.title)}>{locale === 'tr' ? 'Yazıyı oku' : 'Read article'} <span aria-hidden="true">→</span></a>
 </article>

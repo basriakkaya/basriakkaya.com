@@ -12,6 +12,8 @@ Manage the background server with `astro dev stop`, `astro dev status`, and `ast
 
 Full documentation: https://docs.astro.build
 
+SEO, route, content, layout, PWA veya deployment değişikliklerinden önce [`docs/seo-contract.md`](docs/seo-contract.md) içindeki kalıcı Türkçe/İngilizce URL, canonical, hreflang, sitemap, RSS ve kalite kapısı sözleşmesini okuyun ve ilgili auditleri çalıştırın.
+
 Consult these guides before working on related tasks:
 
 - [Adding pages, dynamic routes, or middleware](https://docs.astro.build/en/guides/routing/)

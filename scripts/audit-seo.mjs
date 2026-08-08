@@ -4,6 +4,7 @@ import path from 'node:path';
 const root = process.cwd();
 const dist = path.join(root, 'dist');
 const origin = 'https://www.basriakkaya.com';
+const isPreviewBuild = process.env.VERCEL_ENV === 'preview';
 const failures = [];
 
 async function walk(directory) {
@@ -38,6 +39,9 @@ for (const file of htmlFiles) {
   const robots = attr(html, /<meta name="robots" content="([^"]+)"/);
   const title = attr(html, /<title>([^<]+)<\/title>/);
   const description = attr(html, /<meta name="description" content="([^"]+)"/);
+  const ogUrl = attr(html, /<meta property="og:url" content="([^"]+)"/);
+  const ogLocale = attr(html, /<meta property="og:locale" content="([^"]+)"/);
+  const rssDiscovery = attr(html, /<link rel="alternate" type="application\/rss\+xml"[^>]+href="([^"]+)"/);
   if (route === '/offline' && robots.toLowerCase().includes('noindex')) continue;
   const required = [
     [/<title>[^<]+<\/title>/, 'title'], [/<meta name="description" content="[^"]+"/, 'description'],
@@ -47,18 +51,38 @@ for (const file of htmlFiles) {
     [/<meta name="twitter:title" content="[^"]+"/, 'twitter:title'], [/<meta name="twitter:description" content="[^"]+"/, 'twitter:description'], [/<meta name="twitter:image" content="https:\/\/[^" ]+"/, 'twitter:image'],
   ];
   for (const [pattern, label] of required) if (!pattern.test(html)) failures.push(`${route}: ${label} eksik`);
+  for (const [pattern, label] of [[/<title>/g, 'title'], [/<meta name="description"/g, 'description'], [/<link rel="canonical"/g, 'canonical'], [/<meta property="og:url"/g, 'og:url']]) {
+    const count = (html.match(pattern) ?? []).length;
+    if (count !== 1) failures.push(`${route}: ${label} sayısı ${count}, beklenen 1`);
+  }
   if (!canonical.startsWith(origin) || canonical.includes('localhost') || canonical.includes('.vercel.app')) failures.push(`${route}: canonical production domaininde değil (${canonical})`);
+  if (ogUrl !== canonical) failures.push(`${route}: og:url canonical ile eşleşmiyor (${ogUrl})`);
+  const expectedEnglish = route === '/en' || route.startsWith('/en/');
+  if (ogLocale !== (expectedEnglish ? 'en_US' : 'tr_TR')) failures.push(`${route}: og:locale yanlış (${ogLocale})`);
+  if (rssDiscovery !== `${origin}${expectedEnglish ? '/en/rss.xml' : '/rss.xml'}`) failures.push(`${route}: RSS discovery locale ile uyumsuz (${rssDiscovery})`);
   if (route !== '/404') {
     const canonicalPath = new URL(canonical).pathname.replace(/\/$/, '') || '/';
     if (canonicalPath !== route) failures.push(`${route}: canonical kendisini göstermiyor (${canonical})`);
     if (seenTitles.has(title)) failures.push(`${route}: duplicate title (${seenTitles.get(title)})`); else seenTitles.set(title, route);
     if (seenDescriptions.has(description)) failures.push(`${route}: duplicate description (${seenDescriptions.get(description)})`); else seenDescriptions.set(description, route);
   }
-  if (route === '/404' ? !robots.includes('noindex') : !robots.includes('index')) failures.push(`${route}: robots meta yanlış (${robots})`);
+  const shouldNoindex = route === '/404' || isPreviewBuild;
+  if (shouldNoindex ? !robots.includes('noindex') : !robots.includes('index')) failures.push(`${route}: robots meta yanlış (${robots})`);
   const h1Count = (html.match(/<h1(?:\s|>)/g) ?? []).length;
   if (h1Count !== 1) failures.push(`${route}: H1 sayısı ${h1Count}`);
   for (const match of html.matchAll(/<script[^>]+type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g)) {
-    try { JSON.parse(match[1]); } catch { failures.push(`${route}: geçersiz JSON-LD`); }
+    try {
+      const data = JSON.parse(match[1]);
+      const graph = Array.isArray(data['@graph']) ? data['@graph'] : [data];
+      for (const entity of graph) {
+        if (entity['@type'] === 'BlogPosting') {
+          if (entity.url !== canonical || entity.mainEntityOfPage?.['@id'] !== canonical) failures.push(`${route}: BlogPosting URL canonical ile eşleşmiyor`);
+          if (entity.inLanguage !== (expectedEnglish ? 'en-US' : 'tr-TR')) failures.push(`${route}: BlogPosting inLanguage yanlış (${entity.inLanguage})`);
+          if (!entity.headline || !entity.description || !entity.datePublished || !entity.dateModified || !entity.image) failures.push(`${route}: BlogPosting zorunlu proje alanları eksik`);
+        }
+        if (entity.inLanguage && entity.inLanguage !== (expectedEnglish ? 'en-US' : 'tr-TR')) failures.push(`${route}: JSON-LD inLanguage yanlış (${entity.inLanguage})`);
+      }
+    } catch { failures.push(`${route}: geçersiz JSON-LD`); }
   }
   for (const match of html.matchAll(/href="(\/[^"]*)"/g)) {
     const href = match[1].split(/[?#]/)[0];
@@ -88,7 +112,10 @@ if (/localhost|\.vercel\.app|\/404|\/rss\.xml|\/robots\.txt|linux-terminalinde|\
 for (const match of sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)) if (!match[1].startsWith(origin)) failures.push(`Sitemap production dışı URL: ${match[1]}`);
 
 const robots = await readFile(path.join(dist, 'robots.txt'), 'utf8').catch(() => '');
-for (const line of ['User-agent: OAI-SearchBot', 'Allow: /', 'User-agent: GPTBot', 'Disallow: /', `Sitemap: ${origin}/sitemap-index.xml`]) if (!robots.includes(line)) failures.push(`robots.txt eksik: ${line}`);
+const expectedRobotsLines = isPreviewBuild
+  ? ['User-agent: *', 'Disallow: /', `Sitemap: ${origin}/sitemap-index.xml`]
+  : ['User-agent: OAI-SearchBot', 'Allow: /', 'User-agent: GPTBot', 'Disallow: /', `Sitemap: ${origin}/sitemap-index.xml`];
+for (const line of expectedRobotsLines) if (!robots.includes(line)) failures.push(`robots.txt eksik: ${line}`);
 
 if (failures.length) { console.error(failures.join('\n')); process.exit(1); }
 console.log(`SEO audit başarılı: ${htmlFiles.length} HTML, canonical, robots, H1, JSON-LD, internal link, sitemap ve RSS doğrulandı.`);
