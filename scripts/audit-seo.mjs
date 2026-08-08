@@ -4,6 +4,7 @@ import path from 'node:path';
 const root = process.cwd();
 const dist = path.join(root, 'dist');
 const origin = 'https://www.basriakkaya.com';
+const isPreviewBuild = process.env.VERCEL_ENV === 'preview';
 const failures = [];
 
 async function walk(directory) {
@@ -65,7 +66,8 @@ for (const file of htmlFiles) {
     if (seenTitles.has(title)) failures.push(`${route}: duplicate title (${seenTitles.get(title)})`); else seenTitles.set(title, route);
     if (seenDescriptions.has(description)) failures.push(`${route}: duplicate description (${seenDescriptions.get(description)})`); else seenDescriptions.set(description, route);
   }
-  if (route === '/404' ? !robots.includes('noindex') : !robots.includes('index')) failures.push(`${route}: robots meta yanlış (${robots})`);
+  const shouldNoindex = route === '/404' || isPreviewBuild;
+  if (shouldNoindex ? !robots.includes('noindex') : !robots.includes('index')) failures.push(`${route}: robots meta yanlış (${robots})`);
   const h1Count = (html.match(/<h1(?:\s|>)/g) ?? []).length;
   if (h1Count !== 1) failures.push(`${route}: H1 sayısı ${h1Count}`);
   for (const match of html.matchAll(/<script[^>]+type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g)) {
@@ -110,7 +112,10 @@ if (/localhost|\.vercel\.app|\/404|\/rss\.xml|\/robots\.txt|linux-terminalinde|\
 for (const match of sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)) if (!match[1].startsWith(origin)) failures.push(`Sitemap production dışı URL: ${match[1]}`);
 
 const robots = await readFile(path.join(dist, 'robots.txt'), 'utf8').catch(() => '');
-for (const line of ['User-agent: OAI-SearchBot', 'Allow: /', 'User-agent: GPTBot', 'Disallow: /', `Sitemap: ${origin}/sitemap-index.xml`]) if (!robots.includes(line)) failures.push(`robots.txt eksik: ${line}`);
+const expectedRobotsLines = isPreviewBuild
+  ? ['User-agent: *', 'Disallow: /', `Sitemap: ${origin}/sitemap-index.xml`]
+  : ['User-agent: OAI-SearchBot', 'Allow: /', 'User-agent: GPTBot', 'Disallow: /', `Sitemap: ${origin}/sitemap-index.xml`];
+for (const line of expectedRobotsLines) if (!robots.includes(line)) failures.push(`robots.txt eksik: ${line}`);
 
 if (failures.length) { console.error(failures.join('\n')); process.exit(1); }
 console.log(`SEO audit başarılı: ${htmlFiles.length} HTML, canonical, robots, H1, JSON-LD, internal link, sitemap ve RSS doğrulandı.`);

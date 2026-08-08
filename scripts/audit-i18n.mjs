@@ -3,6 +3,7 @@ import path from 'node:path';
 
 const dist = path.join(process.cwd(), 'dist');
 const origin = 'https://www.basriakkaya.com';
+const isPreviewBuild = process.env.VERCEL_ENV === 'preview';
 const failures = [];
 const exists = async (file) => { try { await access(file); return true; } catch { return false; } };
 async function walk(directory) { const files = []; for (const name of await readdir(directory)) { const item = path.join(directory, name); (await stat(item)).isDirectory() ? files.push(...await walk(item)) : files.push(item); } return files; }
@@ -40,7 +41,7 @@ for (const [route, page] of pages) {
       try { target = new URL(href); } catch { failures.push(`${route}: geçersiz hreflang URL (${href})`); continue; }
       const targetRoute = normalizeRoute(target.pathname);
       const targetPage = pages.get(targetRoute);
-      if (target.origin !== origin || !targetPage || targetPage.robots.includes('noindex')) { failures.push(`${route}: geçersiz/indexlenemez hreflang hedefi ${href}`); continue; }
+      if (target.origin !== origin || !targetPage || (!isPreviewBuild && targetPage.robots.includes('noindex'))) { failures.push(`${route}: geçersiz/indexlenemez hreflang hedefi ${href}`); continue; }
       if (locale === 'x-default') continue;
       const reciprocal = targetPage.alternates.get(expectedLang);
       if (!reciprocal || normalizeRoute(new URL(reciprocal).pathname) !== route) failures.push(`${route}: ${targetRoute} ile hreflang karşılıklılığı eksik`);
