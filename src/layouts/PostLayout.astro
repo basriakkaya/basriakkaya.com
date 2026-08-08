@@ -12,31 +12,42 @@ import ReadingProgress from '../components/ReadingProgress.astro';
 import SeriesNavigation from '../components/SeriesNavigation.astro';
 import RelatedPosts from '../components/RelatedPosts.astro';
 import type { MarkdownHeading } from 'astro';
-import { getCategory } from '../config/categories';
+import { getLocalizedCategory } from '../config/categories';
 import { getRelatedPosts, getSeriesContext } from '../lib/posts';
 import { getCategoryLinkTitle, getNavigationLinkTitle, getSeriesLinkTitle } from '../lib/linkTitles';
+import { articleRoute, categoryRoute, route, seriesRoute } from '../i18n/routes';
+import { getLocalizedSeries } from '../config/series';
+import { formatDate, alternateLinks } from '../i18n/helpers';
+import { getTranslation } from '../lib/posts';
 
 interface Props { post: BlogPost; headings: MarkdownHeading[] }
 const { post, headings } = Astro.props;
 const { title, description, publishedAt, updatedAt, tags, cover } = post.data;
 const slug = postSlug(post);
-const category = getCategory(post.data.category);
+const locale = post.data.lang;
+const category = getLocalizedCategory(post.data.category, locale);
+const localizedSeries = post.data.series ? getLocalizedSeries(post.data.series, locale) : undefined;
 const seriesContext = await getSeriesContext(post);
 const related = await getRelatedPosts(post, [seriesContext?.previous, seriesContext?.next].filter(Boolean) as BlogPost[]);
-const postUrl = absoluteUrl(`/yazilar/${slug}`);
-const format = (date: Date) => date.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+const postPath = articleRoute(locale, slug);
+const postUrl = absoluteUrl(postPath);
+const format = (date: Date) => formatDate(date, locale);
+const counterpart = await getTranslation(post, locale === 'tr' ? 'en' : 'tr');
+const counterpartPath = counterpart ? articleRoute(counterpart.data.lang, postSlug(counterpart)) : undefined;
+const switchPath = counterpartPath ?? route(locale === 'tr' ? 'en' : 'tr', 'articles');
+const alternates = counterpartPath ? alternateLinks(locale === 'tr' ? postPath : counterpartPath, locale === 'en' ? postPath : counterpartPath) : [];
 const posting: Record<string, unknown> = {
   '@type': 'BlogPosting', headline: title, description, url: postUrl,
   mainEntityOfPage: { '@type': 'WebPage', '@id': postUrl },
   datePublished: publishedAt.toISOString(), dateModified: (updatedAt ?? publishedAt).toISOString(),
   author: { '@id': `${absoluteUrl('/')}#person` }, publisher: { '@id': `${absoluteUrl('/')}#person` },
-  inLanguage: siteConfig.locale, keywords: tags.join(', '), articleSection: category.name,
+  inLanguage: locale === 'tr' ? 'tr-TR' : 'en-US', keywords: tags.join(', '), articleSection: category.name,
 };
 posting.image = absoluteUrl(cover ?? siteConfig.defaultImage);
-if (post.data.series && seriesContext?.metadata) posting.isPartOf = { '@type': 'CreativeWorkSeries', name: seriesContext.metadata.title, url: absoluteUrl(`/yazilar/seri/${post.data.series}`) };
+if (post.data.series && localizedSeries) posting.isPartOf = { '@type': 'CreativeWorkSeries', name: localizedSeries.title, url: absoluteUrl(seriesRoute(locale, localizedSeries.slug)) };
 const breadcrumbItems = seriesContext?.metadata
-  ? [{ name: 'Ana Sayfa', path: '/' }, { name: 'Yazılar', path: '/yazilar' }, { name: seriesContext.metadata.title, path: `/yazilar/seri/${post.data.series}` }, { name: title, path: `/yazilar/${slug}` }]
-  : [{ name: 'Ana Sayfa', path: '/' }, { name: 'Yazılar', path: '/yazilar' }, { name: category.name, path: `/yazilar/kategori/${post.data.category}` }, { name: title, path: `/yazilar/${slug}` }];
+  ? [{ name: locale === 'tr' ? 'Ana Sayfa' : 'Home', path: route(locale, 'home') }, { name: locale === 'tr' ? 'Yazılar' : 'Articles', path: route(locale, 'articles') }, { name: localizedSeries!.title, path: seriesRoute(locale, localizedSeries!.slug) }, { name: title, path: postPath }]
+  : [{ name: locale === 'tr' ? 'Ana Sayfa' : 'Home', path: route(locale, 'home') }, { name: locale === 'tr' ? 'Yazılar' : 'Articles', path: route(locale, 'articles') }, { name: category.name, path: categoryRoute(locale, category.slug) }, { name: title, path: postPath }];
 const jsonLd = schemaGraph([
   personSchema,
   posting,
@@ -44,21 +55,21 @@ const jsonLd = schemaGraph([
 ]);
 const visibleBreadcrumbs = breadcrumbItems.map((item, index) => ({ name: item.name, href: index < breadcrumbItems.length - 1 ? item.path : undefined }));
 ---
-<BaseLayout title={title} description={description} type="article" image={cover} jsonLd={jsonLd}>
+<BaseLayout title={title} description={description} type="article" image={cover} jsonLd={jsonLd} locale={locale} canonicalPath={postPath} switchPath={switchPath} alternates={alternates}>
   <article class:list={['article', 'shell', { 'has-toc': post.data.toc && headings.filter(({ depth }) => depth === 2 || depth === 3).length >= 2 }]} data-article-shell>
     <ReadingProgress />
     <header class="article-header">
       <Breadcrumbs items={visibleBreadcrumbs} />
-      <div class="article-taxonomy"><a href={`/yazilar/kategori/${post.data.category}`} title={getCategoryLinkTitle(category.name)}>{category.name}</a>{seriesContext?.metadata && <a href={`/yazilar/seri/${post.data.series}`} title={getSeriesLinkTitle(seriesContext.metadata.title)}>{seriesContext.metadata.title} · Bölüm {seriesContext.index + 1} / {seriesContext.posts.length}</a>}</div>
+      <div class="article-taxonomy"><a href={categoryRoute(locale, category.slug)} title={getCategoryLinkTitle(category.name)}>{category.name}</a>{localizedSeries && seriesContext && <a href={seriesRoute(locale, localizedSeries.slug)} title={getSeriesLinkTitle(localizedSeries.title)}>{localizedSeries.title} · {locale === 'tr' ? 'Bölüm' : 'Part'} {seriesContext.index + 1} / {seriesContext.posts.length}</a>}</div>
       <h1>{title}</h1><p class="lead">{description}</p>
       <div class="article-meta"><span>Yazar: {siteConfig.name}</span><span>·</span><time datetime={publishedAt.toISOString()}>{format(publishedAt)}</time><span>·</span><span>{readingTime(post.body ?? '')}</span>{updatedAt && <span>Güncellendi: <time datetime={updatedAt.toISOString()}>{format(updatedAt)}</time></span>}</div>
       <ul class="tag-list" aria-label="Etiketler">{tags.map((tag) => <li>{tag}</li>)}</ul>
       {post.data.toc && <ArticleTableOfContents headings={headings} mode="mobile" />}
     </header>
     <div class="article-layout">
-      <div class="article-main"><div class="prose" data-article-body><slot /></div><PostReactions slug={slug} />
+      <div class="article-main"><div class="prose" data-article-body><slot /></div><PostReactions slug={slug} locale={locale} />
         {post.data.series && seriesContext?.metadata && <SeriesNavigation slug={post.data.series as any} current={post} posts={seriesContext.posts} index={seriesContext.index} previous={seriesContext.previous} next={seriesContext.next} />}
-        <RelatedPosts posts={related} /><a class="back-link article-end-link" href="/yazilar" title={getNavigationLinkTitle('articles')}>← Yazılara dön</a>
+        <RelatedPosts posts={related} /><a class="back-link article-end-link" href={route(locale, 'articles')} title={getNavigationLinkTitle('articles')}>← {locale === 'tr' ? 'Yazılara dön' : 'Back to articles'}</a>
       </div>
       {post.data.toc && <ArticleTableOfContents headings={headings} mode="desktop" />}
     </div>

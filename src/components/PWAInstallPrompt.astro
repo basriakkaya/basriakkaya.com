@@ -1,13 +1,16 @@
+---
+const { locale = 'tr' } = Astro.props as { locale?: 'tr' | 'en' };
+---
 <div class="pwa-install" data-pwa-install hidden>
   <p><span aria-hidden="true">$</span> install_app</p>
-  <button type="button" class="pwa-utility-button" data-pwa-install-trigger>Uygulamayı Yükle</button>
+  <button type="button" class="pwa-utility-button" data-pwa-install-trigger>{locale === 'tr' ? 'Uygulamayı Yükle' : 'Install app'}</button>
 </div>
 
 <dialog class="pwa-ios-dialog" data-pwa-ios-dialog aria-labelledby="pwa-ios-title">
-  <div class="pwa-ios-header"><p>$ install_ios</p><button type="button" data-pwa-ios-close aria-label="Kurulum yönergesini kapat">×</button></div>
+  <div class="pwa-ios-header"><p>$ install_ios</p><button type="button" data-pwa-ios-close aria-label={locale === 'tr' ? 'Kurulum yönergesini kapat' : 'Close installation instructions'}>×</button></div>
   <div class="pwa-ios-body">
-    <h2 id="pwa-ios-title">Ana ekrana ekle</h2>
-    <ol><li>Paylaş simgesine dokun.</li><li>“Ana Ekrana Ekle” seçeneğini seç.</li><li>Sağ üstteki “Ekle” düğmesine dokun.</li></ol>
+    <h2 id="pwa-ios-title">{locale === 'tr' ? 'Ana ekrana ekle' : 'Add to Home Screen'}</h2>
+    {locale === 'tr' ? <ol><li>Paylaş simgesine dokun.</li><li>“Ana Ekrana Ekle” seçeneğini seç.</li><li>Sağ üstteki “Ekle” düğmesine dokun.</li></ol> : <ol><li>Tap the Share icon.</li><li>Select “Add to Home Screen”.</li><li>Tap “Add” in the top-right corner.</li></ol>}
   </div>
 </dialog>
 

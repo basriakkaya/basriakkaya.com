@@ -1,36 +1,34 @@
 ---
 import { siteConfig } from '../config/site';
 import { getExternalProfileLinkTitle, getNavigationLinkTitle, type NavigationLinkType } from '../lib/linkTitles';
+import type { Locale } from '../i18n/config';
+import { route } from '../i18n/routes';
+import { t } from '../i18n/translations';
+import LanguageSwitcher from './LanguageSwitcher.astro';
 
+const { locale = 'tr', switchPath } = Astro.props as { locale?: Locale; switchPath: string };
+const copy = t(locale);
 const pathname = Astro.url.pathname;
 const nav = [
-  { href: '/', label: 'Ana Sayfa', titleType: 'home' },
-  { href: '/yazilar', label: 'Yazılar', titleType: 'articles' },
-  { href: '/ben-kimim', label: 'Ben Kimim', titleType: 'about' },
+  { href: route(locale, 'home'), label: copy.home, titleType: 'home' },
+  { href: route(locale, 'articles'), label: copy.articles, titleType: 'articles' },
+  { href: route(locale, 'about'), label: copy.about, titleType: 'about' },
 ] satisfies Array<{ href: string; label: string; titleType: NavigationLinkType }>;
-const isCurrent = (href: string) => href === '/' ? pathname === '/' : pathname.startsWith(href);
+const isCurrent = (href: string) => href === '/' || href === '/en' ? pathname === href : pathname.startsWith(href);
 ---
-
 <header class="site-header">
   <div class="shell nav-wrap">
-    <a class="brand" href="/" title={getNavigationLinkTitle('home')}><img class="brand-logo" src="/favicon.svg" width="32" height="32" alt="" aria-hidden="true" /><span>Basri Akkaya</span></a>
-    <button class="menu-button" type="button" aria-expanded="false" aria-controls="site-menu">
-      <span class="sr-only">Menüyü aç veya kapat</span>
-      <svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
-    </button>
-    <nav id="site-menu" class="site-nav" aria-label="Ana navigasyon">
+    <a class="brand" href={route(locale, 'home')} title={getNavigationLinkTitle('home')}><img class="brand-logo" src="/favicon.svg" width="32" height="32" alt="" aria-hidden="true" /><span>Basri Akkaya</span></a>
+    <button class="menu-button" type="button" aria-expanded="false" aria-controls="site-menu"><span class="sr-only">{copy.menu}</span><svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22"><path d="M4 7h16M4 12h16M4 17h16" /></svg></button>
+    <nav id="site-menu" class="site-nav" aria-label={copy.navLabel}>
       {nav.map(({ href, label, titleType }) => <a href={href} title={getNavigationLinkTitle(titleType)} aria-current={isCurrent(href) ? 'page' : undefined}>{label}</a>)}
-      <a class="nav-external" href={siteConfig.linkedin} title={getExternalProfileLinkTitle('LinkedIn')} target="_blank" rel="noopener noreferrer">LinkedIn <span aria-hidden="true">↗</span><span class="sr-only"> (yeni sekmede açılır)</span></a>
+      <a class="nav-external" href={siteConfig.linkedin} title={getExternalProfileLinkTitle('LinkedIn')} target="_blank" rel="noopener noreferrer">LinkedIn <span aria-hidden="true">↗</span><span class="sr-only">{copy.newTab}</span></a>
     </nav>
+    <LanguageSwitcher locale={locale} href={switchPath} />
   </div>
 </header>
-
 <script>
   const button = document.querySelector<HTMLButtonElement>('.menu-button');
   const menu = document.querySelector<HTMLElement>('#site-menu');
-  button?.addEventListener('click', () => {
-    const open = button.getAttribute('aria-expanded') === 'true';
-    button.setAttribute('aria-expanded', String(!open));
-    menu?.classList.toggle('is-open', !open);
-  });
+  button?.addEventListener('click', () => { const open = button.getAttribute('aria-expanded') === 'true'; button.setAttribute('aria-expanded', String(!open)); menu?.classList.toggle('is-open', !open); });
 </script>

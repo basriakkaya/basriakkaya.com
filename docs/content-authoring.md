@@ -14,6 +14,15 @@ toc: true
 ---
 ```
 
+Türkçe varsayılan dildir. İngilizce içerik için `lang: en` ekleyin. Aynı yazının iki dildeki sürümlerini stabil, slug'dan bağımsız bir `translationKey` ile eşleyin:
+
+```yaml
+lang: en
+translationKey: tcp-udp-basics
+```
+
+İngilizce yazılar `/en/articles/<slug>` altında yayınlanır. Bir locale içinde aynı `translationKey` tekrarlanamaz; çevrilmemiş bir yazıya dil seçici üzerinden sahte eş bağlantı üretilmez.
+
 ## Yeni kategori ekleme
 
 Önce `src/config/categories.ts` registry'sine lowercase ASCII ve tireli bir slug ile ad ve açıklama ekle. Ardından yazının `category` alanında bu slug'ı kullan.
@@ -55,6 +64,7 @@ npm run build
 npm run audit:content
 npm run audit:seo
 npm run audit:security
+npm run audit:i18n
 ```
 
 Kontroller başarılıysa anlamlı bir commit oluşturup uygun feature branch'i push et.

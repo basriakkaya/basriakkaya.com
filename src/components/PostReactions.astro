@@ -1,6 +1,7 @@
 ---
-interface Props { slug: string }
-const { slug } = Astro.props;
+interface Props { slug: string; locale?: 'tr' | 'en' }
+const { slug, locale = 'tr' } = Astro.props;
+const storageKey = locale === 'tr' ? `basri:post-reaction:${slug}` : `basri:post-reaction:en:${slug}`;
 const reactions = [
   { value: 'recon', name: 'RECON', short: 'Yeni bir şey öğrendim.', detail: 'Bu yazı bana yeni bir bilgi veya bakış açısı kazandırdı.' },
   { value: 'patch', name: 'PATCH', short: 'Pratikte işime yaradı.', detail: 'Bu yazı bir problemi çözmeme veya konuyu daha iyi anlamama yardımcı oldu.' },
@@ -8,7 +9,7 @@ const reactions = [
 ] as const;
 ---
 
-<section class="post-reactions" aria-labelledby={`reaction-title-${slug}`} data-post-reactions data-storage-key={`basri:post-reaction:${slug}`}>
+<section class="post-reactions" aria-labelledby={`reaction-title-${slug}`} data-post-reactions data-storage-key={storageKey}>
   <p class="reaction-command">$ leave_reaction --one</p>
   <h2 id={`reaction-title-${slug}`}>Bu yazı sende ne bıraktı?</h2>
   <p class="reaction-intro">Bir reaction seç. Kararını daha sonra değiştirebilirsin.</p>

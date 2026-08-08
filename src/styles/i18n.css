@@ -1,0 +1,4 @@
+.language-switcher { flex: 0 0 auto; }
+.language-switcher a { min-height: 40px; display: inline-flex; align-items: center; padding: 7px 10px; color: var(--accent-2); border: 1px solid var(--border); border-radius: 6px; font: 700 .78rem ui-monospace, monospace; }
+.language-switcher a:hover { color: var(--text); border-color: #3d5065; }
+@media (max-width: 760px) { .nav-wrap { gap: 10px; } .nav-wrap > .language-switcher { margin-left: auto; } .brand span { display: none; } }

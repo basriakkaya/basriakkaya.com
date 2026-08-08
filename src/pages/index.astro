@@ -7,6 +7,7 @@ import { getPublishedPosts } from '../lib/posts';
 import { siteConfig, absoluteUrl } from '../config/site';
 import { personSchema, schemaGraph } from '../lib/schema';
 import { getExternalProfileLinkTitle, getNavigationLinkTitle } from '../lib/linkTitles';
+import { alternateLinks } from '../i18n/helpers';
 
 const posts = (await getPublishedPosts()).slice(0, 3);
 const jsonLd = schemaGraph([
@@ -14,7 +15,7 @@ const jsonLd = schemaGraph([
   { '@type': 'WebSite', '@id': `${absoluteUrl('/')}#website`, name: siteConfig.name, alternateName: ['Basri Akkaya Blog', 'Basri Akkaya Cybersecurity'], url: absoluteUrl('/'), description: siteConfig.description, inLanguage: siteConfig.locale, publisher: { '@id': `${absoluteUrl('/')}#person` } },
 ]);
 ---
-<BaseLayout jsonLd={jsonLd}>
+<BaseLayout jsonLd={jsonLd} alternates={alternateLinks('/', '/en')} switchPath="/en">
   <div class="shell home-hero"><TerminalHero /></div>
 
   <section class="section shell about-grid" aria-labelledby="about-title">

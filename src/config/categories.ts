@@ -9,3 +9,14 @@ export const categories = {
 export type CategorySlug = keyof typeof categories;
 export const categoryEntries = Object.entries(categories) as Array<[CategorySlug, (typeof categories)[CategorySlug]]>;
 export const getCategory = (slug: string) => categories[slug as CategorySlug];
+
+export const categoryTranslations: Record<CategorySlug, { name: string; description: string; slug: string }> = {
+  'web-guvenligi': { name: 'Web Security', description: 'Technical articles on web application security, vulnerability classes, authorization controls, and responsible disclosure.', slug: 'web-security' },
+  'ag-ve-linux': { name: 'Networking and Linux', description: 'Technical articles on networking fundamentals, protocols, Linux systems, service analysis, and terminal practices.', slug: 'networking-and-linux' },
+  'guvenlik-arastirmalari': { name: 'Security Research', description: 'Research on CVEs, vulnerability analysis, technical reporting, and coordinated disclosure.', slug: 'security-research' },
+  'arac-gelistirme': { name: 'Tool Development', description: 'Technical notes on security tools, automation, Python, Rust, JavaScript, and product development.', slug: 'tool-development' },
+  'kisisel-notlar': { name: 'Personal Notes', description: 'Personal notes on learning, career, making things, and the cybersecurity journey.', slug: 'personal-notes' },
+};
+
+export const getLocalizedCategory = (key: string, locale: 'tr' | 'en') => locale === 'tr' ? { ...getCategory(key), slug: key } : categoryTranslations[key as CategorySlug];
+export const categoryKeyFromSlug = (slug: string, locale: 'tr' | 'en') => locale === 'tr' ? (slug as CategorySlug) : categoryEntries.find(([key]) => categoryTranslations[key].slug === slug)?.[0];

@@ -21,6 +21,9 @@ for (const file of files) {
   const prose = body.replace(/```[\s\S]*?```/g, '');
   const slug = file.replace(/\.mdx?$/, '');
   posts.push({ file, slug, data, body });
+  const lang = data.lang ?? 'tr';
+  if (!['tr', 'en'].includes(lang)) errors.push(`${file}: desteklenmeyen lang '${lang}'`);
+  if (data.translationKey && !slugPattern.test(data.translationKey)) errors.push(`${file}: translationKey lowercase ASCII ve tireli olmalı`);
   if (!data.draft && !data.category) errors.push(`${file}: yayınlanmış yazıda category zorunlu`);
   if (data.category && !categories[data.category]) errors.push(`${file}: geçersiz category '${data.category}'`);
   if (data.category && !slugPattern.test(data.category)) errors.push(`${file}: category slug lowercase ASCII ve tireli olmalı`);
@@ -46,6 +49,11 @@ for (const file of files) {
 for (const post of posts) {
   if (posts.some((other) => other.file !== post.file && other.data.description === post.data.description)) errors.push(`${post.file}: description başka yazıyla aynı`);
   if (post.data.series && posts.some((other) => other.file !== post.file && !other.data.draft && other.data.series === post.data.series && other.data.seriesOrder === post.data.seriesOrder)) errors.push(`${post.file}: aynı seride duplicate seriesOrder`);
+}
+for (const post of posts) {
+  if (!post.data.translationKey) continue;
+  const lang = post.data.lang ?? 'tr';
+  if (posts.some((other) => other.file !== post.file && !other.data.draft && (other.data.lang ?? 'tr') === lang && other.data.translationKey === post.data.translationKey)) errors.push(`${post.file}: aynı locale içinde duplicate translationKey`);
 }
 const categorySlugs = Object.keys(categories);
 const seriesSlugs = Object.keys(seriesRegistry);
