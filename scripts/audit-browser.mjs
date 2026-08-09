@@ -131,14 +131,34 @@ const adminLayoutResults = [];
 for (const width of viewports) {
   await send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: width < 768 });
   await navigate('/admin');
-  adminLayoutResults.push(await evaluate(`(() => {
+  adminLayoutResults.push(await evaluate(`(async () => {
+    const gate = document.querySelector('[data-session-gate]');
+    const frame = document.querySelector('.ops-frame');
+    const sessionButton = document.querySelector('[data-session-enter]');
+    const gateVisible = getComputedStyle(gate).display !== 'none';
+    const frameHidden = getComputedStyle(frame).display === 'none';
+    const gateOverflow = document.documentElement.scrollWidth > document.documentElement.clientWidth;
+    const gateTouchHeight = sessionButton.getBoundingClientRect().height;
+
+    sessionButton.focus();
+    sessionButton.click();
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
     const buttons = [...document.querySelectorAll('[data-ops-target]')];
     return {
       width: ${width},
-      overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+      gateVisible,
+      frameHidden,
+      gateOverflow,
+      gateTouchHeight,
+      gateHidden: getComputedStyle(gate).display === 'none',
+      frameVisible: getComputedStyle(frame).display !== 'none',
+      consoleOverflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
       minTouchHeight: Math.min(...buttons.map((button) => button.getBoundingClientRect().height)),
       overviewVisible: !document.querySelector('[data-ops-view="overview"]').hidden,
-      hiddenViews: [...document.querySelectorAll('[data-ops-view][hidden]')].length
+      hiddenViews: [...document.querySelectorAll('[data-ops-view][hidden]')].length,
+      focusTransferred: document.activeElement === buttons[0],
+      granted: document.documentElement.dataset.opsAccess === 'granted'
     };
   })()`));
 }
@@ -146,8 +166,15 @@ for (const width of viewports) {
 await send('Emulation.setScriptExecutionDisabled', { value: true });
 await navigate('/admin');
 const adminWithoutJs = await evaluate(`(() => {
+  const gate = document.querySelector('[data-session-gate]');
+  const frame = document.querySelector('.ops-frame');
   const overview = document.querySelector('[data-ops-view="overview"]');
-  return { overviewVisible: overview && !overview.hidden && getComputedStyle(overview).display !== 'none', text: overview?.innerText.includes('THREAT LEVEL:') };
+  return {
+    gateHidden: gate && getComputedStyle(gate).display === 'none',
+    frameVisible: frame && getComputedStyle(frame).display !== 'none',
+    overviewVisible: overview && !overview.hidden && getComputedStyle(overview).display !== 'none',
+    text: overview?.innerText.includes('THREAT LEVEL:')
+  };
 })()`);
 await send('Emulation.setScriptExecutionDisabled', { value: false });
 
@@ -158,11 +185,21 @@ await new Promise((resolve) => setTimeout(resolve, 50));
 const adminLoadRequests = networkRequests.slice(adminLoadStart);
 const adminInteractionStart = networkRequests.length;
 const adminInteraction = await evaluate(`(async () => {
+  const gate = document.querySelector('[data-session-gate]');
+  const frame = document.querySelector('.ops-frame');
+  const sessionButton = document.querySelector('[data-session-enter]');
   const access = document.querySelector('[data-ops-target="access"]');
   const systems = document.querySelector('[data-ops-target="systems"]');
   const overview = document.querySelector('[data-ops-target="overview"]');
   const nodeCheck = document.querySelector('[data-node-check]');
   const integrityCheck = document.querySelector('[data-integrity-check]');
+
+  sessionButton.focus(); sessionButton.click();
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  const sessionOpened = document.documentElement.dataset.opsAccess === 'granted'
+    && getComputedStyle(gate).display === 'none'
+    && getComputedStyle(frame).display !== 'none';
+  const sessionFocus = document.activeElement === overview;
 
   access.focus(); access.click();
   const accessVisible = !document.querySelector('[data-ops-view="access"]').hidden && access.getAttribute('aria-pressed') === 'true';
@@ -183,6 +220,8 @@ const adminInteraction = await evaluate(`(async () => {
   const integrityCheckFocus = document.activeElement === integrityCheck;
   await new Promise((resolve) => setTimeout(resolve, 1250));
   return {
+    sessionOpened,
+    sessionFocus,
     accessVisible,
     systemsVisible,
     overviewVisible,
@@ -192,6 +231,13 @@ const adminInteraction = await evaluate(`(async () => {
   };
 })()`);
 const adminInteractionRequests = networkRequests.slice(adminInteractionStart);
+await navigate('/admin');
+await new Promise((resolve) => setTimeout(resolve, 50));
+const adminReloadState = await evaluate(`(() => ({
+  pending: document.documentElement.dataset.opsAccess === 'pending',
+  gateVisible: getComputedStyle(document.querySelector('[data-session-gate]')).display !== 'none',
+  frameHidden: getComputedStyle(document.querySelector('.ops-frame')).display === 'none'
+}))()`);
 const baseOrigin = new URL(baseUrl).origin;
 const invalidAdminLoadRequests = adminLoadRequests.filter((requestUrl) => {
   const parsed = new URL(requestUrl);
@@ -207,16 +253,20 @@ const failures = [
   ...consoleErrors.map((error) => `Console: ${error}`),
   ...networkErrors.map((error) => `Network: ${error}`),
   ...Object.entries(links).filter(([name, passed]) => name === 'exposedEmailText' ? passed : !passed).map(([name]) => `${name} başarısız`),
-  ...adminLayoutResults.filter((result) => result.overflow).map((result) => `/admin ${result.width}px yatay taşma`),
+  ...adminLayoutResults.filter((result) => result.gateOverflow).map((result) => `/admin ${result.width}px gate yatay taşma`),
+  ...adminLayoutResults.filter((result) => result.consoleOverflow).map((result) => `/admin ${result.width}px console yatay taşma`),
+  ...adminLayoutResults.filter((result) => result.gateTouchHeight < 44).map((result) => `/admin ${result.width}px gate touch target ${result.gateTouchHeight}`),
   ...adminLayoutResults.filter((result) => result.minTouchHeight < 44).map((result) => `/admin ${result.width}px touch target ${result.minTouchHeight}`),
-  ...adminLayoutResults.filter((result) => !result.overviewVisible || result.hiddenViews !== 2).map((result) => `/admin ${result.width}px initial panel state yanlış`),
+  ...adminLayoutResults.filter((result) => !result.gateVisible || !result.frameHidden).map((result) => `/admin ${result.width}px initial gate state yanlış`),
+  ...adminLayoutResults.filter((result) => !result.gateHidden || !result.frameVisible || !result.granted || !result.focusTransferred || !result.overviewVisible || result.hiddenViews !== 2).map((result) => `/admin ${result.width}px granted panel state yanlış`),
   ...Object.entries(adminWithoutJs).filter(([, passed]) => !passed).map(([name]) => `/admin JavaScript-off ${name} başarısız`),
   ...Object.entries(adminInteraction).filter(([, passed]) => !passed).map(([name]) => `/admin ${name} başarısız`),
+  ...Object.entries(adminReloadState).filter(([, passed]) => !passed).map(([name]) => `/admin reload ${name} başarısız`),
   ...invalidAdminLoadRequests.map((url) => `/admin izin verilmeyen load request: ${url}`),
   ...adminInteractionRequests.map((url) => `/admin interaction sonrası request: ${url}`),
 ];
 
-console.log(JSON.stringify({ baseUrl, layoutResults, interactions, statuses, links, adminLayoutResults, adminWithoutJs, adminInteraction, adminLoadRequests, adminInteractionRequests, consoleErrors, networkErrors }, null, 2));
+console.log(JSON.stringify({ baseUrl, layoutResults, interactions, statuses, links, adminLayoutResults, adminWithoutJs, adminInteraction, adminReloadState, adminLoadRequests, adminInteractionRequests, consoleErrors, networkErrors }, null, 2));
 if (failures.length) {
   console.error(`Tarayıcı denetimi başarısız:\n- ${failures.join('\n- ')}`);
   process.exitCode = 1;

@@ -3,13 +3,14 @@ import '../styles/global.css';
 import '../styles/operations-console.css';
 ---
 <!doctype html>
-<html lang="en">
+<html lang="en" data-ops-access="pending">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex" />
     <title>Restricted Operations Console</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <noscript><style>html[data-ops-access="pending"] .ops-access-gate{display:none!important}html[data-ops-access="pending"] .ops-frame,html[data-ops-access="pending"] .skip-link{display:block!important}</style></noscript>
   </head>
   <body class="ops-body">
     <a class="skip-link" href="#ops-main">Skip to console</a>

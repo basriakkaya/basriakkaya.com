@@ -1,5 +1,18 @@
 const navButtons = [...document.querySelectorAll<HTMLButtonElement>('[data-ops-target]')];
 const views = [...document.querySelectorAll<HTMLElement>('[data-ops-view]')];
+const sessionButton = document.querySelector<HTMLButtonElement>('[data-session-enter]');
+const sessionStatus = document.querySelector<HTMLElement>('[data-session-status]');
+
+sessionButton?.addEventListener('click', () => {
+  if (sessionButton.getAttribute('aria-disabled') === 'true') return;
+  sessionButton.setAttribute('aria-disabled', 'true');
+  if (sessionStatus) sessionStatus.textContent = 'AUTHORIZATION ACCEPTED // OPENING';
+  window.setTimeout(() => {
+    document.documentElement.dataset.opsAccess = 'granted';
+    sessionButton.removeAttribute('aria-disabled');
+    navButtons[0]?.focus();
+  }, 420);
+});
 
 for (const button of navButtons) {
   button.addEventListener('click', () => {

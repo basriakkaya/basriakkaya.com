@@ -26,6 +26,137 @@
 .ops-body button {
   font: inherit;
 }
+.ops-access-gate {
+  display: none;
+  min-height: 100vh;
+  min-height: 100svh;
+  place-items: center;
+  padding: clamp(16px, 4vw, 48px);
+}
+html[data-ops-access="pending"] .ops-access-gate {
+  display: grid;
+}
+html[data-ops-access="pending"] .ops-frame,
+html[data-ops-access="pending"] .skip-link {
+  display: none;
+}
+.ops-gate-shell {
+  width: min(100%, 640px);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  border: 1px solid var(--border);
+  box-shadow: 0 28px 90px rgb(0 0 0 / 42%);
+}
+.ops-gate-header {
+  min-height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+  padding: 15px 18px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+}
+.ops-gate-header > p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+.ops-gate-panel {
+  display: grid;
+  gap: 22px;
+  padding: clamp(24px, 5vw, 42px);
+}
+.ops-gate-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 22px;
+  padding-bottom: 19px;
+  border-bottom: 1px solid var(--border);
+}
+.ops-gate-heading p {
+  margin: 0 0 8px;
+  color: var(--accent);
+  font-size: 0.74rem;
+}
+.ops-gate-heading h2 {
+  font-size: clamp(1.45rem, 5vw, 2.15rem);
+  letter-spacing: 0.035em;
+}
+.ops-gate-heading > span {
+  color: var(--danger);
+  font-size: 0.7rem;
+  letter-spacing: 0.07em;
+  text-align: right;
+}
+.ops-gate-lead {
+  max-width: 540px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.65;
+}
+.ops-gate-matrix {
+  display: grid;
+  margin: 0;
+  border: 1px solid var(--border);
+}
+.ops-gate-matrix div {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(100px, 0.7fr) minmax(0, 1.3fr);
+  gap: 14px;
+  padding: 11px 13px;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 65%, transparent);
+}
+.ops-gate-matrix div:last-child {
+  border: 0;
+}
+.ops-gate-matrix dt,
+.ops-gate-matrix dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: 0.72rem;
+}
+.ops-gate-matrix dt {
+  color: var(--muted);
+}
+.ops-gate-matrix dd {
+  color: var(--accent);
+  text-align: right;
+}
+.ops-gate-panel > button {
+  min-height: 48px;
+  padding: 10px 16px;
+  color: var(--bg);
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  cursor: pointer;
+  font-weight: 850;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+}
+.ops-gate-panel > button[aria-disabled="true"] {
+  cursor: wait;
+  opacity: 0.72;
+}
+.ops-gate-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+.ops-gate-footer > span {
+  color: var(--accent-2);
+}
+.ops-gate-footer p {
+  margin: 0;
+  text-align: right;
+}
 .ops-frame {
   width: min(100%, 1600px);
   min-height: 100vh;
@@ -612,6 +743,30 @@
   }
 }
 @media (max-width: 540px) {
+  .ops-access-gate {
+    padding: 10px;
+  }
+  .ops-gate-header,
+  .ops-gate-heading,
+  .ops-gate-footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .ops-gate-header,
+  .ops-gate-panel {
+    padding-inline: 16px;
+  }
+  .ops-gate-heading > span,
+  .ops-gate-footer p {
+    text-align: left;
+  }
+  .ops-gate-matrix div {
+    grid-template-columns: 1fr;
+    gap: 3px;
+  }
+  .ops-gate-matrix dd {
+    text-align: left;
+  }
   .ops-metrics {
     grid-template-columns: 1fr;
   }

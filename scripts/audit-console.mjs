@@ -105,7 +105,27 @@ if ((adminHtml.match(/<title>/gu) ?? []).length !== 1 || !adminHtml.includes('<t
 const robotsTags = adminHtml.match(/<meta\b[^>]+name="robots"[^>]*>/gu) ?? [];
 if (robotsTags.length !== 1 || !robotsTags[0].includes('content="noindex, nofollow, noarchive, nosnippet, noimageindex"')) failures.push('/admin robots meta yanlış veya duplicate');
 if ((adminHtml.match(/<h1(?:\s|>)/gu) ?? []).length !== 1) failures.push('/admin tek H1 içermeli');
-if (!adminHtml.includes('<html lang="en"')) failures.push('/admin html lang en değil');
+if (!/<html\b(?=[^>]*\blang="en")(?=[^>]*\bdata-ops-access="pending")[^>]*>/u.test(adminHtml)) failures.push('/admin html lang veya başlangıç erişim durumu yanlış');
+
+const sessionGateTags = adminHtml.match(/<section\b[^>]*\bdata-session-gate(?:="")?[^>]*>/gu) ?? [];
+const sessionButtonTags = adminHtml.match(/<button\b[^>]*\bdata-session-enter(?:="")?[^>]*>/gu) ?? [];
+const sessionStatusTags = adminHtml.match(/<span\b[^>]*\bdata-session-status(?:="")?[^>]*>/gu) ?? [];
+if (sessionGateTags.length !== 1 || !sessionGateTags[0].includes('aria-labelledby="ops-session-title"')) failures.push('/admin tek ve erişilebilir session gate içermeli');
+if (sessionButtonTags.length !== 1 || !sessionButtonTags[0].includes('type="button"') || !sessionButtonTags[0].includes('aria-controls="ops-console"') || !sessionButtonTags[0].includes('aria-describedby="ops-session-note"')) failures.push('/admin session gate tek native action button içermeli');
+if (!adminHtml.includes('<div id="ops-console" class="ops-frame">')) failures.push('/admin session gate action target eksik');
+if (sessionStatusTags.length !== 1 || !sessionStatusTags[0].includes('aria-live="polite"')) failures.push('/admin session gate canlı durum bildirimi içermeli');
+if (!/<noscript><style>[^<]*\.ops-access-gate\{display:none!important\}[^<]*\.ops-frame[^<]*\.skip-link\{display:block!important\}<\/style><\/noscript>/u.test(adminHtml)) failures.push('/admin JavaScript-off console fallback sözleşmesi eksik');
+
+for (const value of [
+  '$ operator_session --resume', 'PRIVILEGED SESSION', 'IDENTITY CHANNEL SEALED',
+  'AUTHORIZE SESSION', 'READY // LOCAL CHANNEL', 'VOLATILE SESSION', 'REMOTE EXCHANGE DISABLED',
+]) if (!adminHtml.includes(value)) failures.push(`/admin session gate sabit değeri eksik (${value})`);
+
+if (!/document\.documentElement\.dataset\.opsAccess\s*=\s*['"]granted['"]/u.test(executableText)) failures.push('/admin session gate yalnız DOM memory state ile açılmalı');
+if (!/sessionStatus\.textContent\s*=\s*['"]AUTHORIZATION ACCEPTED \/\/ OPENING['"]/u.test(executableText)) failures.push('/admin session gate geçiş durumu eksik');
+if (!/navButtons\[0\]\?\.focus\(\)/u.test(executableText)) failures.push('/admin session gate sonrası erişilebilir focus transferi eksik');
+if (!/html\[data-ops-access="pending"\]\s+\.ops-access-gate\s*\{[\s\S]*?display:\s*grid/u.test(routeCss)) failures.push('/admin pending session gate görünürlük stili eksik');
+if (!/html\[data-ops-access="pending"\]\s+\.ops-frame,\s*html\[data-ops-access="pending"\]\s+\.skip-link\s*\{[\s\S]*?display:\s*none/u.test(routeCss)) failures.push('/admin pending console gizleme stili eksik');
 
 const viewTag = (name) => adminHtml.match(new RegExp(`<section[^>]+data-ops-view="${name}"[^>]*>`, 'u'))?.[0] ?? '';
 if (!viewTag('overview') || /\shidden(?:\s|=|>)/u.test(viewTag('overview'))) failures.push('/admin JavaScript kapalıyken Overview görünür değil');

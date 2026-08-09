@@ -35,7 +35,33 @@ const systemRows = [
   ['TRACE-SINK', 'VOLATILE AUDIT', 'HEALTHY', '24 ms'],
 ];
 ---
-<div class="ops-frame">
+<h1 class="sr-only">Restricted Operations Console</h1>
+<section class="ops-access-gate" aria-labelledby="ops-session-title" data-session-gate>
+  <div class="ops-gate-shell">
+    <header class="ops-gate-header">
+      <div class="ops-identity"><span class="ops-mark" aria-hidden="true">B_</span><div><strong>BLACKSITE // CONTROL</strong><span>[RESTRICTED]</span></div></div>
+      <p>UTC 04:13:37 <span aria-hidden="true">·</span> NODE-7F</p>
+    </header>
+    <div class="ops-status-line" aria-hidden="true"><span></span><span></span><span></span></div>
+    <div class="ops-gate-panel">
+      <div class="ops-gate-heading">
+        <div><p>$ operator_session --resume</p><h2 id="ops-session-title">PRIVILEGED SESSION</h2></div>
+        <span>IDENTITY CHANNEL SEALED</span>
+      </div>
+      <p class="ops-gate-lead">A restricted operator session is available on this terminal. Confirm the sealed local channel to continue.</p>
+      <dl class="ops-gate-matrix">
+        <div><dt>OPERATOR</dt><dd>root@blacksite</dd></div>
+        <div><dt>SESSION</dt><dd>PRIVILEGED</dd></div>
+        <div><dt>CHALLENGE</dt><dd>OFFLINE // VERIFIED</dd></div>
+        <div><dt>UPLINK</dt><dd>DISABLED</dd></div>
+      </dl>
+      <button type="button" data-session-enter aria-controls="ops-console" aria-describedby="ops-session-note">AUTHORIZE SESSION</button>
+      <div class="ops-gate-footer"><span data-session-status aria-live="polite">READY // LOCAL CHANNEL</span><p id="ops-session-note">VOLATILE SESSION <span aria-hidden="true">·</span> REMOTE EXCHANGE DISABLED</p></div>
+    </div>
+  </div>
+</section>
+
+<div id="ops-console" class="ops-frame">
   <header class="ops-topbar">
     <div class="ops-identity"><span class="ops-mark" aria-hidden="true">B_</span><div><strong>BLACKSITE // CONTROL</strong><span>[RESTRICTED]</span></div></div>
     <p>UTC 04:13:37 <span aria-hidden="true">·</span> NODE-7F</p>
@@ -54,7 +80,6 @@ const systemRows = [
     </aside>
 
     <main id="ops-main" class="ops-main">
-      <h1 class="sr-only">Restricted Operations Console</h1>
       <section id="ops-overview" class="ops-view" data-ops-view="overview">
         <header class="ops-view-heading"><div><p>$ system_overview --live</p><h2>THREAT LEVEL: <span>ELEVATED</span></h2></div><span class="ops-mode">CONTROL ACTIVE</span></header>
         <div class="ops-metrics">
