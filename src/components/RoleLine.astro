@@ -1,0 +1,14 @@
+---
+interface Props {
+  prefix: string;
+  suffix: string;
+  hint: string;
+}
+
+const { prefix, suffix, hint } = Astro.props;
+const hintId = `role-reference-${Astro.currentLocale ?? 'tr'}`;
+---
+
+<p class="role">
+  {prefix}<span class="role-reference" tabindex="0" aria-describedby={hintId}>Just a Tech<span class="role-reference-hint" id={hintId} role="note">{hint}</span></span>{suffix}
+</p>

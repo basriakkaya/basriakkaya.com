@@ -1,13 +1,14 @@
 ---
 import { siteConfig } from '../config/site';
 import { getExternalProfileLinkTitle, getNavigationLinkTitle } from '../lib/linkTitles';
+import RoleLine from './RoleLine.astro';
 ---
 
 <section class="hero-simple" aria-labelledby="hero-title">
   <div class="hero-content">
     <p class="hero-kicker">Güvenlik Araştırmaları · Sorumlu Açıklama</p>
     <h1 id="hero-title">{siteConfig.name}</h1>
-    <p class="role">{siteConfig.headline}</p>
+    <RoleLine prefix="Etik Hacker | " suffix=" | Linux Tutkunu" hint="Mr. Robot göndermesi" />
     <p class="hero-motto">“{siteConfig.motto}”</p>
     <p class="hero-copy">{siteConfig.heroCopy}</p>
     <div class="actions">
