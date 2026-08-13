@@ -5,7 +5,7 @@ export const siteConfig = {
   name: 'Basri Akkaya',
   shortName: 'Basri',
   role: 'Bilgisayar Mühendisliği Öğrencisi ve Güvenlik Araştırmacısı',
-  headline: 'Etik Hacker | Ağ ve Web Sızma Testi Uzmanı | Linux Tutkunu',
+  headline: 'Etik Hacker | Just a Tech | Linux Tutkunu',
   motto: 'Siber güvenlik bir hobi değil, sorumluluktur.',
   email: 'real0kage@protonmail.com',
   linkedin: 'https://www.linkedin.com/in/basriakkaya/',
