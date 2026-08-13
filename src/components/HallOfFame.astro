@@ -1,0 +1,119 @@
+---
+import SectionHeading from './SectionHeading.astro';
+import { siteConfig } from '../config/site';
+
+const records = [
+  ...siteConfig.cves.map((item) => ({
+    category: 'cve',
+    label: 'CVE',
+    title: item.id,
+    description: 'Koordineli açıklama sürecinden geçen güvenlik araştırması kaydı.',
+    url: item.url,
+  })),
+  ...siteConfig.achievements.map((item) => ({
+    category: item.title.includes('CTF') ? 'ctf' : 'hof',
+    label: item.title.includes('CTF') ? 'CTF' : 'HOF',
+    ...item,
+  })),
+  ...siteConfig.recognition.map((item) => ({
+    category: 'institution',
+    label: 'KURUMSAL',
+    ...item,
+  })),
+];
+
+const filters = [
+  ['all', 'Tümü'],
+  ['cve', 'CVE'],
+  ['hof', 'Hall of Fame'],
+  ['ctf', 'CTF'],
+  ['institution', 'Kurumsal'],
+] as const;
+
+const counts = {
+  cve: records.filter((record) => record.category === 'cve').length,
+  hof: records.filter((record) => record.category === 'hof').length,
+  ctf: records.filter((record) => record.category === 'ctf').length,
+  institution: records.filter((record) => record.category === 'institution').length,
+};
+---
+
+<section class="section shell hof-section" aria-labelledby="hof-title" data-hof>
+  <div class="hof-heading">
+    <SectionHeading eyebrow="cat verified_records.log" title="Hall of Fame" description="Güvenlik araştırmaları, sorumlu açıklama, yarışmalar ve kurumsal takdirlerden doğrulanabilir kayıtlar." />
+    <div class="hof-summary" aria-label="Başarı kayıtlarının özeti">
+      <span><strong>{records.length}</strong> kayıt</span>
+      <span><strong>{counts.cve}</strong> CVE</span>
+      <span><strong>{counts.hof}</strong> HOF</span>
+      <span><strong>{counts.ctf}</strong> CTF</span>
+    </div>
+  </div>
+
+  <div class="hof-console">
+    <div class="hof-console-bar" aria-hidden="true">
+      <span class="hof-console-dots"><i></i><i></i><i></i></span>
+      <span>recognition://basri/verified</span>
+      <span>READ_ONLY</span>
+    </div>
+
+    <div class="hof-toolbar" aria-label="Başarı kayıtlarını filtrele">
+      {filters.map(([value, label], index) => (
+        <button type="button" data-hof-filter={value} aria-pressed={index === 0 ? 'true' : 'false'}>
+          <span aria-hidden="true">{index === 0 ? '$' : '›'}</span> {label}
+        </button>
+      ))}
+    </div>
+
+    <p class="sr-only" aria-live="polite" data-hof-status>{records.length} kayıt gösteriliyor.</p>
+
+    <div class="hof-records">
+      {records.map((record, index) => (
+        <details class="hof-record" data-hof-record={record.category}>
+          <summary>
+            <span class="hof-index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+            <span class="hof-record-main">
+              <span class="hof-record-meta"><span>{record.label}</span><span class="verified-mark"><span aria-hidden="true">●</span> VERIFIED</span></span>
+              <strong>{record.title}</strong>
+              <small>{record.description}</small>
+            </span>
+            <span class="hof-expand"><span class="sr-only">Ayrıntıları </span><span aria-hidden="true">+</span></span>
+          </summary>
+          <div class="hof-record-detail">
+            <dl>
+              <div><dt>STATUS</dt><dd>VERIFIED</dd></div>
+              <div><dt>TYPE</dt><dd>{record.label}</dd></div>
+              <div><dt>ACCESS</dt><dd>{record.url ? 'PUBLIC' : 'ARCHIVED'}</dd></div>
+            </dl>
+            {record.url ? (
+              <a class="read-link" href={record.url} title={`${record.title} kaynağını yeni sekmede görüntüle`} target="_blank" rel="noopener noreferrer">
+                Kaydı doğrula <span aria-hidden="true">↗</span><span class="sr-only"> (yeni sekmede açılır)</span>
+              </a>
+            ) : <p class="hof-archive-note">Fiziksel veya kurumsal kayıt; herkese açık bağlantı bulunmuyor.</p>}
+          </div>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-hof]').forEach((section) => {
+    const buttons = [...section.querySelectorAll<HTMLButtonElement>('[data-hof-filter]')];
+    const records = [...section.querySelectorAll<HTMLElement>('[data-hof-record]')];
+    const status = section.querySelector<HTMLElement>('[data-hof-status]');
+
+    buttons.forEach((button) => button.addEventListener('click', () => {
+      const filter = button.dataset.hofFilter ?? 'all';
+      let visibleCount = 0;
+
+      buttons.forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
+      records.forEach((record) => {
+        const visible = filter === 'all' || record.dataset.hofRecord === filter;
+        record.hidden = !visible;
+        if (visible) visibleCount += 1;
+      });
+
+      if (status) status.textContent = `${visibleCount} kayıt gösteriliyor.`;
+    }));
+  });
+</script>

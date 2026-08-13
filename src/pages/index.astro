@@ -8,6 +8,7 @@ import { siteConfig, absoluteUrl } from '../config/site';
 import { personSchema, schemaGraph } from '../lib/schema';
 import { getExternalProfileLinkTitle, getNavigationLinkTitle } from '../lib/linkTitles';
 import { alternateLinks } from '../i18n/helpers';
+import HallOfFame from '../components/HallOfFame.astro';
 
 const posts = (await getPublishedPosts()).slice(0, 3);
 const jsonLd = schemaGraph([
@@ -28,25 +29,12 @@ const jsonLd = schemaGraph([
     <aside class="focus-panel" aria-label="Odak alanlarım"><p class="panel-title">odak_alanlari</p><ul>{siteConfig.focus.map((item) => <li><span aria-hidden="true">›</span> {item}</li>)}</ul></aside>
   </section>
 
-  <section class="section shell research-section" aria-labelledby="research-title">
-    <SectionHeading eyebrow="guvenlik.arastirmalari" title="CVE / Güvenlik Araştırmaları" description="Güvenlik araştırmalarım kapsamında iki ayrı CVE bana tahsis edildi. Sessizce araştır, açıkça raporla, sonucu doğru kanalda takip et." />
-    <div class="cve-grid">
-      {siteConfig.cves.map((cve) => <article class="cve-card"><p class="card-label">atanmış</p><h3>{cve.id}</h3><p>Koordineli açıklama sürecinden geçen güvenlik araştırması kaydı.</p>{cve.url ? <a class="read-link" href={cve.url} title={`${cve.id} kaydını yeni sekmede görüntüle`} target="_blank" rel="noopener noreferrer">CVE kaydını görüntüle <span aria-hidden="true">↗</span><span class="sr-only"> (yeni sekmede açılır)</span></a> : <span class="muted-note">Kayıt kodu</span>}</article>)}
-    </div>
-  </section>
+  <HallOfFame />
 
-  <section class="section shell" aria-labelledby="achievements-title">
-    <SectionHeading eyebrow="basarilar.log" title="Öne Çıkan Başarılar" description="Sorumlu açıklama ve uygulamalı güvenlik çalışmalarından kısa notlar." />
-    <div class="recognition-grid">{siteConfig.achievements.map((item) => <a class="recognition-card" href={item.url} title={`${item.title} ayrıntılarını yeni sekmede görüntüle`} target="_blank" rel="noopener noreferrer"><span class="external-mark" aria-hidden="true">↗</span><span class="sr-only">Yeni sekmede açılır. </span><h3>{item.title}</h3><p>{item.description}</p></a>)}</div>
-  </section>
-
-  <section class="section shell recognition-community" aria-labelledby="institutional-title">
-    <div>
-      <SectionHeading eyebrow="takdirler" title="Takdir & Görünürlük" />
-      <div class="compact-list">{siteConfig.recognition.map((item) => item.url ? <a href={item.url} title={`${item.title} kaynağını yeni sekmede görüntüle`} target="_blank" rel="noopener noreferrer"><span><strong>{item.title}</strong><small>{item.description}</small></span><span aria-hidden="true">↗</span><span class="sr-only"> (yeni sekmede açılır)</span></a> : <div><span><strong>{item.title}</strong><small>{item.description}</small></span></div>)}</div>
-    </div>
-    <aside class="community-card">
-      <p class="card-label">topluluk / medya</p><h2>{siteConfig.community.name}</h2><p>{siteConfig.community.description}</p>
+  <section class="section shell recognition-community" aria-labelledby="community-title">
+    <div><SectionHeading eyebrow="topluluk.log" title="Topluluk & Medya" description="Bilgiyi yalnızca biriktirmek değil, paylaşılabilir ve uygulanabilir hâle getirmek." /></div>
+    <aside class="community-card" aria-labelledby="community-title">
+      <p class="card-label">topluluk / medya</p><h2 id="community-title">{siteConfig.community.name}</h2><p>{siteConfig.community.description}</p>
       <div class="text-links"><a href={siteConfig.community.website} title="BugHane Academy forumunu yeni sekmede aç" target="_blank" rel="noopener noreferrer">Forum <span aria-hidden="true">↗</span><span class="sr-only"> (yeni sekmede açılır)</span></a><a href={siteConfig.community.youtube} title="BugHane Academy YouTube kanalını yeni sekmede aç" target="_blank" rel="noopener noreferrer">YouTube <span aria-hidden="true">↗</span><span class="sr-only"> (yeni sekmede açılır)</span></a></div>
     </aside>
   </section>
