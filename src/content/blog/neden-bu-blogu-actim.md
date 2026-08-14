@@ -2,6 +2,8 @@
 title: "Neden Bu Blogu Açtım?"
 description: "Öğrendiğim şeyleri unutmamak, yaşadığım teknik saçmalıkları not almak ve belki birilerinin işine yarar diye paylaşmak için bu blogu açtım."
 publishedAt: 2026-08-03
+lang: tr
+translationKey: "why-i-started-this-blog"
 draft: false
 category: "kisisel-notlar"
 toc: true

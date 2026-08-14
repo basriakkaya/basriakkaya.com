@@ -1,10 +1,12 @@
 import { readFile, readdir, stat, access } from 'node:fs/promises';
 import path from 'node:path';
+import { parse } from 'yaml';
 
 const dist = path.join(process.cwd(), 'dist');
 const origin = 'https://www.basriakkaya.com';
 const isPreviewBuild = process.env.VERCEL_ENV === 'preview';
 const failures = [];
+const notices = [];
 const exists = async (file) => { try { await access(file); return true; } catch { return false; } };
 async function walk(directory) { const files = []; for (const name of await readdir(directory)) { const item = path.join(directory, name); (await stat(item)).isDirectory() ? files.push(...await walk(item)) : files.push(item); } return files; }
 const normalizeRoute = (pathname) => pathname === '/' ? '/' : pathname.replace(/\/$/u, '');
@@ -58,6 +60,27 @@ for (const [route, page] of pages) {
 }
 
 for (const required of ['en/index.html', 'en/about/index.html', 'en/articles/index.html', 'en/rss.xml']) if (!files.some((file) => file.endsWith(required))) failures.push(`${required} eksik`);
+
+const contentDirectory = path.join(process.cwd(), 'src/content/blog');
+const contentFiles = (await readdir(contentDirectory)).filter((name) => /\.mdx?$/u.test(name));
+const translationGroups = new Map();
+for (const file of contentFiles) {
+  const source = await readFile(path.join(contentDirectory, file), 'utf8');
+  const frontmatter = source.match(/^---\s*\n([\s\S]*?)\n---/u)?.[1];
+  if (!frontmatter) { failures.push(`${file}: frontmatter okunamadı`); continue; }
+  const data = parse(frontmatter);
+  if (!['tr', 'en'].includes(data.lang)) failures.push(`${file}: açık lang alanı tr veya en olmalı`);
+  if (!data.translationKey) failures.push(`${file}: translationKey eksik`);
+  if (!data.translationKey) continue;
+  const group = translationGroups.get(data.translationKey) ?? [];
+  group.push({ file, lang: data.lang, draft: Boolean(data.draft) });
+  translationGroups.set(data.translationKey, group);
+}
+for (const [key, group] of translationGroups) {
+  for (const locale of ['tr', 'en']) if (group.filter((item) => item.lang === locale).length > 1) failures.push(`${key}: ${locale} için duplicate translationKey`);
+  const publishedLocales = new Set(group.filter((item) => !item.draft).map((item) => item.lang));
+  if (publishedLocales.size === 1) notices.push(`${key}: ${publishedLocales.has('tr') ? 'İngilizce' : 'Türkçe'} çeviri henüz yok`);
+}
 const trRss = await readFile(path.join(dist, 'rss.xml'), 'utf8').catch(() => '');
 const enRss = await readFile(path.join(dist, 'en/rss.xml'), 'utf8').catch(() => '');
 if (!trRss.includes('<language>tr-TR</language>') || /\/en\/articles\//u.test(trRss)) failures.push('Türkçe RSS dil karışması');
@@ -74,4 +97,5 @@ for (const [locale, xml, routePrefix] of [['tr', trRss, '/yazilar/'], ['en', enR
   }
 }
 if (failures.length) { console.error(failures.join('\n')); process.exit(1); }
-console.log(`i18n audit passed: ${htmlFiles.length} HTML, localized canonical/lang, self/reciprocal hreflang, navigation ve iki RSS doğrulandı.`);
+notices.forEach((notice) => console.warn(`i18n notice: ${notice}`));
+console.log(`i18n audit passed: ${htmlFiles.length} HTML, ${translationGroups.size} translationKey, localized canonical/lang, self/reciprocal hreflang, navigation ve iki RSS doğrulandı; ${notices.length} eksik çeviri bildirimi.`);

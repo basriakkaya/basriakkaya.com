@@ -1,6 +1,6 @@
 ---
 import type { BlogPost } from '../lib/posts';
 import PostCard from './PostCard.astro';
-const { posts } = Astro.props as { posts: BlogPost[] };
+const { posts, locale = 'tr' } = Astro.props as { posts: BlogPost[]; locale?: 'tr' | 'en' };
 ---
-{posts.length > 0 && <section class="related-posts" aria-labelledby="related-title"><h2 id="related-title">Benzer Yazılar</h2><div class="post-grid">{posts.map((post) => <PostCard post={post} />)}</div></section>}
+{posts.length > 0 && <section class="related-posts" aria-labelledby="related-title"><h2 id="related-title">{locale === 'tr' ? 'Benzer Yazılar' : 'Related Articles'}</h2><div class="post-grid">{posts.map((post) => <PostCard post={post} locale={locale} />)}</div></section>}

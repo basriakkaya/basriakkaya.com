@@ -2,6 +2,8 @@
 title: "OWASP Top 10:2025 — Ezber Listesi Değil, Güvenlik Haritası"
 description: "OWASP Top 10:2025 kategorilerini ezberlemek yerine kök nedenleri, gerçek senaryoları, kategori farklarını ve kalıcı savunmalarıyla anlamaya çalıştığım kapsamlı rehber."
 publishedAt: 2026-08-05
+lang: tr
+translationKey: "owasp-top-10-2025-reasoning-guide"
 draft: false
 category: "web-guvenligi"
 toc: true

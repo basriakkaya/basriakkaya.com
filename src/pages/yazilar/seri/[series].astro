@@ -1,21 +1,25 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import Breadcrumbs from '../../../components/Breadcrumbs.astro';
-import { seriesEntries, seriesStatusLabel } from '../../../config/series';
+import { seriesEntries, seriesStatusLabel, seriesTranslations } from '../../../config/series';
 import { getPostsBySeries, postSlug } from '../../../lib/posts';
 import { readingTime } from '../../../lib/reading-time';
 import { absoluteUrl, siteConfig } from '../../../config/site';
 import { breadcrumbSchema, schemaGraph } from '../../../lib/schema';
 import { getArticleLinkTitle, getNavigationLinkTitle } from '../../../lib/linkTitles';
+import { alternateLinks } from '../../../i18n/helpers';
 export async function getStaticPaths() {
   const entries = await Promise.all(seriesEntries.map(async ([slug, metadata]) => ({ slug, metadata, posts: await getPostsBySeries(slug) })));
   return entries.filter(({ posts }) => posts.length).map(({ slug, metadata, posts }) => ({ params: { series: slug }, props: { slug, metadata, posts } }));
 }
 const { slug, metadata, posts } = Astro.props;
+const englishPosts = await getPostsBySeries(slug, 'en');
+const englishSeriesPath = `/en/articles/series/${seriesTranslations[slug as keyof typeof seriesTranslations].slug}`;
+const seriesAlternates = englishPosts.length ? alternateLinks(`/yazilar/seri/${slug}`, englishSeriesPath) : [];
 const jsonLd = schemaGraph([
   { '@type': 'CollectionPage', name: `${metadata.title} Serisi`, description: metadata.description, url: absoluteUrl(`/yazilar/seri/${slug}`), inLanguage: siteConfig.locale },
   { '@type': 'ItemList', itemListElement: posts.map((post: any, index: number) => ({ '@type': 'ListItem', position: index + 1, name: post.data.title, url: absoluteUrl(`/yazilar/${postSlug(post)}`) })) },
   breadcrumbSchema([{ name: 'Ana Sayfa', path: '/' }, { name: 'Yazılar', path: '/yazilar' }, { name: metadata.title, path: `/yazilar/seri/${slug}` }]),
 ]);
 ---
-<BaseLayout title={`${metadata.title} Serisi`} description={metadata.description} jsonLd={jsonLd}><section class="page-intro shell"><Breadcrumbs items={[{ name: 'Ana Sayfa', href: '/' }, { name: 'Yazılar', href: '/yazilar' }, { name: metadata.title }]} /><p class="eyebrow">seri / {seriesStatusLabel[metadata.status]}</p><h1>{metadata.title}</h1><p class="lead">{metadata.description}</p><p class="collection-count">{posts.length} yayınlanmış bölüm · {seriesStatusLabel[metadata.status]}</p></section><section class="section shell"><ol class="series-chapters">{posts.map((post: any) => <li><span>Bölüm {post.data.seriesOrder}</span><div><h2><a href={`/yazilar/${postSlug(post)}`} title={getArticleLinkTitle(post.data.title)}>{post.data.title}</a></h2><p>{post.data.description}</p><small>{post.data.publishedAt.toLocaleDateString('tr-TR')} · {readingTime(post.body ?? '')}</small></div></li>)}</ol><a class="back-link article-end-link" href="/yazilar" title={getNavigationLinkTitle('articles')}>← Tüm yazılara dön</a></section></BaseLayout>
+<BaseLayout title={`${metadata.title} Serisi`} description={metadata.description} jsonLd={jsonLd} switchPath={englishPosts.length ? englishSeriesPath : '/en/articles'} alternates={seriesAlternates}><section class="page-intro shell"><Breadcrumbs items={[{ name: 'Ana Sayfa', href: '/' }, { name: 'Yazılar', href: '/yazilar' }, { name: metadata.title }]} /><p class="eyebrow">seri / {seriesStatusLabel[metadata.status]}</p><h1>{metadata.title}</h1><p class="lead">{metadata.description}</p><p class="collection-count">{posts.length} yayınlanmış bölüm · {seriesStatusLabel[metadata.status]}</p></section><section class="section shell"><ol class="series-chapters">{posts.map((post: any) => <li><span>Bölüm {post.data.seriesOrder}</span><div><h2><a href={`/yazilar/${postSlug(post)}`} title={getArticleLinkTitle(post.data.title)}>{post.data.title}</a></h2><p>{post.data.description}</p><small>{post.data.publishedAt.toLocaleDateString('tr-TR')} · {readingTime(post.body ?? '')}</small></div></li>)}</ol><a class="back-link article-end-link" href="/yazilar" title={getNavigationLinkTitle('articles')}>← Tüm yazılara dön</a></section></BaseLayout>

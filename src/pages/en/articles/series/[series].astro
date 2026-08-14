@@ -1,8 +1,20 @@
 ---
 import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../../../components/Breadcrumbs.astro';
 import { seriesEntries, seriesTranslations } from '../../../../config/series';
 import { getPostsBySeries, postSlug } from '../../../../lib/posts';
+import { readingTime } from '../../../../lib/reading-time';
+import { absoluteUrl } from '../../../../config/site';
+import { breadcrumbSchema, schemaGraph } from '../../../../lib/schema';
+import { alternateLinks } from '../../../../i18n/helpers';
 export async function getStaticPaths() { const entries = await Promise.all(seriesEntries.map(async ([key]) => ({ key, metadata: seriesTranslations[key], posts: await getPostsBySeries(key, 'en') }))); return entries.filter(({ posts }) => posts.length).map((entry) => ({ params: { series: entry.metadata.slug }, props: entry })); }
-const { metadata, posts } = Astro.props;
+const { key, metadata, posts } = Astro.props;
+const enPath = `/en/articles/series/${metadata.slug}`;
+const trPath = `/yazilar/seri/${key}`;
+const jsonLd = schemaGraph([
+  { '@type': 'CollectionPage', name: `${metadata.title} Series`, description: metadata.description, url: absoluteUrl(enPath), inLanguage: 'en-US' },
+  { '@type': 'ItemList', itemListElement: posts.map((post: any, index: number) => ({ '@type': 'ListItem', position: index + 1, name: post.data.title, url: absoluteUrl(`/en/articles/${postSlug(post)}`) })) },
+  breadcrumbSchema([{ name: 'Home', path: '/en' }, { name: 'Articles', path: '/en/articles' }, { name: metadata.title, path: enPath }]),
+]);
 ---
-<BaseLayout locale="en" title={`${metadata.title} Series`} description={metadata.description} switchPath="/yazilar"><section class="page-intro shell"><p class="eyebrow">series / ongoing</p><h1>{metadata.title}</h1><p class="lead">{metadata.description}</p></section><section class="section shell"><ol class="series-chapters">{posts.map((post: any) => <li><span>Part {post.data.seriesOrder}</span><div><h2><a href={`/en/articles/${postSlug(post)}`}>{post.data.title}</a></h2><p>{post.data.description}</p></div></li>)}</ol></section></BaseLayout>
+<BaseLayout locale="en" title={`${metadata.title} Series`} description={metadata.description} switchPath={trPath} alternates={alternateLinks(trPath, enPath)} jsonLd={jsonLd}><section class="page-intro shell"><Breadcrumbs items={[{ name: 'Home', href: '/en' }, { name: 'Articles', href: '/en/articles' }, { name: metadata.title }]} /><p class="eyebrow">series / ongoing</p><h1>{metadata.title}</h1><p class="lead">{metadata.description}</p><p class="collection-count">{posts.length} published parts · Ongoing</p></section><section class="section shell"><ol class="series-chapters">{posts.map((post: any) => <li><span>Part {post.data.seriesOrder}</span><div><h2><a href={`/en/articles/${postSlug(post)}`} title={`Read “${post.data.title}”`}>{post.data.title}</a></h2><p>{post.data.description}</p><small>{post.data.publishedAt.toLocaleDateString('en-US')} · {readingTime(post.body ?? '', 'en')}</small></div></li>)}</ol></section></BaseLayout>

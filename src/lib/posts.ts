@@ -5,10 +5,10 @@ import type { Locale } from '../i18n/config';
 
 export type BlogPost = CollectionEntry<'blog'>;
 
-export async function getPublishedPosts(locale?: Locale): Promise<BlogPost[]> {
+export async function getPublishedPosts(locale: Locale = 'tr'): Promise<BlogPost[]> {
   const posts = await getCollection('blog', ({ data }) => import.meta.env.DEV || !data.draft);
   return posts
-    .filter(({ data }) => (import.meta.env.DEV || !data.draft) && (!locale || data.lang === locale))
+    .filter(({ data }) => (import.meta.env.DEV || !data.draft) && data.lang === locale)
     .sort((a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf());
 }
 

@@ -4,8 +4,12 @@ import { postSlug } from '../lib/posts';
 import type { SeriesSlug } from '../config/series';
 import { seriesRegistry } from '../config/series';
 import { getNextArticleLinkTitle, getPreviousArticleLinkTitle, getSeriesAllChaptersLinkTitle } from '../lib/linkTitles';
+import { getLocalizedSeries } from '../config/series';
+import { articleRoute, seriesRoute } from '../i18n/routes';
 interface Props { slug: SeriesSlug; current: BlogPost; posts: BlogPost[]; index: number; previous?: BlogPost; next?: BlogPost }
 const { slug, posts, index, previous, next } = Astro.props as Props;
 const series = seriesRegistry[slug];
+const locale = Astro.props.current.data.lang;
+const localizedSeries = getLocalizedSeries(slug, locale);
 ---
-<nav class="series-navigation" aria-label="Seri bölümleri"><p><a href={`/yazilar/seri/${slug}`} title={getSeriesAllChaptersLinkTitle(series.title)}>{series.title}</a> · Bölüm {index + 1} / {posts.length}</p><div>{previous ? <a href={`/yazilar/${postSlug(previous)}`} title={getPreviousArticleLinkTitle(previous.data.title)}>← Önceki Bölüm<strong>{previous.data.title}</strong></a> : <span></span>}{next ? <a href={`/yazilar/${postSlug(next)}`} title={getNextArticleLinkTitle(next.data.title)}>Sonraki Bölüm →<strong>{next.data.title}</strong></a> : <span class="series-state">{series.status === 'ongoing' ? 'Yeni bölüm hazırlanıyor.' : 'Bu seri tamamlandı.'}</span>}</div></nav>
+<nav class="series-navigation" aria-label={locale === 'tr' ? 'Seri bölümleri' : 'Series parts'}><p><a href={seriesRoute(locale, localizedSeries.slug)} title={getSeriesAllChaptersLinkTitle(localizedSeries.title)}>{localizedSeries.title}</a> · {locale === 'tr' ? 'Bölüm' : 'Part'} {index + 1} / {posts.length}</p><div>{previous ? <a href={articleRoute(locale, postSlug(previous))} title={getPreviousArticleLinkTitle(previous.data.title)}>← {locale === 'tr' ? 'Önceki Bölüm' : 'Previous Part'}<strong>{previous.data.title}</strong></a> : <span></span>}{next ? <a href={articleRoute(locale, postSlug(next))} title={getNextArticleLinkTitle(next.data.title)}>{locale === 'tr' ? 'Sonraki Bölüm' : 'Next Part'} →<strong>{next.data.title}</strong></a> : <span class="series-state">{series.status === 'ongoing' ? (locale === 'tr' ? 'Yeni bölüm hazırlanıyor.' : 'A new part is in progress.') : (locale === 'tr' ? 'Bu seri tamamlandı.' : 'This series is complete.')}</span>}</div></nav>

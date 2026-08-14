@@ -2,6 +2,8 @@
 title: "Network Öğrenme Günlüğü — Gün 2: Katmanlardan Paket Avına"
 description: "OSI ve TCP/IP modellerini, kapsülleme sürecini ve Wireshark ile ICMP, DNS, TCP ve TLS paketlerini incelemeyi öğrendiğim ikinci gün notlarım."
 publishedAt: 2026-08-04
+lang: tr
+translationKey: "network-learning-journal-day-2"
 draft: false
 category: "ag-ve-linux"
 series: "network-ogrenme-gunlugu"

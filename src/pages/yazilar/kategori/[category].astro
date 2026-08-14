@@ -2,21 +2,25 @@
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import PostCard from '../../../components/PostCard.astro';
 import Breadcrumbs from '../../../components/Breadcrumbs.astro';
-import { categoryEntries } from '../../../config/categories';
+import { categoryEntries, categoryTranslations } from '../../../config/categories';
 import { getPostsByCategory, postSlug } from '../../../lib/posts';
 import { absoluteUrl, siteConfig } from '../../../config/site';
 import { breadcrumbSchema, schemaGraph } from '../../../lib/schema';
 import { getCategoryLinkTitle, getNavigationLinkTitle } from '../../../lib/linkTitles';
+import { alternateLinks } from '../../../i18n/helpers';
 export async function getStaticPaths() {
   const entries = await Promise.all(categoryEntries.map(async ([slug, metadata]) => ({ slug, metadata, posts: await getPostsByCategory(slug) })));
   return entries.filter(({ posts }) => posts.length).map(({ slug, metadata, posts }) => ({ params: { category: slug }, props: { slug, metadata, posts } }));
 }
 const { slug, metadata, posts } = Astro.props;
 const otherCategories = (await Promise.all(categoryEntries.map(async ([categorySlug, category]) => ({ slug: categorySlug, metadata: category, count: (await getPostsByCategory(categorySlug)).length })))).filter(({ count }) => count > 0);
+const englishPosts = await getPostsByCategory(slug, 'en');
+const englishCategoryPath = `/en/articles/category/${categoryTranslations[slug as keyof typeof categoryTranslations].slug}`;
+const categoryAlternates = englishPosts.length ? alternateLinks(`/yazilar/kategori/${slug}`, englishCategoryPath) : [];
 const jsonLd = schemaGraph([
   { '@type': 'CollectionPage', name: `${metadata.name} Yazıları`, description: metadata.description, url: absoluteUrl(`/yazilar/kategori/${slug}`), inLanguage: siteConfig.locale },
   { '@type': 'ItemList', itemListElement: posts.map((post: any, index: number) => ({ '@type': 'ListItem', position: index + 1, name: post.data.title, url: absoluteUrl(`/yazilar/${postSlug(post)}`) })) },
   breadcrumbSchema([{ name: 'Ana Sayfa', path: '/' }, { name: 'Yazılar', path: '/yazilar' }, { name: metadata.name, path: `/yazilar/kategori/${slug}` }]),
 ]);
 ---
-<BaseLayout title={`${metadata.name} Yazıları`} description={metadata.description} jsonLd={jsonLd}><section class="page-intro shell"><Breadcrumbs items={[{ name: 'Ana Sayfa', href: '/' }, { name: 'Yazılar', href: '/yazilar' }, { name: metadata.name }]} /><p class="eyebrow">kategori / {slug}</p><h1>{metadata.name} Yazıları</h1><p class="lead">{metadata.description}</p><p class="collection-count">{posts.length} yayınlanmış yazı</p></section><nav class="taxonomy-nav shell" aria-label="Yazı kategorileri"><a href="/yazilar" title={getNavigationLinkTitle('articles')}>Tüm Yazılar</a>{otherCategories.map((item) => <a href={`/yazilar/kategori/${item.slug}`} title={getCategoryLinkTitle(item.metadata.name)} aria-current={item.slug === slug ? 'page' : undefined}>{item.metadata.name} <span aria-hidden="true">{item.count}</span></a>)}</nav><section class="section shell"><div class="post-grid">{posts.map((post: any) => <PostCard post={post} />)}</div><a class="back-link article-end-link" href="/yazilar" title={getNavigationLinkTitle('articles')}>← Tüm yazılara dön</a></section></BaseLayout>
+<BaseLayout title={`${metadata.name} Yazıları`} description={metadata.description} jsonLd={jsonLd} switchPath={englishPosts.length ? englishCategoryPath : '/en/articles'} alternates={categoryAlternates}><section class="page-intro shell"><Breadcrumbs items={[{ name: 'Ana Sayfa', href: '/' }, { name: 'Yazılar', href: '/yazilar' }, { name: metadata.name }]} /><p class="eyebrow">kategori / {slug}</p><h1>{metadata.name} Yazıları</h1><p class="lead">{metadata.description}</p><p class="collection-count">{posts.length} yayınlanmış yazı</p></section><nav class="taxonomy-nav shell" aria-label="Yazı kategorileri"><a href="/yazilar" title={getNavigationLinkTitle('articles')}>Tüm Yazılar</a>{otherCategories.map((item) => <a href={`/yazilar/kategori/${item.slug}`} title={getCategoryLinkTitle(item.metadata.name)} aria-current={item.slug === slug ? 'page' : undefined}>{item.metadata.name} <span aria-hidden="true">{item.count}</span></a>)}</nav><section class="section shell"><div class="post-grid">{posts.map((post: any) => <PostCard post={post} />)}</div><a class="back-link article-end-link" href="/yazilar" title={getNavigationLinkTitle('articles')}>← Tüm yazılara dön</a></section></BaseLayout>

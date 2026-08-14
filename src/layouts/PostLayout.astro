@@ -60,18 +60,18 @@ const visibleBreadcrumbs = breadcrumbItems.map((item, index) => ({ name: item.na
     <ReadingProgress />
     <header class="article-header">
       <Breadcrumbs items={visibleBreadcrumbs} />
-      <div class="article-taxonomy"><a href={categoryRoute(locale, category.slug)} title={getCategoryLinkTitle(category.name)}>{category.name}</a>{localizedSeries && seriesContext && <a href={seriesRoute(locale, localizedSeries.slug)} title={getSeriesLinkTitle(localizedSeries.title)}>{localizedSeries.title} · {locale === 'tr' ? 'Bölüm' : 'Part'} {seriesContext.index + 1} / {seriesContext.posts.length}</a>}</div>
+      <div class="article-taxonomy"><a href={categoryRoute(locale, category.slug)} title={getCategoryLinkTitle(category.name, locale)}>{category.name}</a>{localizedSeries && seriesContext && <a href={seriesRoute(locale, localizedSeries.slug)} title={getSeriesLinkTitle(localizedSeries.title, locale)}>{localizedSeries.title} · {locale === 'tr' ? 'Bölüm' : 'Part'} {seriesContext.index + 1} / {seriesContext.posts.length}</a>}</div>
       <h1>{title}</h1><p class="lead">{description}</p>
-      <div class="article-meta"><span>Yazar: {siteConfig.name}</span><span>·</span><time datetime={publishedAt.toISOString()}>{format(publishedAt)}</time><span>·</span><span>{readingTime(post.body ?? '')}</span>{updatedAt && <span>Güncellendi: <time datetime={updatedAt.toISOString()}>{format(updatedAt)}</time></span>}</div>
-      <ul class="tag-list" aria-label="Etiketler">{tags.map((tag) => <li>{tag}</li>)}</ul>
-      {post.data.toc && <ArticleTableOfContents headings={headings} mode="mobile" />}
+      <div class="article-meta"><span>{locale === 'tr' ? 'Yazar' : 'Author'}: {siteConfig.name}</span><span>·</span><time datetime={publishedAt.toISOString()}>{format(publishedAt)}</time><span>·</span><span>{readingTime(post.body ?? '', locale)}</span>{updatedAt && <span>{locale === 'tr' ? 'Güncellendi' : 'Updated'}: <time datetime={updatedAt.toISOString()}>{format(updatedAt)}</time></span>}</div>
+      <ul class="tag-list" aria-label={locale === 'tr' ? 'Etiketler' : 'Tags'}>{tags.map((tag) => <li>{tag}</li>)}</ul>
+      {post.data.toc && <ArticleTableOfContents headings={headings} mode="mobile" locale={locale} />}
     </header>
     <div class="article-layout">
       <div class="article-main"><div class="prose" data-article-body><slot /></div><PostReactions slug={slug} locale={locale} />
         {post.data.series && seriesContext?.metadata && <SeriesNavigation slug={post.data.series as any} current={post} posts={seriesContext.posts} index={seriesContext.index} previous={seriesContext.previous} next={seriesContext.next} />}
-        <RelatedPosts posts={related} /><a class="back-link article-end-link" href={route(locale, 'articles')} title={getNavigationLinkTitle('articles')}>← {locale === 'tr' ? 'Yazılara dön' : 'Back to articles'}</a>
+        <RelatedPosts posts={related} locale={locale} /><a class="back-link article-end-link" href={route(locale, 'articles')} title={getNavigationLinkTitle('articles')}>← {locale === 'tr' ? 'Yazılara dön' : 'Back to articles'}</a>
       </div>
-      {post.data.toc && <ArticleTableOfContents headings={headings} mode="desktop" />}
+      {post.data.toc && <ArticleTableOfContents headings={headings} mode="desktop" locale={locale} />}
     </div>
   </article>
 </BaseLayout>

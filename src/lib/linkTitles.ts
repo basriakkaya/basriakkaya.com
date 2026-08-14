@@ -1,6 +1,6 @@
-export const getArticleLinkTitle = (title: string) => `“${title}” yazısını oku`;
-export const getCategoryLinkTitle = (categoryName: string) => `${categoryName} kategorisindeki teknik yazıları görüntüle`;
-export const getSeriesLinkTitle = (seriesTitle: string) => `${seriesTitle} serisini ve yayımlanmış tüm bölümleri görüntüle`;
+export const getArticleLinkTitle = (title: string, locale: 'tr' | 'en' = 'tr') => locale === 'tr' ? `“${title}” yazısını oku` : `Read “${title}”`;
+export const getCategoryLinkTitle = (categoryName: string, locale: 'tr' | 'en' = 'tr') => locale === 'tr' ? `${categoryName} kategorisindeki teknik yazıları görüntüle` : `View technical articles in ${categoryName}`;
+export const getSeriesLinkTitle = (seriesTitle: string, locale: 'tr' | 'en' = 'tr') => locale === 'tr' ? `${seriesTitle} serisini ve yayımlanmış tüm bölümleri görüntüle` : `View the ${seriesTitle} series and all published parts`;
 export const getSeriesAllChaptersLinkTitle = (seriesTitle: string) => `${seriesTitle} serisinin tüm bölümlerini görüntüle`;
 export const getPreviousArticleLinkTitle = (title: string) => `Önceki bölüm: ${title}`;
 export const getNextArticleLinkTitle = (title: string) => `Sonraki bölüm: ${title}`;
