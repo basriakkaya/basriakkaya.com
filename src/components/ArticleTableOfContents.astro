@@ -1,8 +1,10 @@
 ---
 import type { MarkdownHeading } from 'astro';
-const { headings, mode } = Astro.props as { headings: MarkdownHeading[]; mode: 'mobile' | 'desktop' };
+const { headings, mode, locale = 'tr' } = Astro.props as { headings: MarkdownHeading[]; mode: 'mobile' | 'desktop'; locale?: 'tr' | 'en' };
 const entries = headings.filter(({ depth }) => depth === 2 || depth === 3);
 const enabled = entries.length >= 2;
+const label = locale === 'tr' ? 'İçindekiler' : 'Table of contents';
+const navLabel = locale === 'tr' ? 'Bu yazının bölümleri' : 'Sections in this article';
 ---
-{enabled && mode === 'mobile' && <details class="toc-mobile"><summary>İçindekiler · {entries.length} bölüm</summary><nav aria-label="Bu yazının bölümleri"><ol>{entries.map((heading) => <li class:list={{ 'toc-h3': heading.depth === 3 }}><a href={`#${heading.slug}`}>{heading.text}</a></li>)}</ol></nav></details>}
-{enabled && mode === 'desktop' && <aside class="toc-desktop" aria-label="Yazı içindekiler" data-article-toc><p>İçindekiler</p><nav aria-label="Bu yazının bölümleri"><ol>{entries.map((heading) => <li class:list={{ 'toc-h3': heading.depth === 3 }}><a href={`#${heading.slug}`} data-toc-link>{heading.text}</a></li>)}</ol></nav></aside>}
+{enabled && mode === 'mobile' && <details class="toc-mobile"><summary>{label} · {entries.length} {locale === 'tr' ? 'bölüm' : 'sections'}</summary><nav aria-label={navLabel}><ol>{entries.map((heading) => <li class:list={{ 'toc-h3': heading.depth === 3 }}><a href={`#${heading.slug}`}>{heading.text}</a></li>)}</ol></nav></details>}
+{enabled && mode === 'desktop' && <aside class="toc-desktop" aria-label={label} data-article-toc><p>{label}</p><nav aria-label={navLabel}><ol>{entries.map((heading) => <li class:list={{ 'toc-h3': heading.depth === 3 }}><a href={`#${heading.slug}`} data-toc-link>{heading.text}</a></li>)}</ol></nav></aside>}

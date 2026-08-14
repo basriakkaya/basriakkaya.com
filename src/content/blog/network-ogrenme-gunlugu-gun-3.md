@@ -2,6 +2,8 @@
 title: "Network Öğrenme Günlüğü — Gün 3: Bu IP Kimin Mahallesi?"
 description: "IPv4, binary, subnet mask ve CIDR mantığını; network, broadcast ve kullanılabilir host aralığını hesaplayarak öğrendiğim üçüncü gün notlarım."
 publishedAt: 2026-08-05
+lang: tr
+translationKey: "network-learning-journal-day-3"
 draft: false
 category: "ag-ve-linux"
 series: "network-ogrenme-gunlugu"

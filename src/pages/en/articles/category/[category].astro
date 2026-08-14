@@ -1,10 +1,20 @@
 ---
 import BaseLayout from '../../../../layouts/BaseLayout.astro';
 import PostCard from '../../../../components/PostCard.astro';
-import SectionHeading from '../../../../components/SectionHeading.astro';
+import Breadcrumbs from '../../../../components/Breadcrumbs.astro';
 import { categoryEntries, categoryTranslations } from '../../../../config/categories';
-import { getPostsByCategory } from '../../../../lib/posts';
+import { getPostsByCategory, postSlug } from '../../../../lib/posts';
+import { absoluteUrl } from '../../../../config/site';
+import { breadcrumbSchema, schemaGraph } from '../../../../lib/schema';
+import { alternateLinks } from '../../../../i18n/helpers';
 export async function getStaticPaths() { const entries = await Promise.all(categoryEntries.map(async ([key]) => ({ key, metadata: categoryTranslations[key], posts: await getPostsByCategory(key, 'en') }))); return entries.filter(({ posts }) => posts.length).map((entry) => ({ params: { category: entry.metadata.slug }, props: entry })); }
-const { metadata, posts } = Astro.props;
+const { key, metadata, posts } = Astro.props;
+const enPath = `/en/articles/category/${metadata.slug}`;
+const trPath = `/yazilar/kategori/${key}`;
+const jsonLd = schemaGraph([
+  { '@type': 'CollectionPage', name: `${metadata.name} Articles`, description: metadata.description, url: absoluteUrl(enPath), inLanguage: 'en-US' },
+  { '@type': 'ItemList', itemListElement: posts.map((post: any, index: number) => ({ '@type': 'ListItem', position: index + 1, name: post.data.title, url: absoluteUrl(`/en/articles/${postSlug(post)}`) })) },
+  breadcrumbSchema([{ name: 'Home', path: '/en' }, { name: 'Articles', path: '/en/articles' }, { name: metadata.name, path: enPath }]),
+]);
 ---
-<BaseLayout locale="en" title={`${metadata.name} Articles`} description={metadata.description} switchPath="/yazilar"><section class="page-intro shell"><SectionHeading eyebrow={`category / ${metadata.slug}`} title={`${metadata.name} Articles`} description={metadata.description} as="h1" /></section><section class="section shell"><div class="post-grid">{posts.map((post: any) => <PostCard post={post} locale="en" />)}</div></section></BaseLayout>
+<BaseLayout locale="en" title={`${metadata.name} Articles`} description={metadata.description} switchPath={trPath} alternates={alternateLinks(trPath, enPath)} jsonLd={jsonLd}><section class="page-intro shell"><Breadcrumbs items={[{ name: 'Home', href: '/en' }, { name: 'Articles', href: '/en/articles' }, { name: metadata.name }]} /><p class="eyebrow">category / {metadata.slug}</p><h1>{metadata.name} Articles</h1><p class="lead">{metadata.description}</p><p class="collection-count">{posts.length} published {posts.length === 1 ? 'article' : 'articles'}</p></section><section class="section shell"><div class="post-grid">{posts.map((post: any) => <PostCard post={post} locale="en" />)}</div></section></BaseLayout>

@@ -2,17 +2,28 @@
 interface Props { slug: string; locale?: 'tr' | 'en' }
 const { slug, locale = 'tr' } = Astro.props;
 const storageKey = locale === 'tr' ? `basri:post-reaction:${slug}` : `basri:post-reaction:en:${slug}`;
-const reactions = [
-  { value: 'recon', name: 'RECON', short: 'Yeni bir şey öğrendim.', detail: 'Bu yazı bana yeni bir bilgi veya bakış açısı kazandırdı.' },
-  { value: 'patch', name: 'PATCH', short: 'Pratikte işime yaradı.', detail: 'Bu yazı bir problemi çözmeme veya konuyu daha iyi anlamama yardımcı oldu.' },
-  { value: 'root', name: 'ROOT', short: 'Bu içerik aklımda kalacak.', detail: 'Bu yazı beni etkiledi ve daha sonra tekrar hatırlamak isteyeceğim.' },
-] as const;
+const reactionCopy = locale === 'tr' ? {
+  title: 'Bu yazı sende ne bıraktı?', intro: 'Bir reaction seç. Kararını daha sonra değiştirebilirsin.', privacy: 'Bu seçim yalnızca bu tarayıcıda saklanır. Herhangi bir kişisel veri veya reaction bilgisi sunucuya gönderilmez.', noscript: 'Reaction kaydetmek için JavaScript etkin olmalıdır.', saved: 'reaction yerel olarak kaydedildi ✓', updated: 'reaction güncellendi ✓', failed: 'Reaction bu tarayıcıda saklanamadı.',
+  reactions: [
+    { value: 'recon', name: 'RECON', short: 'Yeni bir şey öğrendim.', detail: 'Bu yazı bana yeni bir bilgi veya bakış açısı kazandırdı.' },
+    { value: 'patch', name: 'PATCH', short: 'Pratikte işime yaradı.', detail: 'Bu yazı bir problemi çözmeme veya konuyu daha iyi anlamama yardımcı oldu.' },
+    { value: 'root', name: 'ROOT', short: 'Bu içerik aklımda kalacak.', detail: 'Bu yazı beni etkiledi ve daha sonra tekrar hatırlamak isteyeceğim.' },
+  ],
+} : {
+  title: 'What did this article leave with you?', intro: 'Choose one reaction. You can change your choice later.', privacy: 'This choice is stored only in this browser. No personal data or reaction information is sent to a server.', noscript: 'JavaScript is required to save a reaction.', saved: 'reaction saved locally ✓', updated: 'reaction updated ✓', failed: 'The reaction could not be stored in this browser.',
+  reactions: [
+    { value: 'recon', name: 'RECON', short: 'I learned something new.', detail: 'This article gave me new information or a new perspective.' },
+    { value: 'patch', name: 'PATCH', short: 'I can apply this.', detail: 'This article helped me solve a problem or understand the subject better.' },
+    { value: 'root', name: 'ROOT', short: 'This will stay with me.', detail: 'This article made an impression and is something I will want to remember.' },
+  ],
+};
+const reactions = reactionCopy.reactions;
 ---
 
-<section class="post-reactions" aria-labelledby={`reaction-title-${slug}`} data-post-reactions data-storage-key={storageKey}>
+<section class="post-reactions" aria-labelledby={`reaction-title-${slug}`} data-post-reactions data-storage-key={storageKey} data-saved-message={reactionCopy.saved} data-updated-message={reactionCopy.updated} data-failed-message={reactionCopy.failed}>
   <p class="reaction-command">$ leave_reaction --one</p>
-  <h2 id={`reaction-title-${slug}`}>Bu yazı sende ne bıraktı?</h2>
-  <p class="reaction-intro">Bir reaction seç. Kararını daha sonra değiştirebilirsin.</p>
+  <h2 id={`reaction-title-${slug}`}>{reactionCopy.title}</h2>
+  <p class="reaction-intro">{reactionCopy.intro}</p>
   <div class="reaction-options">
     {reactions.map((reaction) => (
       <button type="button" class="reaction-option" data-reaction={reaction.value} aria-pressed="false" aria-label={`${reaction.name} reaction: ${reaction.short}`} aria-describedby={`reaction-detail-${slug}-${reaction.value}`}>
@@ -23,8 +34,8 @@ const reactions = [
     ))}
   </div>
   <p class="reaction-status" aria-live="polite" data-reaction-status></p>
-  <p class="reaction-privacy">Bu seçim yalnızca bu tarayıcıda saklanır. Herhangi bir kişisel veri veya reaction bilgisi sunucuya gönderilmez.</p>
-  <noscript><p class="reaction-noscript">Reaction kaydetmek için JavaScript etkin olmalıdır.</p></noscript>
+  <p class="reaction-privacy">{reactionCopy.privacy}</p>
+  <noscript><p class="reaction-noscript">{reactionCopy.noscript}</p></noscript>
 </section>
 
 <script>
@@ -54,9 +65,9 @@ const reactions = [
           localStorage.setItem(storageKey, next);
           current = next;
           select(next);
-          status.textContent = changed ? 'reaction güncellendi ✓' : 'reaction yerel olarak kaydedildi ✓';
+          status.textContent = changed ? (container.dataset.updatedMessage ?? '') : (container.dataset.savedMessage ?? '');
         } catch {
-          status.textContent = 'Reaction bu tarayıcıda saklanamadı.';
+          status.textContent = container.dataset.failedMessage ?? '';
         }
       }));
     });
