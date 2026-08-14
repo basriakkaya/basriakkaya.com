@@ -16,9 +16,12 @@ const series = post.data.series ? getLocalizedSeries(post.data.series, locale) :
 const slug = postSlug(post);
 ---
 <article class="post-card">
-  <div class="post-taxonomy"><a href={categoryRoute(locale, category.slug)} title={getCategoryLinkTitle(category.name)}>{category.name}</a>{series && <a href={seriesRoute(locale, series.slug)} title={getSeriesLinkTitle(series.title)}>{series.shortTitle ?? series.title} · {locale === 'tr' ? 'Bölüm' : 'Part'} {post.data.seriesOrder}</a>}</div>
-  <div class="post-meta"><time datetime={post.data.publishedAt.toISOString()}>{date}</time><span aria-hidden="true">·</span><span>{readingTime(post.body ?? '')}</span>{post.data.draft && <span class="draft">{locale === 'tr' ? 'Taslak' : 'Draft'}</span>}</div>
-  <h3><a href={articleRoute(locale, slug)} title={getArticleLinkTitle(post.data.title)}>{post.data.title}</a></h3><p>{post.data.description}</p>
-  <ul class="tag-list" aria-label={locale === 'tr' ? 'Etiketler' : 'Tags'}>{post.data.tags.map((tag) => <li>{tag}</li>)}</ul>
-  <a class="read-link" href={articleRoute(locale, slug)} title={getArticleLinkTitle(post.data.title)} aria-label={getArticleLinkTitle(post.data.title)}>{locale === 'tr' ? 'Yazıyı oku' : 'Read article'} <span aria-hidden="true">→</span></a>
+  {post.data.cover && <div class="post-cover" aria-hidden="true"><img src={post.data.cover} alt="" width="720" height="405" loading="lazy" decoding="async" /></div>}
+  <div class="post-card-body">
+    <div class="post-taxonomy"><a href={categoryRoute(locale, category.slug)} title={getCategoryLinkTitle(category.name)}>{category.name}</a>{series && <a href={seriesRoute(locale, series.slug)} title={getSeriesLinkTitle(series.title)}>{series.shortTitle ?? series.title} · {locale === 'tr' ? 'Bölüm' : 'Part'} {post.data.seriesOrder}</a>}</div>
+    <h3><a href={articleRoute(locale, slug)} title={getArticleLinkTitle(post.data.title)}>{post.data.title}</a></h3><p>{post.data.description}</p>
+    <div class="post-meta"><span>{readingTime(post.body ?? '')}</span><span aria-hidden="true">·</span><time datetime={post.data.publishedAt.toISOString()}>{date}</time>{post.data.draft && <span class="draft">{locale === 'tr' ? 'Taslak' : 'Draft'}</span>}</div>
+    <ul class="tag-list" aria-label={locale === 'tr' ? 'Etiketler' : 'Tags'}>{post.data.tags.map((tag) => <li>{tag}</li>)}</ul>
+    <a class="read-link" href={articleRoute(locale, slug)} title={getArticleLinkTitle(post.data.title)} aria-label={getArticleLinkTitle(post.data.title)}>{locale === 'tr' ? 'Yazıyı oku' : 'Read article'} <span aria-hidden="true">→</span></a>
+  </div>
 </article>

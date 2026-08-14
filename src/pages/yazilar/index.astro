@@ -2,17 +2,19 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import SectionHeading from '../../components/SectionHeading.astro';
 import PostCard from '../../components/PostCard.astro';
-import { getPublishedPosts } from '../../lib/posts';
+import { getPublishedPosts, getPostsByCategory, getPostsBySeries, postSlug } from '../../lib/posts';
 import { absoluteUrl, siteConfig } from '../../config/site';
 import { breadcrumbSchema, schemaGraph } from '../../lib/schema';
 import { categoryEntries } from '../../config/categories';
 import { seriesEntries, seriesStatusLabel } from '../../config/series';
-import { getPostsByCategory, getPostsBySeries, postSlug } from '../../lib/posts';
 import { getCategoryLinkTitle, getNavigationLinkTitle, getSeriesLinkTitle } from '../../lib/linkTitles';
 import { alternateLinks } from '../../i18n/helpers';
+
 const posts = await getPublishedPosts();
 const activeCategories = (await Promise.all(categoryEntries.map(async ([slug, metadata]) => ({ slug, metadata, posts: await getPostsByCategory(slug) })))).filter(({ posts }) => posts.length);
 const activeSeries = (await Promise.all(seriesEntries.map(async ([slug, metadata]) => ({ slug, metadata, posts: await getPostsBySeries(slug) })))).filter(({ posts }) => posts.length);
+const categoryIcons: Record<string, string> = { 'web-guvenligi': '</>', 'ag-ve-linux': '↗↘', 'guvenlik-arastirmalari': '⌁', 'arac-gelistirme': '>_', 'kisisel-notlar': '::' };
+const latestPosts = posts.slice(0, 4);
 const jsonLd = schemaGraph([
   { '@type': 'CollectionPage', '@id': `${absoluteUrl('/yazilar')}#collection`, name: 'Siber Güvenlik Yazıları', url: absoluteUrl('/yazilar'), description: 'Web güvenliği, ağ ve Linux, güvenlik araştırmaları ve araç geliştirme üzerine Türkçe teknik yazılar, seriler ve uygulamalı notlar.', inLanguage: siteConfig.locale },
   { '@type': 'ItemList', itemListElement: posts.map((post, index) => ({ '@type': 'ListItem', position: index + 1, name: post.data.title, url: absoluteUrl(`/yazilar/${postSlug(post)}`) })) },
@@ -20,8 +22,19 @@ const jsonLd = schemaGraph([
 ]);
 ---
 <BaseLayout title="Siber Güvenlik Yazıları" description="Web güvenliği, ağ ve Linux, güvenlik araştırmaları ve araç geliştirme üzerine Türkçe teknik yazılar, seriler ve uygulamalı notlar." jsonLd={jsonLd} alternates={alternateLinks('/yazilar', '/en/articles')} switchPath="/en/articles">
-  <section class="page-intro shell"><SectionHeading eyebrow="ls ./yazilar" title="Yazılar" description="Siber güvenlik, Linux ve yazılım geliştirme üzerine kısa, doğrudan ve uygulanabilir notlar." as="h1" /></section>
-  <nav class="taxonomy-nav shell" aria-label="Yazı kategorileri"><a href="/yazilar" title={getNavigationLinkTitle('articles')} aria-current="page">Tüm Yazılar <span aria-hidden="true">{posts.length}</span></a>{activeCategories.map(({ slug, metadata, posts }) => <a href={`/yazilar/kategori/${slug}`} title={getCategoryLinkTitle(metadata.name)}>{metadata.name} <span aria-hidden="true">{posts.length}</span></a>)}</nav>
-  {activeSeries.length > 0 && <section class="section shell series-list" aria-labelledby="series-title"><SectionHeading eyebrow="cat ./seriler" title="Seriler" /><div>{activeSeries.map(({ slug, metadata, posts }) => <a href={`/yazilar/seri/${slug}`} title={getSeriesLinkTitle(metadata.title)}><span>{seriesStatusLabel[metadata.status]}</span><h3>{metadata.title}</h3><p>{metadata.description}</p><small>{posts.length} yayınlanmış bölüm</small></a>)}</div></section>}
-  <section class="section shell" aria-labelledby="latest-posts"><h2 id="latest-posts" class="list-heading">En Yeni Yazılar</h2><div class="post-grid">{posts.map((post) => <PostCard post={post} />)}</div></section>
+  <section class="journal-hero shell" aria-labelledby="journal-title">
+    <div class="journal-terminal" aria-hidden="true"><span></span><span></span><span></span><small>knowledge-index — zsh</small></div>
+    <div class="journal-hero-content"><p class="eyebrow">CYBER RESEARCH JOURNAL / {posts.length.toString().padStart(2, '0')} KAYIT</p><h1 id="journal-title">Araştır. Anla.<br />Kendi cümlelerinle kaydet.</h1><p>Web güvenliği, ağ teknolojileri ve Linux üzerine uygulamalı araştırmalar, öğrenme günlükleri ve teknik notlar.</p></div>
+    <div class="journal-command" aria-label="Bilgi dizinindeki aktif kategoriler"><p><span>$</span> ls ~/knowledge</p><ul>{activeCategories.map(({ slug, metadata }) => <li><a href={`/yazilar/kategori/${slug}`} title={getCategoryLinkTitle(metadata.name)}>{slug}/</a></li>)}</ul><p class="command-status">{activeSeries.length} aktif seri · {posts.length} yayınlanmış araştırma <span class="terminal-cursor" aria-hidden="true"></span></p></div>
+  </section>
+
+  <nav class="taxonomy-nav shell journal-nav" aria-label="Yazı kategorileri"><a href="/yazilar" title={getNavigationLinkTitle('articles')} aria-current="page">Tüm Kayıtlar <span aria-hidden="true">{posts.length.toString().padStart(2, '0')}</span></a>{activeCategories.map(({ slug, metadata, posts: categoryPosts }) => <a href={`/yazilar/kategori/${slug}`} title={getCategoryLinkTitle(metadata.name)}>{metadata.name} <span aria-hidden="true">{categoryPosts.length.toString().padStart(2, '0')}</span></a>)}</nav>
+
+  <section class="section shell journal-categories" aria-labelledby="categories-title"><SectionHeading eyebrow="find ./knowledge -type d" title="Araştırma Alanları" description="Yayınlanan içerikler konu başlıklarına göre düzenlenir; sayaçlar doğrudan içerik koleksiyonundan gelir." /><h2 id="categories-title" class="sr-only">Araştırma alanları</h2><div>{activeCategories.map(({ slug, metadata, posts: categoryPosts }) => <a class="category-card" href={`/yazilar/kategori/${slug}`} title={getCategoryLinkTitle(metadata.name)}><span class="category-icon" aria-hidden="true">{categoryIcons[slug]}</span><span class="category-count">{categoryPosts.length.toString().padStart(2, '0')} YAZI</span><h3>{metadata.name}</h3><p>{metadata.description}</p><small>Alanı incele <span aria-hidden="true">→</span></small></a>)}</div></section>
+
+  {activeSeries.length > 0 && <section class="section shell featured-series" aria-labelledby="featured-series-title"><SectionHeading eyebrow="cat ./series/active" title="Öne Çıkan Seri" description="Bir konuyu tek yazıda bırakmayan, bölüm bölüm ilerleyen uygulamalı öğrenme kayıtları." /><h2 id="featured-series-title" class="sr-only">Öne çıkan seri</h2><div class="series-feature-list">{activeSeries.map(({ slug, metadata, posts: seriesPosts }) => <article class="series-feature"><div class="series-feature-copy"><span>{seriesStatusLabel[metadata.status]} · {seriesPosts.length.toString().padStart(2, '0')} BÖLÜM</span><h3>{metadata.title}</h3><p>{metadata.description}</p><a class="read-link" href={`/yazilar/seri/${slug}`} title={getSeriesLinkTitle(metadata.title)}>Seriyi incele <span aria-hidden="true">→</span></a></div><ol>{seriesPosts.map((post) => <li><a href={`/yazilar/${postSlug(post)}`} title={post.data.title}><span>{String(post.data.seriesOrder).padStart(2, '0')}</span><strong>{post.data.title.replace(/^Network Öğrenme Günlüğü — Gün \d+: /u, '')}</strong></a></li>)}</ol></article>)}</div></section>}
+
+  <section class="section shell journal-latest" aria-labelledby="latest-posts"><SectionHeading eyebrow="ls ./articles --sort=newest" title="Son Yazılar" description="En yeni araştırmalar ve öğrenme notları." /><h2 id="latest-posts" class="sr-only">En yeni yazılar</h2><div class="post-grid">{latestPosts.map((post) => <PostCard post={post} />)}</div></section>
+
+  <section class="section shell category-groups" aria-labelledby="groups-title"><SectionHeading eyebrow="tree ./archive" title="Kategori Arşivi" description="Tüm yayınlara araştırma alanına göre hızlı erişim." /><h2 id="groups-title" class="sr-only">Kategori arşivi</h2><div>{activeCategories.map(({ slug, metadata, posts: categoryPosts }) => <section aria-labelledby={`group-${slug}`}><div><p>{categoryIcons[slug]} / {categoryPosts.length.toString().padStart(2, '0')} KAYIT</p><h3 id={`group-${slug}`}>{metadata.name}</h3></div><ul>{categoryPosts.slice(0, 3).map((post) => <li><a href={`/yazilar/${postSlug(post)}`} title={post.data.title}><span>{post.data.title}</span><time datetime={post.data.publishedAt.toISOString()}>{post.data.publishedAt.toLocaleDateString('tr-TR')}</time></a></li>)}</ul><a class="read-link" href={`/yazilar/kategori/${slug}`} title={getCategoryLinkTitle(metadata.name)}>Tümünü gör <span aria-hidden="true">→</span></a></section>)}</div></section>
 </BaseLayout>
