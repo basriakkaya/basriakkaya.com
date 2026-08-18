@@ -1,138 +1,110 @@
 ---
 import SectionHeading from './SectionHeading.astro';
+import AchievementCard from './AchievementCard.astro';
 import { siteConfig } from '../config/site';
 
 interface Props { locale?: 'tr' | 'en' }
 const { locale = 'tr' } = Astro.props;
 const isEnglish = locale === 'en';
+
 const copy = isEnglish ? {
-  title: 'Hall of Fame', description: 'Verifiable records from security research, responsible disclosure, competitions, and institutional recognition.',
-  summary: 'Recognition record summary', records: 'records', institutional: 'Institutional', filter: 'Filter recognition records',
-  showing: 'records shown.', details: 'Open details for', verify: 'Verify record', sourceTitle: 'View source in a new tab',
-  newTab: ' (opens in a new tab)', archive: 'Physical or institutional record; no public link is available.',
+  title: 'Hall of Fame & CVE Records',
+  description: 'Publicly verifiable security research, responsible disclosure, and recognition records — grouped for quick review.',
+  summary: 'Recognition record summary', records: 'records', verified: 'Verified', verify: 'View official record',
+  newTab: ' (opens in a new tab)', archive: 'This institutional record is archived; no public link is available.',
+  hofTitle: 'Hall of Fame', hofDescription: 'Recognition received for responsibly reported and validated security findings.',
+  cveTitle: 'CVE Records', cveDescription: 'Public vulnerability identifiers assigned through coordinated disclosure.',
+  moreTitle: 'Competitions & Recognition', moreDescription: 'Competition results and institutional recognition supporting the research journey.',
+  publicRecord: 'Public record', archived: 'Archived', institutional: 'Institutional',
 } : {
-  title: 'Hall of Fame', description: 'Güvenlik araştırmaları, sorumlu açıklama, yarışmalar ve kurumsal takdirlerden doğrulanabilir kayıtlar.',
-  summary: 'Başarı kayıtlarının özeti', records: 'kayıt', institutional: 'Kurumsal', filter: 'Başarı kayıtlarını filtrele',
-  showing: 'kayıt gösteriliyor.', details: 'Ayrıntıları aç:', verify: 'Kaydı doğrula', sourceTitle: 'Kaynağı yeni sekmede görüntüle',
-  newTab: ' (yeni sekmede açılır)', archive: 'Fiziksel veya kurumsal kayıt; herkese açık bağlantı bulunmuyor.',
+  title: 'Hall of Fame & CVE Kayıtları',
+  description: 'Kamuya açık olarak doğrulanabilen güvenlik araştırmaları, sorumlu açıklama ve başarı kayıtları — hızlı inceleme için gruplandırıldı.',
+  summary: 'Başarı kayıtlarının özeti', records: 'kayıt', verified: 'Doğrulandı', verify: 'Resmî kaydı görüntüle',
+  newTab: ' (yeni sekmede açılır)', archive: 'Bu kurumsal kayıt arşivlidir; herkese açık bağlantısı bulunmuyor.',
+  hofTitle: 'Hall of Fame', hofDescription: 'Sorumlu şekilde bildirilen ve doğrulanan güvenlik bulguları için alınan resmî takdirler.',
+  cveTitle: 'CVE Kayıtları', cveDescription: 'Koordineli açıklama süreci sonunda atanmış, kamuya açık güvenlik açığı kimlikleri.',
+  moreTitle: 'Yarışmalar & Takdirler', moreDescription: 'Güvenlik araştırması yolculuğunu destekleyen yarışma dereceleri ve kurumsal takdirler.',
+  publicRecord: 'Kamuya açık kayıt', archived: 'Arşiv', institutional: 'Kurumsal',
 };
 
-const records = [
-  ...siteConfig.cves.map((item) => ({
-    category: 'cve',
-    label: 'CVE',
-    title: item.id,
-    description: isEnglish ? 'Security research record completed through a coordinated disclosure process.' : 'Koordineli açıklama sürecinden geçen güvenlik araştırması kaydı.',
-    url: item.url,
-  })),
-  ...siteConfig.achievements.map((item) => ({
-    category: item.title.includes('CTF') ? 'ctf' : 'hof',
-    label: item.title.includes('CTF') ? 'CTF' : 'HOF',
-    ...item,
-    title: isEnglish ? item.titleEn : item.title,
-    description: isEnglish ? item.descriptionEn : item.description,
-  })),
-  ...siteConfig.recognition.map((item) => ({
-    category: 'institution',
-    label: isEnglish ? 'INSTITUTIONAL' : 'KURUMSAL',
-    ...item,
-    title: isEnglish ? item.titleEn : item.title,
-    description: isEnglish ? item.descriptionEn : item.description,
-  })),
-];
-
-const filters = [
-  ['all', isEnglish ? 'All' : 'Tümü'],
-  ['cve', 'CVE'],
-  ['hof', 'Hall of Fame'],
-  ['ctf', 'CTF'],
-  ['institution', copy.institutional],
-] as const;
-
-const counts = {
-  cve: records.filter((record) => record.category === 'cve').length,
-  hof: records.filter((record) => record.category === 'hof').length,
-  ctf: records.filter((record) => record.category === 'ctf').length,
-  institution: records.filter((record) => record.category === 'institution').length,
+const brandFor = (title: string) => {
+  if (title.includes('Twente')) return { logo: '/images/recognition/university-of-twente.svg', name: 'University of Twente' };
+  if (title.includes('Arçelik')) return { logo: '/images/recognition/arcelik.png', name: 'Arçelik' };
+  return undefined;
 };
+
+const cveRecords = siteConfig.cves.map((item) => ({
+  category: 'cve', label: 'CVE', title: item.id,
+  description: isEnglish ? 'Coordinated vulnerability disclosure record with a public CVE identifier.' : 'Kamuya açık CVE kimliğine sahip koordineli güvenlik açığı açıklama kaydı.',
+  url: item.url, year: item.id.match(/CVE-(\d{4})/)?.[1], brand: undefined,
+}));
+
+const achievementRecords = siteConfig.achievements.map((item) => {
+  const category = item.title.includes('CTF') ? 'ctf' : 'hof';
+  return {
+    category, label: category === 'ctf' ? 'CTF' : 'HOF',
+    title: isEnglish ? item.titleEn : item.title,
+    description: isEnglish ? item.descriptionEn : item.description,
+    url: item.url, year: item.title.match(/\b(20\d{2})\b/)?.[1], brand: brandFor(item.title),
+  };
+});
+
+const institutionalRecords = siteConfig.recognition.map((item) => ({
+  category: 'institution', label: copy.institutional,
+  title: isEnglish ? item.titleEn : item.title,
+  description: isEnglish ? item.descriptionEn : item.description,
+  url: item.url, year: undefined, brand: undefined,
+}));
+
+const hofRecords = achievementRecords.filter((record) => record.category === 'hof');
+const otherRecords = [...achievementRecords.filter((record) => record.category === 'ctf'), ...institutionalRecords];
+const records = [...hofRecords, ...cveRecords, ...otherRecords];
+
 ---
 
-<section class="section shell hof-section" aria-labelledby="hof-title" data-hof data-hof-status-suffix={copy.showing}>
+<section class="section shell hof-section" aria-labelledby="hof-title">
   <div class="hof-heading">
     <SectionHeading eyebrow="cat verified_records.log" title={copy.title} description={copy.description} />
     <div class="hof-summary" aria-label={copy.summary}>
       <span><strong>{records.length}</strong> {copy.records}</span>
-      <span><strong>{counts.cve}</strong> CVE</span>
-      <span><strong>{counts.hof}</strong> HOF</span>
-      <span><strong>{counts.ctf}</strong> CTF</span>
+      <span><strong>{cveRecords.length}</strong> CVE</span>
+      <span><strong>{hofRecords.length}</strong> HOF</span>
+      <span><strong>{otherRecords.length}</strong> {isEnglish ? 'OTHER' : 'DİĞER'}</span>
     </div>
   </div>
 
-  <div class="hof-console">
-    <div class="hof-console-bar" aria-hidden="true">
-      <span class="hof-console-dots"><i></i><i></i><i></i></span>
-      <span>recognition://basri/verified</span>
-      <span>READ_ONLY</span>
-    </div>
+  <div class="achievement-showcase">
+    <section class="achievement-group" aria-labelledby="hof-group-title">
+      <header class="achievement-group-heading">
+        <span class="achievement-group-index" aria-hidden="true">01</span>
+        <div><h3 id="hof-group-title">{copy.hofTitle}</h3><p>{copy.hofDescription}</p></div>
+        <strong>{hofRecords.length}</strong>
+      </header>
+      <div class="achievement-grid achievement-grid--featured">
+        {hofRecords.map((record) => <AchievementCard record={record} copy={copy} featured />)}
+      </div>
+    </section>
 
-    <div class="hof-toolbar" aria-label={copy.filter}>
-      {filters.map(([value, label], index) => (
-        <button type="button" data-hof-filter={value} aria-pressed={index === 0 ? 'true' : 'false'}>
-          <span aria-hidden="true">{index === 0 ? '$' : '›'}</span> {label}
-        </button>
-      ))}
-    </div>
+    <section class="achievement-group" aria-labelledby="cve-group-title">
+      <header class="achievement-group-heading">
+        <span class="achievement-group-index" aria-hidden="true">02</span>
+        <div><h3 id="cve-group-title">{copy.cveTitle}</h3><p>{copy.cveDescription}</p></div>
+        <strong>{cveRecords.length}</strong>
+      </header>
+      <div class="achievement-grid achievement-grid--cve">
+        {cveRecords.map((record) => <AchievementCard record={record} copy={copy} />)}
+      </div>
+    </section>
 
-    <p class="sr-only" aria-live="polite" data-hof-status>{records.length} {copy.showing}</p>
-
-    <div class="hof-records">
-      {records.map((record, index) => (
-        <details class="hof-record" data-hof-record={record.category}>
-          <summary>
-            <span class="hof-index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
-            <span class="hof-record-main">
-              <span class="hof-record-meta"><span>{record.label}</span><span class="verified-mark"><span aria-hidden="true">●</span> VERIFIED</span></span>
-              <strong>{record.title}</strong>
-              <small>{record.description}</small>
-            </span>
-            <span class="hof-expand"><span class="sr-only">{copy.details} {record.title}</span><span aria-hidden="true">+</span></span>
-          </summary>
-          <div class="hof-record-detail">
-            <dl>
-              <div><dt>STATUS</dt><dd>VERIFIED</dd></div>
-              <div><dt>TYPE</dt><dd>{record.label}</dd></div>
-              <div><dt>ACCESS</dt><dd>{record.url ? 'PUBLIC' : 'ARCHIVED'}</dd></div>
-            </dl>
-            {record.url ? (
-              <a class="read-link" href={record.url} title={`${record.title}: ${copy.sourceTitle}`} target="_blank" rel="noopener noreferrer">
-                {copy.verify} <span aria-hidden="true">↗</span><span class="sr-only">{copy.newTab}</span>
-              </a>
-            ) : <p class="hof-archive-note">{copy.archive}</p>}
-          </div>
-        </details>
-      ))}
-    </div>
+    <section class="achievement-group" aria-labelledby="more-group-title">
+      <header class="achievement-group-heading">
+        <span class="achievement-group-index" aria-hidden="true">03</span>
+        <div><h3 id="more-group-title">{copy.moreTitle}</h3><p>{copy.moreDescription}</p></div>
+        <strong>{otherRecords.length}</strong>
+      </header>
+      <div class="achievement-grid achievement-grid--compact">
+        {otherRecords.map((record) => <AchievementCard record={record} copy={copy} />)}
+      </div>
+    </section>
   </div>
 </section>
-
-<script>
-  document.querySelectorAll<HTMLElement>('[data-hof]').forEach((section) => {
-    const buttons = [...section.querySelectorAll<HTMLButtonElement>('[data-hof-filter]')];
-    const records = [...section.querySelectorAll<HTMLElement>('[data-hof-record]')];
-    const status = section.querySelector<HTMLElement>('[data-hof-status]');
-
-    buttons.forEach((button) => button.addEventListener('click', () => {
-      const filter = button.dataset.hofFilter ?? 'all';
-      let visibleCount = 0;
-
-      buttons.forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
-      records.forEach((record) => {
-        const visible = filter === 'all' || record.dataset.hofRecord === filter;
-        record.hidden = !visible;
-        if (visible) visibleCount += 1;
-      });
-
-      if (status) status.textContent = `${visibleCount} ${section.dataset.hofStatusSuffix ?? ''}`;
-    }));
-  });
-</script>
