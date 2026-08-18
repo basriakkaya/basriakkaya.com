@@ -2,32 +2,51 @@
 import SectionHeading from './SectionHeading.astro';
 import { siteConfig } from '../config/site';
 
+interface Props { locale?: 'tr' | 'en' }
+const { locale = 'tr' } = Astro.props;
+const isEnglish = locale === 'en';
+const copy = isEnglish ? {
+  title: 'Hall of Fame', description: 'Verifiable records from security research, responsible disclosure, competitions, and institutional recognition.',
+  summary: 'Recognition record summary', records: 'records', institutional: 'Institutional', filter: 'Filter recognition records',
+  showing: 'records shown.', details: 'Open details for', verify: 'Verify record', sourceTitle: 'View source in a new tab',
+  newTab: ' (opens in a new tab)', archive: 'Physical or institutional record; no public link is available.',
+} : {
+  title: 'Hall of Fame', description: 'Güvenlik araştırmaları, sorumlu açıklama, yarışmalar ve kurumsal takdirlerden doğrulanabilir kayıtlar.',
+  summary: 'Başarı kayıtlarının özeti', records: 'kayıt', institutional: 'Kurumsal', filter: 'Başarı kayıtlarını filtrele',
+  showing: 'kayıt gösteriliyor.', details: 'Ayrıntıları aç:', verify: 'Kaydı doğrula', sourceTitle: 'Kaynağı yeni sekmede görüntüle',
+  newTab: ' (yeni sekmede açılır)', archive: 'Fiziksel veya kurumsal kayıt; herkese açık bağlantı bulunmuyor.',
+};
+
 const records = [
   ...siteConfig.cves.map((item) => ({
     category: 'cve',
     label: 'CVE',
     title: item.id,
-    description: 'Koordineli açıklama sürecinden geçen güvenlik araştırması kaydı.',
+    description: isEnglish ? 'Security research record completed through a coordinated disclosure process.' : 'Koordineli açıklama sürecinden geçen güvenlik araştırması kaydı.',
     url: item.url,
   })),
   ...siteConfig.achievements.map((item) => ({
     category: item.title.includes('CTF') ? 'ctf' : 'hof',
     label: item.title.includes('CTF') ? 'CTF' : 'HOF',
     ...item,
+    title: isEnglish ? item.titleEn : item.title,
+    description: isEnglish ? item.descriptionEn : item.description,
   })),
   ...siteConfig.recognition.map((item) => ({
     category: 'institution',
-    label: 'KURUMSAL',
+    label: isEnglish ? 'INSTITUTIONAL' : 'KURUMSAL',
     ...item,
+    title: isEnglish ? item.titleEn : item.title,
+    description: isEnglish ? item.descriptionEn : item.description,
   })),
 ];
 
 const filters = [
-  ['all', 'Tümü'],
+  ['all', isEnglish ? 'All' : 'Tümü'],
   ['cve', 'CVE'],
   ['hof', 'Hall of Fame'],
   ['ctf', 'CTF'],
-  ['institution', 'Kurumsal'],
+  ['institution', copy.institutional],
 ] as const;
 
 const counts = {
@@ -38,11 +57,11 @@ const counts = {
 };
 ---
 
-<section class="section shell hof-section" aria-labelledby="hof-title" data-hof>
+<section class="section shell hof-section" aria-labelledby="hof-title" data-hof data-hof-status-suffix={copy.showing}>
   <div class="hof-heading">
-    <SectionHeading eyebrow="cat verified_records.log" title="Hall of Fame" description="Güvenlik araştırmaları, sorumlu açıklama, yarışmalar ve kurumsal takdirlerden doğrulanabilir kayıtlar." />
-    <div class="hof-summary" aria-label="Başarı kayıtlarının özeti">
-      <span><strong>{records.length}</strong> kayıt</span>
+    <SectionHeading eyebrow="cat verified_records.log" title={copy.title} description={copy.description} />
+    <div class="hof-summary" aria-label={copy.summary}>
+      <span><strong>{records.length}</strong> {copy.records}</span>
       <span><strong>{counts.cve}</strong> CVE</span>
       <span><strong>{counts.hof}</strong> HOF</span>
       <span><strong>{counts.ctf}</strong> CTF</span>
@@ -56,7 +75,7 @@ const counts = {
       <span>READ_ONLY</span>
     </div>
 
-    <div class="hof-toolbar" aria-label="Başarı kayıtlarını filtrele">
+    <div class="hof-toolbar" aria-label={copy.filter}>
       {filters.map(([value, label], index) => (
         <button type="button" data-hof-filter={value} aria-pressed={index === 0 ? 'true' : 'false'}>
           <span aria-hidden="true">{index === 0 ? '$' : '›'}</span> {label}
@@ -64,7 +83,7 @@ const counts = {
       ))}
     </div>
 
-    <p class="sr-only" aria-live="polite" data-hof-status>{records.length} kayıt gösteriliyor.</p>
+    <p class="sr-only" aria-live="polite" data-hof-status>{records.length} {copy.showing}</p>
 
     <div class="hof-records">
       {records.map((record, index) => (
@@ -76,7 +95,7 @@ const counts = {
               <strong>{record.title}</strong>
               <small>{record.description}</small>
             </span>
-            <span class="hof-expand"><span class="sr-only">Ayrıntıları </span><span aria-hidden="true">+</span></span>
+            <span class="hof-expand"><span class="sr-only">{copy.details} {record.title}</span><span aria-hidden="true">+</span></span>
           </summary>
           <div class="hof-record-detail">
             <dl>
@@ -85,10 +104,10 @@ const counts = {
               <div><dt>ACCESS</dt><dd>{record.url ? 'PUBLIC' : 'ARCHIVED'}</dd></div>
             </dl>
             {record.url ? (
-              <a class="read-link" href={record.url} title={`${record.title} kaynağını yeni sekmede görüntüle`} target="_blank" rel="noopener noreferrer">
-                Kaydı doğrula <span aria-hidden="true">↗</span><span class="sr-only"> (yeni sekmede açılır)</span>
+              <a class="read-link" href={record.url} title={`${record.title}: ${copy.sourceTitle}`} target="_blank" rel="noopener noreferrer">
+                {copy.verify} <span aria-hidden="true">↗</span><span class="sr-only">{copy.newTab}</span>
               </a>
-            ) : <p class="hof-archive-note">Fiziksel veya kurumsal kayıt; herkese açık bağlantı bulunmuyor.</p>}
+            ) : <p class="hof-archive-note">{copy.archive}</p>}
           </div>
         </details>
       ))}
@@ -113,7 +132,7 @@ const counts = {
         if (visible) visibleCount += 1;
       });
 
-      if (status) status.textContent = `${visibleCount} kayıt gösteriliyor.`;
+      if (status) status.textContent = `${visibleCount} ${section.dataset.hofStatusSuffix ?? ''}`;
     }));
   });
 </script>

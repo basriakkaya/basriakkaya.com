@@ -27,14 +27,15 @@ export const siteConfig = {
     { id: 'CVE-2026-16323', url: 'https://www.cve.org/CVERecord?id=CVE-2026-16323' },
   ],
   achievements: [
-    { title: 'Üniversite Onur Listesi', description: 'Sorumlu açıklama çalışmasının üniversite tarafından tanınması.', url: 'https://www.linkedin.com/feed/update/urn:li:activity:7470684004795437056/' },
-    { title: 'Rual Onur Listesi', description: 'Güvenlik bildirimiyle kazanılan onur listesi kaydı.', url: 'https://www.linkedin.com/feed/update/urn:li:activity:7457327912598257664/' },
-    { title: 'SANS CTF — 4.’lük', description: 'Takım çalışması ve teknik problem çözme odaklı CTF derecesi.', url: 'https://www.linkedin.com/feed/update/urn:li:activity:7389336723224170496/' },
-    { title: 'Being Wise CTF — 4.’lük', description: 'Uygulamalı güvenlik yarışmasında elde edilen derece.', url: 'https://www.linkedin.com/feed/update/urn:li:activity:7404273673664393216/' },
+    { title: 'Arçelik Türkiye — 2026 Hall of Fame', titleEn: 'Arçelik Türkiye — 2026 Hall of Fame', description: 'High önem seviyesinde (CVSS 7.5) raporlanan ve doğrulanan güvenlik bulgusu sonucunda “Basri Akkaya (realkage)” adıyla resmî Vulnerability Disclosure Hall of Fame kaydı.', descriptionEn: 'Official Vulnerability Disclosure Hall of Fame recognition as “Basri Akkaya (realkage)” following a validated security finding reported as High severity (CVSS 7.5).', url: 'https://www.arcelikglobal.com/en/vulnerability-disclosure-hall-of-fame/2026-vulnerability-disclosure-hall-of-fame/' },
+    { title: 'Üniversite Onur Listesi', titleEn: 'University Hall of Fame', description: 'Sorumlu açıklama çalışmasının üniversite tarafından tanınması.', descriptionEn: 'University recognition for responsible vulnerability disclosure work.', url: 'https://www.linkedin.com/feed/update/urn:li:activity:7470684004795437056/' },
+    { title: 'Rual Onur Listesi', titleEn: 'Rual Hall of Fame', description: 'Güvenlik bildirimiyle kazanılan onur listesi kaydı.', descriptionEn: 'Hall of Fame recognition earned through responsible vulnerability disclosure.', url: 'https://www.linkedin.com/feed/update/urn:li:activity:7457327912598257664/' },
+    { title: 'SANS CTF — 4.’lük', titleEn: 'SANS CTF — 4th Place', description: 'Takım çalışması ve teknik problem çözme odaklı CTF derecesi.', descriptionEn: 'A fourth-place CTF result focused on teamwork and technical problem solving.', url: 'https://www.linkedin.com/feed/update/urn:li:activity:7389336723224170496/' },
+    { title: 'Being Wise CTF — 4.’lük', titleEn: 'Being Wise CTF — 4th Place', description: 'Uygulamalı güvenlik yarışmasında elde edilen derece.', descriptionEn: 'A fourth-place result in a hands-on cybersecurity competition.', url: 'https://www.linkedin.com/feed/update/urn:li:activity:7404273673664393216/' },
   ],
   recognition: [
-    { title: 'Goce Delcev Üniversitesi', description: 'Güvenlik çalışmaları için resmî takdir mektubu.', url: 'https://fi.ugd.edu.mk/%d1%81%d1%82%d1%83%d0%b4%d0%b5%d0%bd%d1%82-%d0%bd%d0%b0-%d1%84%d0%b0%d0%ba%d1%83%d0%bb%d1%82%d0%b5%d1%82-%d0%b7%d0%b0-%d0%b8%d0%bd%d1%84%d0%be%d1%80%d0%bc%d0%b0%d1%82%d0%b8%d0%ba%d0%b0-%d0%be%d1%82/' },
-    { title: 'Rahim Usta Anadolu Lisesi', description: 'Güvenlik çalışmaları için resmî takdir mektubu.', url: undefined },
+    { title: 'Goce Delcev Üniversitesi', titleEn: 'Goce Delcev University', description: 'Güvenlik çalışmaları için resmî takdir mektubu.', descriptionEn: 'Official letter of recognition for security research.', url: 'https://fi.ugd.edu.mk/%d1%81%d1%82%d1%83%d0%b4%d0%b5%d0%bd%d1%82-%d0%bd%d0%b0-%d1%84%d0%b0%d0%ba%d1%83%d0%bb%d1%82%d0%b5%d1%82-%d0%b7%d0%b0-%d0%b8%d0%bd%d1%84%d0%be%d1%80%d0%bc%d0%b0%d1%82%d0%b8%d0%ba%d0%b0-%d0%be%d1%82/' },
+    { title: 'Rahim Usta Anadolu Lisesi', titleEn: 'Rahim Usta Anatolian High School', description: 'Güvenlik çalışmaları için resmî takdir mektubu.', descriptionEn: 'Official letter of recognition for security research.', url: undefined },
   ],
   community: {
     name: 'BugHane Academy',

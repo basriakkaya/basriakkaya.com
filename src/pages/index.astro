@@ -10,7 +10,7 @@ import { getExternalProfileLinkTitle, getNavigationLinkTitle } from '../lib/link
 import { alternateLinks } from '../i18n/helpers';
 import HallOfFame from '../components/HallOfFame.astro';
 
-const posts = (await getPublishedPosts()).slice(0, 3);
+const posts = (await getPublishedPosts('tr')).slice(0, 3);
 const jsonLd = schemaGraph([
   personSchema,
   { '@type': 'WebSite', '@id': `${absoluteUrl('/')}#website`, name: siteConfig.name, alternateName: ['Basri Akkaya Blog', 'Basri Akkaya Cybersecurity'], url: absoluteUrl('/'), description: siteConfig.description, inLanguage: siteConfig.locale, publisher: { '@id': `${absoluteUrl('/')}#person` } },
@@ -29,7 +29,7 @@ const jsonLd = schemaGraph([
     <aside class="focus-panel" aria-label="Odak alanlarım"><p class="panel-title">odak_alanlari</p><ul>{siteConfig.focus.map((item) => <li><span aria-hidden="true">›</span> {item}</li>)}</ul></aside>
   </section>
 
-  <HallOfFame />
+  <HallOfFame locale="tr" />
 
   <section class="section shell recognition-community" aria-labelledby="community-title">
     <div><SectionHeading eyebrow="topluluk.log" title="Topluluk & Medya" description="Bilgiyi yalnızca biriktirmek değil, paylaşılabilir ve uygulanabilir hâle getirmek." /></div>
