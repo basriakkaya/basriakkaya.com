@@ -10,7 +10,6 @@ interface RecordItem {
 }
 
 interface Copy {
-  verified: string;
   verify: string;
   newTab: string;
   archive: string;
@@ -30,7 +29,6 @@ const { record, copy, featured = false } = Astro.props;
     ) : (
       <span class="achievement-emblem" aria-hidden="true">{record.label === copy.institutional ? 'ORG' : record.label}</span>
     )}
-    <span class="achievement-verified"><span aria-hidden="true">●</span> {copy.verified}</span>
   </div>
   <div class="achievement-card-body">
     <div class="achievement-meta">

@@ -11,7 +11,7 @@ const securityOnly = scope === 'security';
 const copy = isEnglish ? {
   title: 'Hall of Fame & CVE Records',
   description: 'Publicly verifiable security research, responsible disclosure, and recognition records — grouped for quick review.',
-  summary: 'Recognition record summary', records: 'records', verified: 'Verified', verify: 'View official record',
+  summary: 'Recognition record summary', records: 'records', verify: 'View official record',
   newTab: ' (opens in a new tab)', archive: 'This institutional record is archived; no public link is available.',
   hofTitle: 'Hall of Fame', hofDescription: 'Recognition received for responsibly reported and validated security findings.',
   cveTitle: 'CVE Records', cveDescription: 'Public vulnerability identifiers assigned through coordinated disclosure.',
@@ -20,7 +20,7 @@ const copy = isEnglish ? {
 } : {
   title: 'Hall of Fame & CVE Kayıtları',
   description: 'Kamuya açık olarak doğrulanabilen güvenlik araştırmaları, sorumlu açıklama ve başarı kayıtları — hızlı inceleme için gruplandırıldı.',
-  summary: 'Başarı kayıtlarının özeti', records: 'kayıt', verified: 'Doğrulandı', verify: 'Resmî kaydı görüntüle',
+  summary: 'Başarı kayıtlarının özeti', records: 'kayıt', verify: 'Resmî kaydı görüntüle',
   newTab: ' (yeni sekmede açılır)', archive: 'Bu kurumsal kayıt arşivlidir; herkese açık bağlantısı bulunmuyor.',
   hofTitle: 'Hall of Fame', hofDescription: 'Sorumlu şekilde bildirilen ve doğrulanan güvenlik bulguları için alınan resmî takdirler.',
   cveTitle: 'CVE Kayıtları', cveDescription: 'Koordineli açıklama süreci sonunda atanmış, kamuya açık güvenlik açığı kimlikleri.',
@@ -31,6 +31,7 @@ const copy = isEnglish ? {
 const brandFor = (title: string) => {
   if (title.includes('Twente')) return { logo: '/images/recognition/university-of-twente.svg', name: 'University of Twente' };
   if (title.includes('Arçelik')) return { logo: '/images/recognition/arcelik.png', name: 'Arçelik' };
+  if (title.includes('Goce Delcev')) return { logo: '/images/recognition/goce-delcev-university.png', name: 'Goce Delcev University' };
   return undefined;
 };
 
@@ -50,15 +51,8 @@ const achievementRecords = siteConfig.achievements.map((item) => {
   };
 });
 
-const institutionalRecords = siteConfig.recognition.map((item) => ({
-  category: 'institution', label: copy.institutional,
-  title: isEnglish ? item.titleEn : item.title,
-  description: isEnglish ? item.descriptionEn : item.description,
-  url: item.url, year: undefined, brand: undefined,
-}));
-
 const hofRecords = achievementRecords.filter((record) => record.category === 'hof');
-const otherRecords = [...achievementRecords.filter((record) => record.category === 'ctf'), ...institutionalRecords];
+const otherRecords = achievementRecords.filter((record) => record.category === 'ctf');
 const records = securityOnly ? [...hofRecords, ...cveRecords] : [...hofRecords, ...cveRecords, ...otherRecords];
 
 ---
