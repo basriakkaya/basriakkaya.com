@@ -9,7 +9,10 @@ export const personSchema = {
   url: absoluteUrl('/'),
   image: absoluteUrl(siteConfig.defaultImage),
   affiliation: { '@type': 'CollegeOrUniversity', name: 'Goce Delčev University – Štip' },
-  award: ['Arçelik Türkiye — 2026 Vulnerability Disclosure Hall of Fame'],
+  award: [
+    'University of Twente — 2026 Responsible Disclosure Hall of Fame',
+    'Arçelik Türkiye — 2026 Vulnerability Disclosure Hall of Fame',
+  ],
   sameAs: [siteConfig.github, siteConfig.linkedin, siteConfig.youtube, siteConfig.tryHackMe],
 };
 
