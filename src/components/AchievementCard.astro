@@ -11,6 +11,10 @@ interface RecordItem {
   findings?: readonly string[];
   evidence?: string;
   evidenceAlt?: string;
+  evidenceWidth?: number;
+  evidenceHeight?: number;
+  evidenceId?: string;
+  findingTitle?: string;
 }
 
 interface Copy {
@@ -44,6 +48,7 @@ const { record, copy, featured = false } = Astro.props;
     </div>
     <h4>{record.title}</h4>
     <p>{record.description}</p>
+    {record.findingTitle && <p class="achievement-finding-title">{record.findingTitle}</p>}
     {record.findings && <ul class="achievement-findings" aria-label={record.title}>{record.findings.map((finding) => <li>{finding}</li>)}</ul>}
   </div>
   <div class="achievement-card-footer">
@@ -60,13 +65,15 @@ const { record, copy, featured = false } = Astro.props;
 </article>
 
 {record.evidence && (
-  <dialog class="evidence-dialog" data-evidence-dialog aria-labelledby="nasa-evidence-title">
+  <dialog class="evidence-dialog" data-evidence-dialog aria-labelledby={record.evidenceId}>
     <div class="evidence-dialog-bar">
-      <div><span>NASA VDP</span><h3 id="nasa-evidence-title">{copy.evidence}</h3></div>
+      <div><span>{record.title}</span><h3 id={record.evidenceId}>{copy.evidence}</h3></div>
       <form method="dialog"><button type="submit" aria-label={copy.closeEvidence}>×</button></form>
     </div>
     <figure>
-      <img src={record.evidence} alt={record.evidenceAlt} width="1788" height="474" loading="lazy" decoding="async" />
+      <div class="evidence-dialog-media">
+        <img class:list={['evidence-dialog-image', { 'is-wide': (record.evidenceWidth ?? 0) > (record.evidenceHeight ?? 1) * 2 }]} src={record.evidence} alt={record.evidenceAlt} width={record.evidenceWidth} height={record.evidenceHeight} loading="lazy" decoding="async" />
+      </div>
       <figcaption>{record.evidenceAlt}</figcaption>
     </figure>
   </dialog>
@@ -76,11 +83,15 @@ const { record, copy, featured = false } = Astro.props;
   document.querySelectorAll<HTMLButtonElement>('[data-evidence-open]').forEach((button) => {
     button.addEventListener('click', () => {
       const dialog = button.closest('.achievement-card')?.nextElementSibling;
-      if (dialog instanceof HTMLDialogElement) dialog.showModal();
+      if (dialog instanceof HTMLDialogElement) {
+        document.documentElement.classList.add('evidence-open');
+        dialog.showModal();
+      }
     });
   });
 
   document.querySelectorAll<HTMLDialogElement>('[data-evidence-dialog]').forEach((dialog) => {
+    dialog.addEventListener('close', () => document.documentElement.classList.remove('evidence-open'));
     dialog.addEventListener('click', (event) => {
       if (event.target === dialog) dialog.close();
     });
