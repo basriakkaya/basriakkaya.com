@@ -45,10 +45,14 @@ const cveRecords = siteConfig.cves.map((item) => ({
 const achievementRecords = siteConfig.achievements.map((item) => {
   const category = item.title.includes('CTF') ? 'ctf' : 'hof';
   const evidence = 'evidence' in item ? {
-    status: isEnglish ? item.statusEn : item.status,
-    findings: item.findings,
+    status: 'status' in item ? (isEnglish ? item.statusEn : item.status) : undefined,
+    findings: 'findings' in item ? item.findings : undefined,
+    findingTitle: 'findingTitle' in item ? (isEnglish ? item.findingTitleEn : item.findingTitle) : undefined,
     evidence: item.evidence,
     evidenceAlt: isEnglish ? item.evidenceAltEn : item.evidenceAlt,
+    evidenceWidth: item.evidenceWidth,
+    evidenceHeight: item.evidenceHeight,
+    evidenceId: item.title.includes('NASA') ? 'nasa-evidence-title' : 'arcelik-evidence-title',
   } : {};
   return {
     category, label: category === 'ctf' ? 'CTF' : 'HOF',
