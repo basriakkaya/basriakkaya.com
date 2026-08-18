@@ -7,6 +7,10 @@ interface RecordItem {
   url?: string;
   year?: string;
   brand?: { logo: string; name: string };
+  status?: string;
+  findings?: readonly string[];
+  evidence?: string;
+  evidenceAlt?: string;
 }
 
 interface Copy {
@@ -16,6 +20,8 @@ interface Copy {
   publicRecord: string;
   archived: string;
   institutional: string;
+  evidence: string;
+  closeEvidence: string;
 }
 
 interface Props { record: RecordItem; copy: Copy; featured?: boolean }
@@ -34,16 +40,49 @@ const { record, copy, featured = false } = Astro.props;
     <div class="achievement-meta">
       <span>{record.label}</span>
       {record.year && <span>{record.year}</span>}
+      {record.status && <span class="achievement-status">{record.status}</span>}
     </div>
     <h4>{record.title}</h4>
     <p>{record.description}</p>
+    {record.findings && <ul class="achievement-findings" aria-label={record.title}>{record.findings.map((finding) => <li>{finding}</li>)}</ul>}
   </div>
   <div class="achievement-card-footer">
     <span>{record.url ? copy.publicRecord : copy.archived}</span>
     {record.url ? (
-      <a href={record.url} target="_blank" rel="noopener noreferrer">
-        {copy.verify} <span aria-hidden="true">↗</span><span class="sr-only">{copy.newTab}</span>
-      </a>
+      <span class="achievement-card-actions">
+        {record.evidence && <button type="button" data-evidence-open>{copy.evidence}</button>}
+        <a href={record.url} target="_blank" rel="noopener noreferrer">
+          {copy.verify} <span aria-hidden="true">↗</span><span class="sr-only">{copy.newTab}</span>
+        </a>
+      </span>
     ) : <small>{copy.archive}</small>}
   </div>
 </article>
+
+{record.evidence && (
+  <dialog class="evidence-dialog" data-evidence-dialog aria-labelledby="nasa-evidence-title">
+    <div class="evidence-dialog-bar">
+      <div><span>NASA VDP</span><h3 id="nasa-evidence-title">{copy.evidence}</h3></div>
+      <form method="dialog"><button type="submit" aria-label={copy.closeEvidence}>×</button></form>
+    </div>
+    <figure>
+      <img src={record.evidence} alt={record.evidenceAlt} width="1788" height="474" loading="lazy" decoding="async" />
+      <figcaption>{record.evidenceAlt}</figcaption>
+    </figure>
+  </dialog>
+)}
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-evidence-open]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const dialog = button.closest('.achievement-card')?.nextElementSibling;
+      if (dialog instanceof HTMLDialogElement) dialog.showModal();
+    });
+  });
+
+  document.querySelectorAll<HTMLDialogElement>('[data-evidence-dialog]').forEach((dialog) => {
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+  });
+</script>
