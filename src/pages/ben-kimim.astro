@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SectionHeading from '../components/SectionHeading.astro';
+import HallOfFame from '../components/HallOfFame.astro';
 import { siteConfig } from '../config/site';
 import { absoluteUrl } from '../config/site';
 import { breadcrumbSchema, personSchema, schemaGraph } from '../lib/schema';
@@ -30,4 +31,5 @@ const jsonLd = schemaGraph([
     </figure>
   </section>
   <section class="section shell"><div class="focus-panel wide"><p class="panel-title">odak_alanlari.txt</p><ul>{siteConfig.focus.map((item) => <li><span aria-hidden="true">›</span> {item}</li>)}</ul></div></section>
+  <HallOfFame locale="tr" scope="security" />
 </BaseLayout>

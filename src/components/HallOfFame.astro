@@ -3,9 +3,10 @@ import SectionHeading from './SectionHeading.astro';
 import AchievementCard from './AchievementCard.astro';
 import { siteConfig } from '../config/site';
 
-interface Props { locale?: 'tr' | 'en' }
-const { locale = 'tr' } = Astro.props;
+interface Props { locale?: 'tr' | 'en'; scope?: 'all' | 'security' }
+const { locale = 'tr', scope = 'all' } = Astro.props;
 const isEnglish = locale === 'en';
+const securityOnly = scope === 'security';
 
 const copy = isEnglish ? {
   title: 'Hall of Fame & CVE Records',
@@ -58,18 +59,18 @@ const institutionalRecords = siteConfig.recognition.map((item) => ({
 
 const hofRecords = achievementRecords.filter((record) => record.category === 'hof');
 const otherRecords = [...achievementRecords.filter((record) => record.category === 'ctf'), ...institutionalRecords];
-const records = [...hofRecords, ...cveRecords, ...otherRecords];
+const records = securityOnly ? [...hofRecords, ...cveRecords] : [...hofRecords, ...cveRecords, ...otherRecords];
 
 ---
 
 <section class="section shell hof-section" aria-labelledby="hof-title">
   <div class="hof-heading">
     <SectionHeading eyebrow="cat verified_records.log" title={copy.title} description={copy.description} />
-    <div class="hof-summary" aria-label={copy.summary}>
+    <div class:list={['hof-summary', { 'hof-summary--security': securityOnly }]} aria-label={copy.summary}>
       <span><strong>{records.length}</strong> {copy.records}</span>
       <span><strong>{cveRecords.length}</strong> CVE</span>
       <span><strong>{hofRecords.length}</strong> HOF</span>
-      <span><strong>{otherRecords.length}</strong> {isEnglish ? 'OTHER' : 'DİĞER'}</span>
+      {!securityOnly && <span><strong>{otherRecords.length}</strong> {isEnglish ? 'OTHER' : 'DİĞER'}</span>}
     </div>
   </div>
 
@@ -96,15 +97,17 @@ const records = [...hofRecords, ...cveRecords, ...otherRecords];
       </div>
     </section>
 
-    <section class="achievement-group" aria-labelledby="more-group-title">
-      <header class="achievement-group-heading">
-        <span class="achievement-group-index" aria-hidden="true">03</span>
-        <div><h3 id="more-group-title">{copy.moreTitle}</h3><p>{copy.moreDescription}</p></div>
-        <strong>{otherRecords.length}</strong>
-      </header>
-      <div class="achievement-grid achievement-grid--compact">
-        {otherRecords.map((record) => <AchievementCard record={record} copy={copy} />)}
-      </div>
-    </section>
+    {!securityOnly && (
+      <section class="achievement-group" aria-labelledby="more-group-title">
+        <header class="achievement-group-heading">
+          <span class="achievement-group-index" aria-hidden="true">03</span>
+          <div><h3 id="more-group-title">{copy.moreTitle}</h3><p>{copy.moreDescription}</p></div>
+          <strong>{otherRecords.length}</strong>
+        </header>
+        <div class="achievement-grid achievement-grid--compact">
+          {otherRecords.map((record) => <AchievementCard record={record} copy={copy} />)}
+        </div>
+      </section>
+    )}
   </div>
 </section>
