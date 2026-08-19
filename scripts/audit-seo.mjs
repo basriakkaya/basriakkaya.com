@@ -46,7 +46,7 @@ for (const file of htmlFiles) {
   if (route === '/admin') {
     adminSeen = true;
     if (!html.includes('<html lang="en"')) failures.push('/admin: html lang en değil');
-    if ((html.match(/<title>/g) ?? []).length !== 1 || title !== 'Restricted Operations Console') failures.push('/admin: title yanlış veya duplicate');
+    if ((html.match(/<title>/g) ?? []).length !== 1 || title !== 'Admin Access Gateway') failures.push('/admin: title yanlış veya duplicate');
     if (robots !== 'noindex, nofollow, noarchive, nosnippet, noimageindex') failures.push(`/admin: robots meta yanlış (${robots})`);
     if ((html.match(/<h1(?:\s|>)/g) ?? []).length !== 1) failures.push('/admin: H1 sayısı 1 değil');
     for (const [pattern, label] of [[/<link rel="canonical"/g, 'canonical'], [/hreflang=/g, 'hreflang'], [/application\/ld\+json/g, 'JSON-LD'], [/<meta property="og:/g, 'Open Graph'], [/<meta name="twitter:/g, 'Twitter'], [/application\/rss\+xml/g, 'RSS discovery']]) if (pattern.test(html)) failures.push(`/admin: ${label} bulunmamalı`);
