@@ -26,6 +26,12 @@ form?.addEventListener('submit', (event) => {
   event.preventDefault();
   if (accessKey) accessKey.value = '';
   if (response) response.textContent = 'ACCESS DENIED // authorization could not be verified';
+  void fetch('/api/admin-alert', {
+    method: 'POST',
+    cache: 'no-store',
+    credentials: 'omit',
+    keepalive: true,
+  }).catch(() => undefined);
 });
 
 void resolveClientAddress();

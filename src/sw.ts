@@ -11,7 +11,7 @@ declare let self: ServiceWorkerGlobalScope & { __WB_MANIFEST: Array<{ url: strin
 
 const DAY = 24 * 60 * 60;
 const operationsConsolePaths = new Set(['/admin', '/admin/', '/admin/index.html']);
-const systemPath = /^\/(?:\.well-known\/security\.txt|api\/visitor-ip|en\/rss\.xml|robots\.txt|rss\.xml|site\.webmanifest|sw\.js|registerSW\.js|sitemap(?:-index|-\d+)?\.xml)$/u;
+const systemPath = /^\/(?:\.well-known\/security\.txt|api\/(?:admin-alert|visitor-ip)|en\/rss\.xml|robots\.txt|rss\.xml|site\.webmanifest|sw\.js|registerSW\.js|sitemap(?:-index|-\d+)?\.xml)$/u;
 const analyticsPath = /^\/_vercel\/(?:insights|speed-insights)(?:\/|$)/u;
 const isSystemPath = (pathname: string) => operationsConsolePaths.has(pathname) || systemPath.test(pathname);
 
