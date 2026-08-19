@@ -1,32 +1,31 @@
-const navButtons = [...document.querySelectorAll<HTMLButtonElement>('[data-ops-target]')];
-const views = [...document.querySelectorAll<HTMLElement>('[data-ops-view]')];
+const ipOutput = document.querySelector<HTMLElement>('[data-client-ip]');
+const form = document.querySelector<HTMLFormElement>('[data-admin-form]');
+const response = document.querySelector<HTMLElement>('[data-admin-response]');
+const accessKey = document.querySelector<HTMLInputElement>('#access-key');
 
-for (const button of navButtons) {
-  button.addEventListener('click', () => {
-    const target = button.dataset.opsTarget;
-    for (const item of navButtons) item.setAttribute('aria-pressed', String(item === button));
-    for (const view of views) view.hidden = view.dataset.opsView !== target;
-  });
+async function resolveClientAddress() {
+  if (!ipOutput) return;
+  try {
+    const request = await fetch('/api/visitor-ip', {
+      headers: { Accept: 'application/json' },
+      cache: 'no-store',
+      credentials: 'omit',
+    });
+    if (!request.ok) throw new Error('address unavailable');
+    const payload: unknown = await request.json();
+    const address = typeof payload === 'object' && payload !== null && 'ip' in payload
+      ? String(payload.ip)
+      : '';
+    ipOutput.textContent = address || 'unavailable';
+  } catch {
+    ipOutput.textContent = 'unavailable';
+  }
 }
 
-function runCheck(button: HTMLButtonElement, status: HTMLElement, running: string, complete: string) {
-  if (button.getAttribute('aria-disabled') === 'true') return;
-  button.setAttribute('aria-disabled', 'true');
-  status.textContent = running;
-  window.setTimeout(() => {
-    status.textContent = complete;
-    button.removeAttribute('aria-disabled');
-  }, 1200);
-}
-
-const integrityButton = document.querySelector<HTMLButtonElement>('[data-integrity-check]');
-const integrityStatus = document.querySelector<HTMLElement>('[data-integrity-status]');
-integrityButton?.addEventListener('click', () => {
-  if (integrityStatus) runCheck(integrityButton, integrityStatus, 'RUNNING CHECKSUM…', 'INTEGRITY: VERIFIED');
+form?.addEventListener('submit', (event) => {
+  event.preventDefault();
+  if (accessKey) accessKey.value = '';
+  if (response) response.textContent = 'ACCESS DENIED // authorization could not be verified';
 });
 
-const nodeButton = document.querySelector<HTMLButtonElement>('[data-node-check]');
-const nodeStatus = document.querySelector<HTMLElement>('[data-node-status]');
-nodeButton?.addEventListener('click', () => {
-  if (nodeStatus) runCheck(nodeButton, nodeStatus, 'CHECKING // 7 TARGETS', 'COMPLETE // 7 RESPONDING');
-});
+void resolveClientAddress();
