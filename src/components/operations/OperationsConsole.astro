@@ -1,36 +1,27 @@
 <main id="admin-main" class="admin-shell">
   <section class="admin-card" aria-labelledby="admin-title">
-    <header class="admin-header">
-      <div class="admin-brand" aria-hidden="true"><span></span><span></span><span></span></div>
-      <p>SECURE ACCESS GATEWAY</p>
-    </header>
-
     <div class="admin-content">
-      <p class="admin-kicker">AUTHORIZATION REQUIRED</p>
-      <h1 id="admin-title">Administrative access</h1>
-      <p class="admin-summary">This endpoint is restricted to authorized operators. All access attempts are subject to security controls.</p>
-
-      <dl class="admin-context" aria-label="Connection context">
-        <div><dt>Client address</dt><dd data-client-ip aria-live="polite">resolving…</dd></div>
-        <div><dt>Transport</dt><dd>TLS / encrypted</dd></div>
-        <div><dt>Gateway</dt><dd>edge-auth-01</dd></div>
-      </dl>
+      <header class="admin-heading">
+        <div class="admin-mark" aria-hidden="true">BA</div>
+        <h1 id="admin-title">Admin Login</h1>
+        <p>Sign in to continue.</p>
+      </header>
 
       <form class="admin-form" data-admin-form autocomplete="off" novalidate>
         <div class="admin-field">
-          <label for="operator-id">Operator ID</label>
+          <label for="operator-id">Username</label>
           <input id="operator-id" name="operator" type="text" inputmode="text" autocomplete="off" spellcheck="false" required />
         </div>
         <div class="admin-field">
-          <label for="access-key">Access key</label>
+          <label for="access-key">Password</label>
           <input id="access-key" name="access-key" type="password" autocomplete="new-password" required />
         </div>
-        <button type="submit">Authenticate</button>
-        <p class="admin-response" data-admin-response aria-live="polite">Awaiting credentials.</p>
+        <button type="submit">Sign in</button>
+        <p class="admin-response" data-admin-response aria-live="polite"></p>
       </form>
-    </div>
 
-    <footer class="admin-footer"><span>ZERO TRUST EDGE</span><span>SESSION UNVERIFIED</span></footer>
+      <p class="admin-client">IP address: <span data-client-ip aria-live="polite">resolving…</span></p>
+    </div>
   </section>
 </main>
 <script src="../../scripts/operations-console.ts"></script>

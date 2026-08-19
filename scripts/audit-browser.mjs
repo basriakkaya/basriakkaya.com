@@ -132,13 +132,13 @@ for (const width of viewports) {
   await send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: width < 768 });
   await navigate('/admin');
   adminLayoutResults.push(await evaluate(`(() => {
-    const buttons = [...document.querySelectorAll('[data-ops-target]')];
+    const controls = [...document.querySelectorAll('.admin-form input, .admin-form button')];
     return {
       width: ${width},
       overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
-      minTouchHeight: Math.min(...buttons.map((button) => button.getBoundingClientRect().height)),
-      overviewVisible: !document.querySelector('[data-ops-view="overview"]').hidden,
-      hiddenViews: [...document.querySelectorAll('[data-ops-view][hidden]')].length
+      cardVisible: Boolean(document.querySelector('.admin-card')?.getBoundingClientRect().height),
+      controlCount: controls.length,
+      minTouchHeight: Math.min(...controls.map((control) => control.getBoundingClientRect().height))
     };
   })()`));
 }
@@ -146,8 +146,12 @@ for (const width of viewports) {
 await send('Emulation.setScriptExecutionDisabled', { value: true });
 await navigate('/admin');
 const adminWithoutJs = await evaluate(`(() => {
-  const overview = document.querySelector('[data-ops-view="overview"]');
-  return { overviewVisible: overview && !overview.hidden && getComputedStyle(overview).display !== 'none', text: overview?.innerText.includes('THREAT LEVEL:') };
+  const form = document.querySelector('[data-admin-form]');
+  return {
+    formVisible: Boolean(form && getComputedStyle(form).display !== 'none'),
+    title: document.querySelector('h1')?.textContent === 'Admin Login',
+    inputs: form?.querySelectorAll('input').length === 2
+  };
 })()`);
 await send('Emulation.setScriptExecutionDisabled', { value: false });
 
@@ -158,37 +162,24 @@ await new Promise((resolve) => setTimeout(resolve, 50));
 const adminLoadRequests = networkRequests.slice(adminLoadStart);
 const adminInteractionStart = networkRequests.length;
 const adminInteraction = await evaluate(`(async () => {
-  const access = document.querySelector('[data-ops-target="access"]');
-  const systems = document.querySelector('[data-ops-target="systems"]');
-  const overview = document.querySelector('[data-ops-target="overview"]');
-  const nodeCheck = document.querySelector('[data-node-check]');
-  const integrityCheck = document.querySelector('[data-integrity-check]');
-
-  access.focus(); access.click();
-  const accessVisible = !document.querySelector('[data-ops-view="access"]').hidden && access.getAttribute('aria-pressed') === 'true';
-  const accessFocus = document.activeElement === access;
-
-  systems.focus(); systems.click();
-  const systemsVisible = !document.querySelector('[data-ops-view="systems"]').hidden && systems.getAttribute('aria-pressed') === 'true';
-  const systemsFocus = document.activeElement === systems;
-  nodeCheck.focus(); nodeCheck.click();
-  const nodeCheckFocus = document.activeElement === nodeCheck;
-  await new Promise((resolve) => setTimeout(resolve, 1250));
-  const nodeComplete = document.querySelector('[data-node-status]').textContent === 'COMPLETE // 7 RESPONDING';
-
-  overview.focus(); overview.click();
-  const overviewVisible = !document.querySelector('[data-ops-view="overview"]').hidden && overview.getAttribute('aria-pressed') === 'true';
-  const overviewFocus = document.activeElement === overview;
-  integrityCheck.focus(); integrityCheck.click();
-  const integrityCheckFocus = document.activeElement === integrityCheck;
-  await new Promise((resolve) => setTimeout(resolve, 1250));
+  const form = document.querySelector('[data-admin-form]');
+  const username = document.querySelector('#operator-id');
+  const password = document.querySelector('#access-key');
+  const button = form.querySelector('button[type="submit"]');
+  username.focus();
+  const usernameFocus = document.activeElement === username;
+  password.focus();
+  const passwordFocus = document.activeElement === password;
+  button.focus();
+  const buttonFocus = document.activeElement === button;
+  username.value = 'audit-user';
+  password.value = 'audit-secret';
+  form.requestSubmit();
+  await new Promise((resolve) => setTimeout(resolve, 250));
   return {
-    accessVisible,
-    systemsVisible,
-    overviewVisible,
-    nodeComplete,
-    integrityComplete: document.querySelector('[data-integrity-status]').textContent === 'INTEGRITY: VERIFIED',
-    focusNatural: accessFocus && systemsFocus && nodeCheckFocus && overviewFocus && integrityCheckFocus
+    credentialsCleared: username.value === '' && password.value === '',
+    deniedMessage: document.querySelector('[data-admin-response]').textContent === 'Invalid username or password.',
+    focusNatural: usernameFocus && passwordFocus && buttonFocus
   };
 })()`);
 const adminInteractionRequests = networkRequests.slice(adminInteractionStart);
@@ -196,6 +187,10 @@ const baseOrigin = new URL(baseUrl).origin;
 const invalidAdminLoadRequests = adminLoadRequests.filter((requestUrl) => {
   const parsed = new URL(requestUrl);
   return parsed.origin !== baseOrigin || !(/^\/admin\/?$/u.test(parsed.pathname) || parsed.pathname === '/favicon.svg' || parsed.pathname.startsWith('/_astro/'));
+});
+const invalidAdminInteractionRequests = adminInteractionRequests.filter((requestUrl) => {
+  const parsed = new URL(requestUrl);
+  return parsed.origin !== baseOrigin || parsed.pathname !== '/api/admin-alert';
 });
 
 socket.close();
@@ -209,11 +204,12 @@ const failures = [
   ...Object.entries(links).filter(([name, passed]) => name === 'exposedEmailText' ? passed : !passed).map(([name]) => `${name} başarısız`),
   ...adminLayoutResults.filter((result) => result.overflow).map((result) => `/admin ${result.width}px yatay taşma`),
   ...adminLayoutResults.filter((result) => result.minTouchHeight < 44).map((result) => `/admin ${result.width}px touch target ${result.minTouchHeight}`),
-  ...adminLayoutResults.filter((result) => !result.overviewVisible || result.hiddenViews !== 2).map((result) => `/admin ${result.width}px initial panel state yanlış`),
+  ...adminLayoutResults.filter((result) => !result.cardVisible || result.controlCount !== 3).map((result) => `/admin ${result.width}px login kontrol yapısı yanlış`),
   ...Object.entries(adminWithoutJs).filter(([, passed]) => !passed).map(([name]) => `/admin JavaScript-off ${name} başarısız`),
   ...Object.entries(adminInteraction).filter(([, passed]) => !passed).map(([name]) => `/admin ${name} başarısız`),
   ...invalidAdminLoadRequests.map((url) => `/admin izin verilmeyen load request: ${url}`),
-  ...adminInteractionRequests.map((url) => `/admin interaction sonrası request: ${url}`),
+  ...invalidAdminInteractionRequests.map((url) => `/admin interaction sonrası izin verilmeyen request: ${url}`),
+  ...(adminInteractionRequests.length !== 1 ? [`/admin interaction request sayısı ${adminInteractionRequests.length}, beklenen 1`] : []),
 ];
 
 console.log(JSON.stringify({ baseUrl, layoutResults, interactions, statuses, links, adminLayoutResults, adminWithoutJs, adminInteraction, adminLoadRequests, adminInteractionRequests, consoleErrors, networkErrors }, null, 2));
