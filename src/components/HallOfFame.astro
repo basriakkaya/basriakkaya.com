@@ -52,7 +52,7 @@ const achievementRecords = siteConfig.achievements.map((item) => {
     evidenceAlt: isEnglish ? item.evidenceAltEn : item.evidenceAlt,
     evidenceWidth: item.evidenceWidth,
     evidenceHeight: item.evidenceHeight,
-    evidenceId: item.title.includes('NASA') ? 'nasa-evidence-title' : 'arcelik-evidence-title',
+    evidenceId: item.title.includes('NASA') ? 'nasa-evidence-title' : item.title.includes('Twente') ? 'twente-evidence-title' : 'arcelik-evidence-title',
   } : {};
   return {
     category, label: category === 'ctf' ? 'CTF' : 'HOF',

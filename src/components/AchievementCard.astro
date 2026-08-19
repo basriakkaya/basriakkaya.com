@@ -72,7 +72,7 @@ const { record, copy, featured = false } = Astro.props;
     </div>
     <figure>
       <div class="evidence-dialog-media">
-        <img class:list={['evidence-dialog-image', { 'is-wide': (record.evidenceWidth ?? 0) > (record.evidenceHeight ?? 1) * 2 }]} src={record.evidence} alt={record.evidenceAlt} width={record.evidenceWidth} height={record.evidenceHeight} loading="lazy" decoding="async" />
+        <img class:list={['evidence-dialog-image', { 'is-wide': (record.evidenceWidth ?? 0) > (record.evidenceHeight ?? 1) * 1.4 }]} src={record.evidence} alt={record.evidenceAlt} width={record.evidenceWidth} height={record.evidenceHeight} loading="lazy" decoding="async" />
       </div>
       <figcaption>{record.evidenceAlt}</figcaption>
     </figure>
