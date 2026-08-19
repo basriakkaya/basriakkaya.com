@@ -26,7 +26,7 @@ const alertEndpoint = sources.get('api/admin-alert.js') ?? '';
 const publicSource = `${component}\n${client}\n${css}`;
 
 if (!adminHtml) failures.push('dist/admin/index.html eksik');
-if ((adminHtml.match(/<title>/gu) ?? []).length !== 1 || !adminHtml.includes('<title>Admin Access Gateway</title>')) failures.push('/admin title yanlış veya duplicate');
+if ((adminHtml.match(/<title>/gu) ?? []).length !== 1 || !adminHtml.includes('<title>Admin Login</title>')) failures.push('/admin title yanlış veya duplicate');
 if (!adminHtml.includes('<html lang="en"')) failures.push('/admin html lang en değil');
 if ((adminHtml.match(/<h1(?:\s|>)/gu) ?? []).length !== 1) failures.push('/admin tek H1 içermeli');
 if (!adminHtml.includes('content="noindex, nofollow, noarchive, nosnippet, noimageindex"')) failures.push('/admin robots meta eksik');
@@ -35,11 +35,14 @@ if (/site\.webmanifest|virtual:pwa-register|vercel\/analytics|speed-insights/iu.
 
 if ((component.match(/<form(?:\s|>)/gu) ?? []).length !== 1) failures.push('/admin tek form içermeli');
 if ((component.match(/<input(?:\s|>)/gu) ?? []).length !== 2) failures.push('/admin tam iki input içermeli');
+if (!component.includes('>Admin Login</h1>') || !component.includes('>Username</label>') || !component.includes('>Password</label>') || !component.includes('>Sign in</button>')) failures.push('/admin sade login metin sözleşmesine uymuyor');
+if (/SECURE ACCESS GATEWAY|AUTHORIZATION REQUIRED|ZERO TRUST EDGE|SESSION UNVERIFIED|edge-auth-01/iu.test(component)) failures.push('/admin eski dekoratif metinleri içeriyor');
 if (!component.includes('type="password"') || !component.includes('autocomplete="new-password"')) failures.push('/admin access key alanı güvenli autocomplete sözleşmesine uymuyor');
 if (/\s(?:action|formaction)\s*=/iu.test(component) || /method=["']?post/iu.test(component)) failures.push('/admin form ağ hedefi veya POST içermemeli');
 if (!client.includes("fetch('/api/visitor-ip'") || !client.includes("cache: 'no-store'") || !client.includes("credentials: 'omit'")) failures.push('/admin IP isteği birinci taraf no-store/omit sözleşmesine uymuyor');
-if (!client.includes('event.preventDefault()') || !client.includes("accessKey.value = ''")) failures.push('/admin submit engelleme veya access key temizleme eksik');
+if (!client.includes('event.preventDefault()') || !client.includes("operatorId.value = ''") || !client.includes("accessKey.value = ''")) failures.push('/admin submit engelleme veya credential temizleme eksik');
 if (!client.includes("fetch('/api/admin-alert'") || !client.includes("method: 'POST'") || !client.includes('keepalive: true')) failures.push('/admin Discord uyarı çağrısı eksik');
+if (!client.includes('alertRequest.status === 403') || !client.includes('alertRequest.status === 429') || !client.includes('submitButton.disabled = true')) failures.push('/admin rate-limit istemci kilidi eksik');
 if (/fetch\('\/api\/admin-alert'[\s\S]{0,300}\bbody\s*:/u.test(client)) failures.push('/admin uyarı isteği form gövdesi içermemeli');
 for (const [pattern, label] of [
   [/\b(?:localStorage|sessionStorage|indexedDB)\b/u, 'browser storage'],
@@ -117,4 +120,4 @@ if (failures.length) {
   for (const failure of [...new Set(failures)]) console.error(`- ${failure}`);
   process.exit(1);
 }
-console.log('Admin gateway audit passed: compact login UI, first-party IP reflection, zero credential egress/storage, noindex and route exclusions verified.');
+console.log('Admin gateway audit passed: minimal login UI, first-party IP reflection, blocked-state handling, zero credential egress/storage, noindex and route exclusions verified.');
