@@ -36,6 +36,7 @@ if (/site\.webmanifest|virtual:pwa-register|vercel\/analytics|speed-insights/iu.
 if ((component.match(/<form(?:\s|>)/gu) ?? []).length !== 1) failures.push('/admin tek form içermeli');
 if ((component.match(/<input(?:\s|>)/gu) ?? []).length !== 2) failures.push('/admin tam iki input içermeli');
 if (!component.includes('>Admin Login</h1>') || !component.includes('>Username</label>') || !component.includes('>Password</label>') || !component.includes('>Sign in</button>')) failures.push('/admin sade login metin sözleşmesine uymuyor');
+if (/admin-mark|>BA</u.test(component + css)) failures.push('/admin logo veya BA işareti içermemeli');
 if (/SECURE ACCESS GATEWAY|AUTHORIZATION REQUIRED|ZERO TRUST EDGE|SESSION UNVERIFIED|edge-auth-01/iu.test(component)) failures.push('/admin eski dekoratif metinleri içeriyor');
 if (!component.includes('type="password"') || !component.includes('autocomplete="new-password"')) failures.push('/admin access key alanı güvenli autocomplete sözleşmesine uymuyor');
 if (/\s(?:action|formaction)\s*=/iu.test(component) || /method=["']?post/iu.test(component)) failures.push('/admin form ağ hedefi veya POST içermemeli');
