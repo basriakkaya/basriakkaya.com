@@ -33,11 +33,11 @@ const copy = isEnglish ? {
 };
 
 const brandFor = (title: string) => {
-  if (title.includes('NASA')) return { logo: '/images/recognition/nasa-logo.svg', name: 'NASA' };
-  if (title.includes('Twente')) return { logo: '/images/recognition/university-of-twente.svg', name: 'University of Twente' };
-  if (title.includes('Arçelik')) return { logo: '/images/recognition/arcelik.png', name: 'Arçelik' };
-  if (title.includes('Goce Delcev')) return { logo: '/images/recognition/goce-delcev-university.png', name: 'Goce Delcev University' };
-  if (title.includes('Rahim Usta')) return { logo: '/images/recognition/rahim-usta-anatolian-high-school.png', name: 'T.C. Millî Eğitim Bakanlığı — Ayvalık Rahim Usta Anadolu Lisesi' };
+  if (title.includes('NASA')) return { logo: '/images/recognition/nasa-logo.svg', name: 'NASA', shape: 'round' as const };
+  if (title.includes('Twente')) return { logo: '/images/recognition/university-of-twente.svg', name: 'University of Twente', shape: 'wordmark' as const };
+  if (title.includes('Arçelik')) return { logo: '/images/recognition/arcelik.png', name: 'Arçelik', shape: 'wordmark' as const };
+  if (title.includes('Goce Delcev')) return { logo: '/images/recognition/goce-delcev-university.png', name: 'Goce Delcev University', shape: 'wordmark' as const };
+  if (title.includes('Rahim Usta')) return { logo: '/images/recognition/rahim-usta-anatolian-high-school.png', name: 'T.C. Millî Eğitim Bakanlığı — Ayvalık Rahim Usta Anadolu Lisesi', shape: 'round' as const };
   return undefined;
 };
 
