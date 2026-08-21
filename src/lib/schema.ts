@@ -17,6 +17,10 @@ export const personSchema = {
     'Rahim Usta Anatolian High School — Hall of Fame',
   ],
   sameAs: [siteConfig.github, siteConfig.linkedin, siteConfig.youtube, siteConfig.tryHackMe],
+  subjectOf: siteConfig.cves.map((cve) => ({
+    '@type': 'CreativeWork', name: cve.id, url: cve.url,
+    description: 'description' in cve ? cve.description : 'Public CVE record credited to Basri Akkaya.',
+  })),
 };
 
 export function breadcrumbSchema(items: Array<{ name: string; path: string }>) {

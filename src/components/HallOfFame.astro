@@ -17,6 +17,7 @@ const copy = isEnglish ? {
   cveTitle: 'CVE Records', cveDescription: 'Public vulnerability identifiers assigned through coordinated disclosure.',
   moreTitle: 'Competitions & Recognition', moreDescription: 'Competition results and institutional recognition supporting the research journey.',
   publicRecord: 'Public record', archived: 'Archived', institutional: 'Institutional',
+  advisory: 'View official advisory', company: 'Company', product: 'Product', severity: 'Severity',
 } : {
   title: 'Hall of Fame & CVE Kayıtları',
   description: 'Kamuya açık olarak doğrulanabilen güvenlik araştırmaları, sorumlu açıklama ve başarı kayıtları — hızlı inceleme için gruplandırıldı.',
@@ -26,6 +27,7 @@ const copy = isEnglish ? {
   cveTitle: 'CVE Kayıtları', cveDescription: 'Koordineli açıklama süreci sonunda atanmış, kamuya açık güvenlik açığı kimlikleri.',
   moreTitle: 'Yarışmalar & Takdirler', moreDescription: 'Güvenlik araştırması yolculuğunu destekleyen yarışma dereceleri ve kurumsal takdirler.',
   publicRecord: 'Kamuya açık kayıt', archived: 'Arşiv', institutional: 'Kurumsal',
+  advisory: 'Resmî güvenlik bildirimini görüntüle', company: 'Firma', product: 'Ürün', severity: 'Önem seviyesi',
 };
 
 const brandFor = (title: string) => {
@@ -38,8 +40,13 @@ const brandFor = (title: string) => {
 
 const cveRecords = siteConfig.cves.map((item) => ({
   category: 'cve', label: 'CVE', title: item.id,
-  description: isEnglish ? 'Coordinated vulnerability disclosure record with a public CVE identifier.' : 'Kamuya açık CVE kimliğine sahip koordineli güvenlik açığı açıklama kaydı.',
-  url: item.url, year: item.id.match(/CVE-(\d{4})/)?.[1], brand: undefined,
+  description: 'description' in item ? (isEnglish ? item.description : item.descriptionTr) : (isEnglish ? 'Coordinated vulnerability disclosure record with a public CVE identifier.' : 'Kamuya açık CVE kimliğine sahip koordineli güvenlik açığı açıklama kaydı.'),
+  findingTitle: 'title' in item ? (isEnglish ? item.title : item.titleTr) : undefined,
+  url: item.url, secondaryUrl: 'advisoryUrl' in item ? item.advisoryUrl : undefined,
+  vendor: 'vendor' in item ? item.vendor : undefined, product: 'product' in item ? item.product : undefined,
+  severity: 'severity' in item ? (isEnglish ? item.severity : item.severityTr) : undefined,
+  score: 'score' in item ? item.score : undefined, cvssVersion: 'cvssVersion' in item ? item.cvssVersion : undefined,
+  year: item.id.match(/CVE-(\d{4})/)?.[1], brand: undefined,
 }));
 
 const achievementRecords = siteConfig.achievements.map((item) => {
