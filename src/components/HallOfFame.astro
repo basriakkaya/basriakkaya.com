@@ -18,6 +18,7 @@ const copy = isEnglish ? {
   moreTitle: 'Competitions & Recognition', moreDescription: 'Competition results and institutional recognition supporting the research journey.',
   publicRecord: 'Public record', archived: 'Archived', institutional: 'Institutional',
   advisory: 'View official advisory', company: 'Company', product: 'Product', severity: 'Severity',
+  institution: 'Institution website', verified: 'Verified recognition',
 } : {
   title: 'Hall of Fame & CVE Kayıtları',
   description: 'Kamuya açık olarak doğrulanabilen güvenlik araştırmaları, sorumlu açıklama ve başarı kayıtları — hızlı inceleme için gruplandırıldı.',
@@ -28,6 +29,7 @@ const copy = isEnglish ? {
   moreTitle: 'Yarışmalar & Takdirler', moreDescription: 'Güvenlik araştırması yolculuğunu destekleyen yarışma dereceleri ve kurumsal takdirler.',
   publicRecord: 'Kamuya açık kayıt', archived: 'Arşiv', institutional: 'Kurumsal',
   advisory: 'Resmî güvenlik bildirimini görüntüle', company: 'Firma', product: 'Ürün', severity: 'Önem seviyesi',
+  institution: 'Kurum sitesi', verified: 'Doğrulanabilir kayıt',
 };
 
 const brandFor = (title: string) => {
@@ -35,6 +37,7 @@ const brandFor = (title: string) => {
   if (title.includes('Twente')) return { logo: '/images/recognition/university-of-twente.svg', name: 'University of Twente' };
   if (title.includes('Arçelik')) return { logo: '/images/recognition/arcelik.png', name: 'Arçelik' };
   if (title.includes('Goce Delcev')) return { logo: '/images/recognition/goce-delcev-university.png', name: 'Goce Delcev University' };
+  if (title.includes('Rahim Usta')) return { logo: '/images/recognition/rahim-usta-anatolian-high-school.png', name: 'T.C. Millî Eğitim Bakanlığı — Ayvalık Rahim Usta Anadolu Lisesi' };
   return undefined;
 };
 
@@ -65,7 +68,10 @@ const achievementRecords = siteConfig.achievements.map((item) => {
     category, label: category === 'ctf' ? 'CTF' : 'HOF',
     title: isEnglish ? item.titleEn : item.title,
     description: isEnglish ? item.descriptionEn : item.description,
-    url: item.url, year: item.title.match(/\b(20\d{2})\b/)?.[1], brand: brandFor(item.title),
+    url: item.url, secondaryUrl: 'officialUrl' in item ? item.officialUrl : undefined,
+    secondaryLabel: 'officialUrl' in item ? copy.institution : undefined,
+    verifiedLabel: category === 'hof' ? copy.verified : undefined,
+    year: item.title.match(/\b(20\d{2})\b/)?.[1], brand: brandFor(item.title),
     ...evidence,
   };
 });
@@ -126,7 +132,8 @@ const records = securityOnly ? [...hofRecords, ...cveRecords] : [...hofRecords, 
 </section>
 
 <style>
+  .achievement-grid--featured{grid-template-columns:repeat(3,minmax(0,1fr))}
   .achievement-grid--cve{grid-template-columns:repeat(3,minmax(0,1fr))}
-  @media(max-width:1050px){.achievement-grid--cve{grid-template-columns:repeat(2,minmax(0,1fr))}}
-  @media(max-width:760px){.achievement-grid--cve{grid-template-columns:1fr}}
+  @media(max-width:1050px){.achievement-grid--featured,.achievement-grid--cve{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media(max-width:760px){.achievement-grid--featured,.achievement-grid--cve{grid-template-columns:1fr}}
 </style>

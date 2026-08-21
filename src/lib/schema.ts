@@ -17,10 +17,12 @@ export const personSchema = {
     'Rahim Usta Anatolian High School — Hall of Fame',
   ],
   sameAs: [siteConfig.github, siteConfig.linkedin, siteConfig.youtube, siteConfig.tryHackMe],
-  subjectOf: siteConfig.cves.map((cve) => ({
+  subjectOf: [...siteConfig.cves.map((cve) => ({
     '@type': 'CreativeWork', name: cve.id, url: cve.url,
     description: 'description' in cve ? cve.description : 'Public CVE record credited to Basri Akkaya.',
-  })),
+  })), ...siteConfig.achievements.filter((item) => !item.title.includes('CTF')).map((item) => ({
+    '@type': 'CreativeWork', name: item.titleEn, url: item.url, description: item.descriptionEn,
+  }))],
 };
 
 export function breadcrumbSchema(items: Array<{ name: string; path: string }>) {
