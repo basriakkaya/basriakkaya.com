@@ -15,6 +15,12 @@ interface RecordItem {
   evidenceHeight?: number;
   evidenceId?: string;
   findingTitle?: string;
+  secondaryUrl?: string;
+  vendor?: string;
+  product?: string;
+  severity?: string;
+  score?: number;
+  cvssVersion?: string;
 }
 
 interface Copy {
@@ -26,6 +32,10 @@ interface Copy {
   institutional: string;
   evidence: string;
   closeEvidence: string;
+  advisory: string;
+  company: string;
+  product: string;
+  severity: string;
 }
 
 interface Props { record: RecordItem; copy: Copy; featured?: boolean }
@@ -47,6 +57,13 @@ const { record, copy, featured = false } = Astro.props;
       {record.status && <span class="achievement-status">{record.status}</span>}
     </div>
     <h4>{record.title}</h4>
+    {record.vendor && (
+      <dl class="achievement-cve-facts">
+        <div><dt>{copy.company}</dt><dd>{record.vendor}</dd></div>
+        {record.product && <div><dt>{copy.product}</dt><dd>{record.product}</dd></div>}
+        {record.score && <div class="achievement-cve-score"><dt>{copy.severity}</dt><dd>CVSS {record.cvssVersion} · {record.score.toFixed(1)} {record.severity}</dd></div>}
+      </dl>
+    )}
     <p>{record.description}</p>
     {record.findingTitle && <p class="achievement-finding-title">{record.findingTitle}</p>}
     {record.findings && <ul class="achievement-findings" aria-label={record.title}>{record.findings.map((finding) => <li>{finding}</li>)}</ul>}
@@ -59,6 +76,9 @@ const { record, copy, featured = false } = Astro.props;
         <a href={record.url} target="_blank" rel="noopener noreferrer">
           {copy.verify} <span aria-hidden="true">↗</span><span class="sr-only">{copy.newTab}</span>
         </a>
+        {record.secondaryUrl && <a href={record.secondaryUrl} target="_blank" rel="noopener noreferrer">
+          {copy.advisory} <span aria-hidden="true">↗</span><span class="sr-only">{copy.newTab}</span>
+        </a>}
       </span>
     ) : <small>{copy.archive}</small>}
   </div>
@@ -97,3 +117,12 @@ const { record, copy, featured = false } = Astro.props;
     });
   });
 </script>
+
+<style>
+  .achievement-cve-facts{display:grid;gap:8px;margin:14px 0 0}
+  .achievement-cve-facts div{display:grid;grid-template-columns:minmax(72px,.35fr) 1fr;gap:10px;padding:8px 10px;background:rgba(248,81,73,.045);border-left:2px solid rgba(248,81,73,.55)}
+  .achievement-cve-facts dt{color:var(--muted);font:700 10px ui-monospace,monospace;text-transform:uppercase;letter-spacing:.06em}
+  .achievement-cve-facts dd{margin:0;color:#ff7b72;font-weight:700;overflow-wrap:anywhere}
+  .achievement-cve-score dd{color:#ff5c57}
+  @media(max-width:520px){.achievement-cve-facts div{grid-template-columns:1fr;gap:4px}}
+</style>

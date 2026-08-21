@@ -64,6 +64,11 @@ const securityHeaders = new Map(securityHeader.map(({ key, value }) => [key.toLo
 if (securityHeaders.get('content-type') !== 'text/plain; charset=utf-8') failures.push('security.txt Vercel Content-Type text/plain; charset=utf-8 değil');
 
 const siteSource = await readFile(path.join(root, 'src/config/site.ts'), 'utf8');
+for (const value of ['CVE-2026-16323', 'CVE-2026-19441', 'FuyaWeb Internet and Informatics Services', 'IKAS Technology Inc.', '7.5', '5.3', 'tr-26-0882', 'tr-26-0883']) if (!siteSource.includes(value)) failures.push(`CVE yapılandırması eksik: ${value}`);
+for (const route of ['index.html', path.join('en', 'index.html'), path.join('ben-kimim', 'index.html'), path.join('en', 'about', 'index.html')]) {
+  const html = await readFile(path.join(dist, route), 'utf8').catch(() => '');
+  for (const value of ['CVE-2026-16323', 'CVE-2026-19441', 'tr-26-0882', 'tr-26-0883']) if (!html.includes(value)) failures.push(`${route} CVE içeriği eksik: ${value}`);
+}
 const publicEmail = siteSource.match(/email:\s*'([^']+)'/u)?.[1] ?? '';
 if (!publicEmail) failures.push('siteConfig public e-posta değeri bulunamadı');
 const securityPath = path.join(dist, '.well-known', 'security.txt');
