@@ -49,6 +49,7 @@ const { record, copy, featured = false } = Astro.props;
     ) : (
       <span class="achievement-emblem" aria-hidden="true">{record.label === copy.institutional ? 'ORG' : record.label}</span>
     )}
+    {record.score && <span class:list={['cve-score-badge', { 'is-high': record.score >= 7 }]}>CVSS {record.score.toFixed(1)}</span>}
   </div>
   <div class="achievement-card-body">
     <div class="achievement-meta">
@@ -57,13 +58,8 @@ const { record, copy, featured = false } = Astro.props;
       {record.status && <span class="achievement-status">{record.status}</span>}
     </div>
     <h4>{record.title}</h4>
-    {record.vendor && (
-      <dl class="achievement-cve-facts">
-        <div><dt>{copy.company}</dt><dd>{record.vendor}</dd></div>
-        {record.product && <div><dt>{copy.product}</dt><dd>{record.product}</dd></div>}
-        {record.score && <div class="achievement-cve-score"><dt>{copy.severity}</dt><dd>CVSS {record.cvssVersion} · {record.score.toFixed(1)} {record.severity}</dd></div>}
-      </dl>
-    )}
+    {record.vendor && <p class="cve-target"><span>{record.vendor}</span>{record.product && <><i aria-hidden="true">/</i>{record.product}</>}</p>}
+    {record.severity && <p class="cve-severity-line"><span class="cve-status-dot" aria-hidden="true"></span>{copy.severity}: <strong>{record.severity}</strong><small>CVSS v{record.cvssVersion}</small></p>}
     <p>{record.description}</p>
     {record.findingTitle && <p class="achievement-finding-title">{record.findingTitle}</p>}
     {record.findings && <ul class="achievement-findings" aria-label={record.title}>{record.findings.map((finding) => <li>{finding}</li>)}</ul>}
@@ -73,10 +69,10 @@ const { record, copy, featured = false } = Astro.props;
     {record.url ? (
       <span class="achievement-card-actions">
         {record.evidence && <button type="button" data-evidence-open>{copy.evidence}</button>}
-        <a href={record.url} target="_blank" rel="noopener noreferrer">
+        <a class="cve-link cve-link--primary" href={record.url} target="_blank" rel="noopener noreferrer">
           {copy.verify} <span aria-hidden="true">↗</span><span class="sr-only">{copy.newTab}</span>
         </a>
-        {record.secondaryUrl && <a href={record.secondaryUrl} target="_blank" rel="noopener noreferrer">
+        {record.secondaryUrl && <a class="cve-link" href={record.secondaryUrl} target="_blank" rel="noopener noreferrer">
           {copy.advisory} <span aria-hidden="true">↗</span><span class="sr-only">{copy.newTab}</span>
         </a>}
       </span>
@@ -119,10 +115,27 @@ const { record, copy, featured = false } = Astro.props;
 </script>
 
 <style>
-  .achievement-cve-facts{display:grid;gap:8px;margin:14px 0 0}
-  .achievement-cve-facts div{display:grid;grid-template-columns:minmax(72px,.35fr) 1fr;gap:10px;padding:8px 10px;background:rgba(248,81,73,.045);border-left:2px solid rgba(248,81,73,.55)}
-  .achievement-cve-facts dt{color:var(--muted);font:700 10px ui-monospace,monospace;text-transform:uppercase;letter-spacing:.06em}
-  .achievement-cve-facts dd{margin:0;color:#ff7b72;font-weight:700;overflow-wrap:anywhere}
-  .achievement-cve-score dd{color:#ff5c57}
-  @media(max-width:520px){.achievement-cve-facts div{grid-template-columns:1fr;gap:4px}}
+  .achievement-card--cve{isolation:isolate;padding:19px;background:linear-gradient(150deg,rgba(13,22,31,.98),rgba(8,13,19,.98));border-color:rgba(87,171,255,.22);border-top:1px solid rgba(87,171,255,.38)}
+  .achievement-card--cve:before{position:absolute;z-index:-1;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(87,171,255,.035) 1px,transparent 1px),linear-gradient(rgba(87,171,255,.025) 1px,transparent 1px);background-size:22px 22px;content:"";mask-image:linear-gradient(to bottom,#000,transparent 68%)}
+  .achievement-card--cve:after{position:absolute;top:0;left:18px;width:46px;height:2px;background:var(--accent-2);box-shadow:0 0 14px rgba(87,171,255,.7);content:""}
+  .achievement-card--cve .achievement-card-top{min-height:38px;align-items:center}
+  .achievement-card--cve .achievement-emblem{min-width:0;height:auto;padding:5px 8px;border:0;background:rgba(87,171,255,.09);border-radius:4px;font-size:10px;letter-spacing:.15em}
+  .achievement-card--cve .achievement-card-body{margin-top:12px}
+  .achievement-card--cve .achievement-meta{margin-bottom:5px;color:#7893b3}
+  .achievement-card--cve h4{font:800 1.18rem/1.2 ui-monospace,monospace;letter-spacing:-.035em}
+  .cve-score-badge{padding:6px 9px;color:#ffb86b;background:rgba(210,153,34,.08);border:1px solid rgba(210,153,34,.34);border-radius:5px;font:800 10px ui-monospace,monospace;letter-spacing:.04em;white-space:nowrap}
+  .cve-score-badge.is-high{color:#ff7b72;background:rgba(248,81,73,.08);border-color:rgba(248,81,73,.38)}
+  .cve-target{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:11px!important;color:var(--text)!important;font:700 .72rem/1.4 ui-monospace,monospace!important}
+  .cve-target span{color:var(--accent-2)}.cve-target i{color:#4d6077;font-style:normal}
+  .cve-severity-line{display:flex;align-items:center;gap:6px;margin-top:9px!important;color:#8796aa!important;font:700 9px ui-monospace,monospace!important;text-transform:uppercase;letter-spacing:.06em}
+  .cve-severity-line strong{color:#ff7b72}.cve-severity-line small{margin-left:auto;color:#66758a;font-size:8px}
+  .cve-status-dot{width:6px;height:6px;background:#ff5c57;border-radius:50%;box-shadow:0 0 8px rgba(255,92,87,.75)}
+  .achievement-card--cve .achievement-finding-title{padding:0;color:#c7d2df!important;background:transparent;border:0;border-radius:0;font:700 .72rem/1.5 ui-monospace,monospace}
+  .achievement-card--cve .achievement-card-footer{align-items:flex-end;gap:8px;padding-top:14px}
+  .achievement-card--cve .achievement-card-footer>span:first-child{display:none}
+  .achievement-card--cve .achievement-card-actions{width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+  .achievement-card--cve .cve-link{min-height:36px;justify-content:center;padding:6px 8px;color:#a7b5c6;border:1px solid #29384a;border-radius:5px;background:rgba(10,17,25,.72);font:700 9px/1.25 ui-monospace,monospace;text-align:center}
+  .achievement-card--cve .cve-link--primary{color:var(--accent-2);border-color:rgba(87,171,255,.34)}
+  .achievement-card--cve .cve-link:hover{color:var(--text);border-color:var(--accent-2);background:rgba(87,171,255,.07)}
+  @media(max-width:430px){.achievement-card--cve{padding:17px}.achievement-card--cve .achievement-card-actions{grid-template-columns:1fr}.achievement-card--cve .cve-link{width:100%}}
 </style>
