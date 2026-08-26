@@ -71,6 +71,8 @@ for (const route of ['index.html', path.join('en', 'index.html'), path.join('ben
   for (const logo of ['nasa-logo.svg', 'dhs-logo.svg', 'university-of-twente.svg', 'arcelik.png', 'goce-delcev-university.png', 'rahim-usta-anatolian-high-school.png', 'komsukomsu-logo.png']) if (!html.includes(`/images/recognition/${logo}`)) failures.push(`${route} HOF logosu eksik: ${logo}`);
   for (const value of ['U.S. DHS VDP', 'Sensitive Data Exposure', 'Disclosure of Secrets', 'dhs-fema-bugcrowd-evidence.png']) if (!html.includes(value)) failures.push(`${route} DHS HOF içeriği eksik: ${value}`);
   for (const value of ['University of Twente', 'Broken Access Control', 'IDOR', 'twente-hof-evidence.png']) if (!html.includes(value)) failures.push(`${route} Twente HOF içeriği eksik: ${value}`);
+  for (const value of ['Arçelik Türkiye', 'A07:2025 Authentication Failures', 'arcelik-hof-evidence.png']) if (!html.includes(value)) failures.push(`${route} Arçelik HOF içeriği eksik: ${value}`);
+  for (const value of ['Public Frontend İçerisindeki Sabit Credential', 'Hard-Coded Client-Side Credential']) if (html.includes(value)) failures.push(`${route} Arçelik kartında kaldırılan uzun başlık hâlâ mevcut: ${value}`);
   for (const value of ['Goce Delcev', '2FA Bypass', 'Unauthorized Administrator Account Registration', 'Reflected XSS']) if (!html.includes(value)) failures.push(`${route} Goce Delcev HOF içeriği eksik: ${value}`);
   for (const value of ['KomşuKomşu — 2026 Hall of Fame', 'komsukomsu.tech/vulnerability-disclosure-hall-of-fame', 'komsukomsu-hof-evidence.png']) if (!html.includes(value)) failures.push(`${route} KomşuKomşu HOF içeriği eksik: ${value}`);
 }
