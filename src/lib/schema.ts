@@ -16,6 +16,7 @@ export const personSchema = {
     'Arçelik Türkiye — 2026 Vulnerability Disclosure Hall of Fame',
     'Goce Delcev University — Hall of Fame',
     'Rahim Usta Anatolian High School — Hall of Fame',
+    'KomşuKomşu — 2026 Vulnerability Disclosure Hall of Fame',
   ],
   sameAs: [siteConfig.github, siteConfig.linkedin, siteConfig.youtube, siteConfig.tryHackMe],
   subjectOf: [...siteConfig.cves.map((cve) => ({
