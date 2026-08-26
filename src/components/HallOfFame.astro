@@ -34,7 +34,7 @@ const copy = isEnglish ? {
 
 const brandFor = (title: string) => {
   if (title.includes('NASA')) return { logo: '/images/recognition/nasa-logo.svg', name: 'NASA', shape: 'round' as const };
-  if (title.includes('Homeland Security')) return { logo: '/images/recognition/dhs-logo.svg', name: 'U.S. Department of Homeland Security', shape: 'wordmark' as const };
+  if (title.includes('U.S. DHS')) return { logo: '/images/recognition/dhs-logo.svg', name: 'U.S. Department of Homeland Security', shape: 'wordmark' as const };
   if (title.includes('Twente')) return { logo: '/images/recognition/university-of-twente.svg', name: 'University of Twente', shape: 'wordmark' as const };
   if (title.includes('Arçelik')) return { logo: '/images/recognition/arcelik.png', name: 'Arçelik', shape: 'wordmark' as const };
   if (title.includes('Goce Delcev')) return { logo: '/images/recognition/goce-delcev-university.png', name: 'Goce Delcev University', shape: 'wordmark' as const };
@@ -63,7 +63,7 @@ const achievementRecords = siteConfig.achievements.map((item) => {
     evidenceAlt: isEnglish ? item.evidenceAltEn : item.evidenceAlt,
     evidenceWidth: item.evidenceWidth,
     evidenceHeight: item.evidenceHeight,
-    evidenceId: item.title.includes('NASA') ? 'nasa-evidence-title' : item.title.includes('Homeland Security') ? 'dhs-fema-evidence-title' : item.title.includes('Twente') ? 'twente-evidence-title' : 'arcelik-evidence-title',
+    evidenceId: item.title.includes('NASA') ? 'nasa-evidence-title' : item.title.includes('U.S. DHS') ? 'dhs-fema-evidence-title' : item.title.includes('Twente') ? 'twente-evidence-title' : 'arcelik-evidence-title',
   } : {};
   return {
     category, label: category === 'ctf' ? 'CTF' : 'HOF',
