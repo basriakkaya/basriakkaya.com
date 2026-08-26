@@ -58,7 +58,6 @@ const achievementRecords = siteConfig.achievements.map((item) => {
   const category = item.title.includes('CTF') ? 'ctf' : 'hof';
   const evidence = 'evidence' in item ? {
     status: 'status' in item ? (isEnglish ? item.statusEn : item.status) : undefined,
-    findings: 'findings' in item ? item.findings : undefined,
     findingTitle: 'findingTitle' in item ? (isEnglish ? item.findingTitleEn : item.findingTitle) : undefined,
     evidence: item.evidence,
     evidenceAlt: isEnglish ? item.evidenceAltEn : item.evidenceAlt,
@@ -74,6 +73,7 @@ const achievementRecords = siteConfig.achievements.map((item) => {
     secondaryLabel: 'officialUrl' in item ? copy.institution : undefined,
     verifiedLabel: category === 'hof' ? copy.verified : undefined,
     year: item.title.match(/\b(20\d{2})\b/)?.[1], brand: brandFor(item.title),
+    findings: 'findings' in item ? item.findings : undefined,
     ...evidence,
   };
 });
