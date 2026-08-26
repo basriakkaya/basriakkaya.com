@@ -70,6 +70,7 @@ for (const route of ['index.html', path.join('en', 'index.html'), path.join('ben
   for (const value of ['CVE-2026-16323', 'CVE-2026-19441', 'tr-26-0882', 'tr-26-0883']) if (!html.includes(value)) failures.push(`${route} CVE içeriği eksik: ${value}`);
   for (const logo of ['nasa-logo.svg', 'dhs-logo.svg', 'university-of-twente.svg', 'arcelik.png', 'goce-delcev-university.png', 'rahim-usta-anatolian-high-school.png', 'komsukomsu-logo.png']) if (!html.includes(`/images/recognition/${logo}`)) failures.push(`${route} HOF logosu eksik: ${logo}`);
   for (const value of ['U.S. DHS VDP', 'Sensitive Data Exposure', 'Disclosure of Secrets', 'dhs-fema-bugcrowd-evidence.png']) if (!html.includes(value)) failures.push(`${route} DHS HOF içeriği eksik: ${value}`);
+  for (const value of ['University of Twente', 'Broken Access Control', 'IDOR', 'twente-hof-evidence.png']) if (!html.includes(value)) failures.push(`${route} Twente HOF içeriği eksik: ${value}`);
   for (const value of ['KomşuKomşu — 2026 Hall of Fame', 'komsukomsu.tech/vulnerability-disclosure-hall-of-fame', 'komsukomsu-hof-evidence.png']) if (!html.includes(value)) failures.push(`${route} KomşuKomşu HOF içeriği eksik: ${value}`);
 }
 const publicEmail = siteSource.match(/email:\s*'([^']+)'/u)?.[1] ?? '';
