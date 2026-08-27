@@ -1,0 +1,107 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from './Breadcrumbs.astro';
+import SectionHeading from './SectionHeading.astro';
+import type { Locale } from '../i18n/config';
+import { alternateLinks, formatDate } from '../i18n/helpers';
+import { cveResearchRoute, route } from '../i18n/routes';
+import { absoluteUrl, siteConfig } from '../config/site';
+import { breadcrumbSchema, personSchema, schemaGraph } from '../lib/schema';
+import { pendingCves, publishedCves } from '../lib/security-research';
+
+const { locale } = Astro.props as { locale: Locale };
+const isEnglish = locale === 'en';
+const trPath = route('tr', 'research');
+const enPath = route('en', 'research');
+const currentPath = isEnglish ? enPath : trPath;
+const aboutPath = route(locale, 'about');
+const copy = isEnglish ? {
+  home: 'Home', eyebrow: 'cat ./verified-research.log', title: 'Security Research & CVE Records',
+  description: 'Publicly verifiable vulnerability research by Basri Akkaya, linked to official CVE records, government advisories, and researcher credits.',
+  published: 'Published and independently verifiable', intro: 'Each research page connects the CVE identifier, affected product, technical classification, publication date, and “Basri Akkaya — finder” credit to authoritative sources.',
+  finder: 'Credited finder', details: 'View research record', official: 'Official CVE record', publishedLabel: 'Published',
+  pending: 'Publication pending', pendingText: 'The identifier below is kept separate from published research. No technical claims or finder structured data will be emitted until an authoritative public CVE record exists.',
+  check: 'Check CVE status', verification: 'Verification methodology', verificationText: 'Published CVE facts are taken from the CVE Program record and the linked TR-CERT government advisory. Hall of Fame and recognition evidence is listed separately on the profile page with its original source.',
+  profile: 'View Hall of Fame and recognition evidence', newTab: ' (opens in a new tab)',
+} : {
+  home: 'Ana Sayfa', eyebrow: 'cat ./dogrulanmis-arastirmalar.log', title: 'Güvenlik Araştırmaları ve CVE Kayıtları',
+  description: 'Basri Akkaya tarafından yürütülen, resmî CVE kayıtları, devlet bildirimleri ve araştırmacı kredileriyle kaynaklandırılmış güvenlik araştırmaları.',
+  published: 'Yayımlanmış ve bağımsız doğrulanabilir', intro: 'Her araştırma sayfası CVE kimliğini, etkilenen ürünü, teknik sınıflandırmayı, yayın tarihini ve “Basri Akkaya — finder” kredisini yetkili kaynaklarla ilişkilendirir.',
+  finder: 'Kredilendirilen araştırmacı', details: 'Araştırma kaydını görüntüle', official: 'Resmî CVE kaydı', publishedLabel: 'Yayımlandı',
+  pending: 'Yayın bekleniyor', pendingText: 'Aşağıdaki kimlik yayımlanmış araştırmalardan ayrı tutulur. Yetkili kamu kaydı oluşana kadar teknik iddia veya finder yapılandırılmış verisi üretilmez.',
+  check: 'CVE durumunu kontrol et', verification: 'Doğrulama yöntemi', verificationText: 'Yayımlanmış CVE bilgileri CVE Programı kaydı ve bağlantılı TR-CERT devlet bildiriminden alınır. Hall of Fame ve takdir kanıtları, özgün kaynaklarıyla profil sayfasında ayrı olarak gösterilir.',
+  profile: 'Hall of Fame ve takdir kanıtlarını görüntüle', newTab: ' (yeni sekmede açılır)',
+};
+const itemList = publishedCves.map((cve, index) => ({
+  '@type': 'ListItem', position: index + 1, name: `${cve.id} — ${isEnglish ? cve.title : cve.titleTr}`,
+  url: absoluteUrl(cveResearchRoute(locale, cve.id)),
+}));
+const jsonLd = schemaGraph([
+  personSchema,
+  {
+    '@type': 'CollectionPage', '@id': `${absoluteUrl(currentPath)}#collection`, name: copy.title,
+    description: copy.description, url: absoluteUrl(currentPath), inLanguage: isEnglish ? 'en-US' : 'tr-TR',
+    about: { '@id': `${absoluteUrl('/')}#person` }, mainEntity: { '@id': `${absoluteUrl(currentPath)}#items` },
+  },
+  { '@type': 'ItemList', '@id': `${absoluteUrl(currentPath)}#items`, numberOfItems: itemList.length, itemListElement: itemList },
+  breadcrumbSchema([{ name: copy.home, path: isEnglish ? '/en' : '/' }, { name: copy.title, path: currentPath }]),
+]);
+---
+
+<BaseLayout
+  locale={locale}
+  title={`${copy.title} | ${siteConfig.name}`}
+  description={copy.description}
+  canonicalPath={currentPath}
+  alternates={alternateLinks(trPath, enPath)}
+  switchPath={isEnglish ? trPath : enPath}
+  jsonLd={jsonLd}
+>
+  <section class="research-index page-intro shell">
+    <div class="research-index-copy">
+      <Breadcrumbs items={[{ name: copy.home, href: isEnglish ? '/en' : '/' }, { name: copy.title }]} />
+      <SectionHeading eyebrow={copy.eyebrow} title={copy.title} description={copy.description} as="h1" />
+    </div>
+    <div class="research-trust"><span aria-hidden="true"></span><strong>{publishedCves.length}</strong> {copy.published}</div>
+  </section>
+
+  <section class="section shell research-records" aria-labelledby="published-research">
+    <header><h2 id="published-research">{copy.published}</h2><p>{copy.intro}</p></header>
+    <div class="research-record-grid">
+      {publishedCves.map((cve) => (
+        <article class="research-record-card">
+          <div class="research-record-meta"><span>{copy.publishedLabel}</span><time datetime={cve.published}>{formatDate(new Date(`${cve.published}T12:00:00Z`), locale)}</time></div>
+          <h3><a href={cveResearchRoute(locale, cve.id)}>{cve.id}</a></h3>
+          <p class="research-record-title">{isEnglish ? cve.title : cve.titleTr}</p>
+          <p>{isEnglish ? cve.description : cve.descriptionTr}</p>
+          <dl><div><dt>{copy.finder}</dt><dd>Basri Akkaya</dd></div><div><dt>CVSS</dt><dd>{cve.score.toFixed(1)} · {isEnglish ? cve.severity : cve.severityTr}</dd></div><div><dt>CWE</dt><dd>{cve.cwe}</dd></div></dl>
+          <div class="research-record-actions">
+            <a href={cveResearchRoute(locale, cve.id)}>{copy.details} <span aria-hidden="true">→</span></a>
+            <a href={cve.url} target="_blank" rel="noopener noreferrer">{copy.official} <span aria-hidden="true">↗</span><span class="sr-only">{copy.newTab}</span></a>
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  {pendingCves.length > 0 && (
+    <section class="section shell pending-research" aria-labelledby="pending-research">
+      <div><p class="eyebrow">$ status --pending</p><h2 id="pending-research">{copy.pending}</h2><p>{copy.pendingText}</p></div>
+      <ul>{pendingCves.map((cve) => <li><div><strong>{cve.id}</strong><span>{isEnglish ? cve.description : cve.descriptionTr}</span></div><a href={cve.url} target="_blank" rel="noopener noreferrer">{copy.check} <span aria-hidden="true">↗</span><span class="sr-only">{copy.newTab}</span></a></li>)}</ul>
+    </section>
+  )}
+
+  <section class="section shell verification-method" aria-labelledby="verification-method">
+    <div><p class="eyebrow">$ verify --sources</p><h2 id="verification-method">{copy.verification}</h2><p>{copy.verificationText}</p></div>
+    <a class="button secondary" href={aboutPath} title={isEnglish ? 'View Basri Akkaya’s Hall of Fame and recognition evidence' : 'Basri Akkaya Hall of Fame ve takdir kanıtlarını görüntüle'}>{copy.profile} <span aria-hidden="true">→</span></a>
+  </section>
+</BaseLayout>
+
+<style>
+  .research-index{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:32px}.research-index-copy{max-width:820px}.research-trust{display:flex;align-items:center;gap:8px;padding:11px 14px;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:6px;font:10px ui-monospace,monospace;text-transform:uppercase;letter-spacing:.05em}.research-trust span{width:7px;height:7px;background:var(--accent);border-radius:50%;box-shadow:0 0 8px rgba(126,231,135,.7)}.research-trust strong{color:var(--accent);font-size:1rem}
+  .research-records{padding-top:54px}.research-records>header{max-width:820px;margin-bottom:28px}.research-records>header h2{font-size:clamp(1.5rem,3vw,2rem)}.research-records>header p{margin:12px 0 0;color:var(--muted)}.research-record-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.research-record-card{position:relative;min-width:0;display:flex;flex-direction:column;padding:24px;background:var(--surface);border:1px solid var(--border);border-top:2px solid var(--accent-2);border-radius:9px}.research-record-card h3{margin:14px 0 8px;color:var(--accent-2);font:800 clamp(1.5rem,4vw,2rem) ui-monospace,monospace}.research-record-card h3 a:after{position:absolute;inset:0;content:""}.research-record-meta{display:flex;justify-content:space-between;gap:12px;color:var(--muted);font:10px ui-monospace,monospace;text-transform:uppercase}.research-record-meta span{color:var(--accent)}.research-record-title{color:var(--text)!important;font-weight:750}.research-record-card>p{margin:7px 0;color:var(--muted)}.research-record-card dl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:18px 0}.research-record-card dl div{min-width:0;padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:5px}.research-record-card dt{color:var(--muted);font:8px ui-monospace,monospace;text-transform:uppercase}.research-record-card dd{margin:3px 0 0;overflow-wrap:anywhere;color:var(--text);font:700 10px ui-monospace,monospace}.research-record-actions{position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:8px;margin-top:auto;padding-top:12px}.research-record-actions a{min-height:42px;display:inline-flex;align-items:center;padding:7px 11px;color:var(--accent-2);border:1px solid var(--border);border-radius:5px;font:700 11px ui-monospace,monospace}.research-record-actions a:hover{color:var(--text);border-color:var(--accent-2)}
+  .pending-research{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:48px;border-top:1px solid var(--border)}.pending-research h2,.verification-method h2{font-size:clamp(1.45rem,3vw,2rem)}.pending-research>div>p:last-child,.verification-method>div>p:last-child{margin-top:12px;color:var(--muted)}.pending-research ul{display:grid;gap:10px;margin:0;padding:0;list-style:none}.pending-research li{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:17px;background:var(--surface);border:1px solid #5b4a2b;border-left:3px solid #d29922;border-radius:7px}.pending-research li div{display:grid;min-width:0}.pending-research li strong{color:#e3b341;font:800 1rem ui-monospace,monospace}.pending-research li span{margin-top:4px;color:var(--muted);font-size:.8rem}.pending-research li a{flex:0 0 auto;color:var(--accent-2);font:700 11px ui-monospace,monospace}
+  .verification-method{display:flex;align-items:center;justify-content:space-between;gap:44px;border-top:1px solid var(--border)}.verification-method>div{max-width:760px}.verification-method .button{flex:0 0 auto}
+  @media(max-width:800px){.research-index{grid-template-columns:1fr}.research-trust{justify-self:start}.research-record-grid,.pending-research{grid-template-columns:1fr}.verification-method{align-items:flex-start;flex-direction:column}.verification-method .button{width:100%}}
+  @media(max-width:520px){.research-record-card{padding:20px}.research-record-card dl{grid-template-columns:1fr}.research-record-actions{display:grid}.research-record-actions a{justify-content:center}.pending-research li{align-items:flex-start;flex-direction:column}.pending-research li a{min-height:44px;display:flex;align-items:center}.research-trust{line-height:1.4}}
+</style>

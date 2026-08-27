@@ -24,6 +24,7 @@ interface RecordItem {
   secondaryLabel?: string;
   primaryLabel?: string;
   verifiedLabel?: string;
+  primaryExternal?: boolean;
 }
 
 interface Copy {
@@ -73,7 +74,7 @@ const { record, copy, featured = false } = Astro.props;
     {record.url ? (
       <span class="achievement-card-actions">
         {record.evidence && <button type="button" data-evidence-open>{copy.evidence}</button>}
-        <a class="cve-link cve-link--primary" href={record.url} target="_blank" rel="noopener noreferrer">
+        <a class="cve-link cve-link--primary" href={record.url} target={record.primaryExternal === false ? undefined : '_blank'} rel={record.primaryExternal === false ? undefined : 'noopener noreferrer'}>
           {record.primaryLabel ?? copy.verify} <span aria-hidden="true">↗</span><span class="sr-only">{copy.newTab}</span>
         </a>
         {record.secondaryUrl && <a class="cve-link" href={record.secondaryUrl} target="_blank" rel="noopener noreferrer">

@@ -105,6 +105,12 @@ for (const file of htmlFiles) {
 const structured = {
   '/': ['Person', 'WebSite'], '/ben-kimim': ['ProfilePage', 'Person', 'BreadcrumbList'],
   '/guvenlik': ['WebPage', 'BreadcrumbList'], '/en/security': ['WebPage', 'BreadcrumbList'],
+  '/guvenlik-arastirmalari': ['CollectionPage', 'ItemList', 'Person', 'BreadcrumbList'],
+  '/en/security-research': ['CollectionPage', 'ItemList', 'Person', 'BreadcrumbList'],
+  '/guvenlik-arastirmalari/cve-2026-16323': ['TechArticle', 'Person', 'BreadcrumbList'],
+  '/en/security-research/cve-2026-16323': ['TechArticle', 'Person', 'BreadcrumbList'],
+  '/guvenlik-arastirmalari/cve-2026-19441': ['TechArticle', 'Person', 'BreadcrumbList'],
+  '/en/security-research/cve-2026-19441': ['TechArticle', 'Person', 'BreadcrumbList'],
   '/yazilar': ['CollectionPage', 'ItemList', 'BreadcrumbList'], '/yazilar/neden-bu-blogu-actim': ['BlogPosting', 'BreadcrumbList'],
   '/yazilar/kategori/ag-ve-linux': ['CollectionPage', 'ItemList', 'BreadcrumbList'],
   '/yazilar/kategori/kisisel-notlar': ['CollectionPage', 'ItemList', 'BreadcrumbList'],
@@ -114,6 +120,19 @@ for (const [route, types] of Object.entries(structured)) {
   const file = route === '/' ? path.join(dist, 'index.html') : path.join(dist, route.slice(1), 'index.html');
   const html = await readFile(file, 'utf8').catch(() => '');
   for (const type of types) if (!html.includes(`"@type":"${type}"`)) failures.push(`${route}: ${type} structured data eksik`);
+}
+
+for (const id of ['CVE-2026-16323', 'CVE-2026-19441']) {
+  for (const prefix of ['/guvenlik-arastirmalari', '/en/security-research']) {
+    const route = `${prefix}/${id.toLowerCase()}`;
+    const html = await readFile(path.join(dist, ...route.slice(1).split('/'), 'index.html'), 'utf8').catch(() => '');
+    for (const required of [id, 'Basri Akkaya', 'finder', 'cve.org', 'siberguvenlik.gov.tr', '"@type":"TechArticle"', '"propertyID":"CVE"']) {
+      if (!html.includes(required)) failures.push(`${route}: CVE doğrulama alanı eksik (${required})`);
+    }
+  }
+}
+for (const forbidden of ['/guvenlik-arastirmalari/cve-2026-52662', '/en/security-research/cve-2026-52662']) {
+  if (routeFiles.has(forbidden)) failures.push(`${forbidden}: yayımlanmamış CVE detay route'u üretilmemeli`);
 }
 
 for (const required of ['rss.xml', 'robots.txt', 'sitemap-index.xml', 'sitemap-0.xml', '404.html']) if (!files.some((file) => file.endsWith(required))) failures.push(`${required} eksik`);

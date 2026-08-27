@@ -2,6 +2,7 @@
 import SectionHeading from './SectionHeading.astro';
 import AchievementCard from './AchievementCard.astro';
 import { siteConfig } from '../config/site';
+import { cveResearchRoute } from '../i18n/routes';
 
 interface Props { locale?: 'tr' | 'en'; scope?: 'all' | 'security' }
 const { locale = 'tr', scope = 'all' } = Astro.props;
@@ -19,6 +20,8 @@ const copy = isEnglish ? {
   publicRecord: 'Public record', archived: 'Archived', institutional: 'Institutional',
   advisory: 'View official advisory', company: 'Company', product: 'Product', severity: 'Severity',
   institution: 'Institution website', verified: 'Verified recognition',
+  research: 'View research record', officialCve: 'Official CVE record', pending: 'Publication pending', checkStatus: 'Check CVE status',
+  officialList: 'Official institution list', platformProfile: 'Public platform profile', institutionLetter: 'Institutional letter', publicRecognition: 'Public recognition record', officialFinder: 'Official finder credit',
 } : {
   title: 'Hall of Fame & CVE Kayıtları',
   description: 'Kamuya açık olarak doğrulanabilen güvenlik araştırmaları, sorumlu açıklama ve başarı kayıtları — hızlı inceleme için gruplandırıldı.',
@@ -30,6 +33,8 @@ const copy = isEnglish ? {
   publicRecord: 'Kamuya açık kayıt', archived: 'Arşiv', institutional: 'Kurumsal',
   advisory: 'Resmî güvenlik bildirimini görüntüle', company: 'Firma', product: 'Ürün', severity: 'Önem seviyesi',
   institution: 'Kurum sitesi', verified: 'Doğrulanabilir kayıt',
+  research: 'Araştırma kaydını görüntüle', officialCve: 'Resmî CVE kaydı', pending: 'Yayın bekleniyor', checkStatus: 'CVE durumunu kontrol et',
+  officialList: 'Resmî kurum listesi', platformProfile: 'Kamuya açık platform profili', institutionLetter: 'Kurum takdir mektubu', publicRecognition: 'Kamuya açık takdir kaydı', officialFinder: 'Resmî finder kredisi',
 };
 
 const brandFor = (title: string) => {
@@ -46,9 +51,15 @@ const brandFor = (title: string) => {
 
 const cveRecords = siteConfig.cves.map((item) => ({
   category: 'cve', label: 'CVE', title: item.id,
-  description: 'description' in item ? (isEnglish ? item.description : item.descriptionTr) : (isEnglish ? 'Coordinated vulnerability disclosure record with a public CVE identifier.' : 'Kamuya açık CVE kimliğine sahip koordineli güvenlik açığı açıklama kaydı.'),
+  description: isEnglish ? item.description : item.descriptionTr,
   findingTitle: 'title' in item ? (isEnglish ? item.title : item.titleTr) : undefined,
-  url: item.url, secondaryUrl: 'advisoryUrl' in item ? item.advisoryUrl : undefined,
+  url: item.status === 'published' ? cveResearchRoute(locale, item.id) : item.url,
+  secondaryUrl: item.status === 'published' ? item.url : undefined,
+  primaryLabel: item.status === 'published' ? copy.research : copy.checkStatus,
+  secondaryLabel: item.status === 'published' ? copy.officialCve : undefined,
+  primaryExternal: item.status !== 'published',
+  status: item.status === 'publication-pending' ? copy.pending : undefined,
+  verifiedLabel: item.status === 'published' ? copy.officialFinder : undefined,
   vendor: 'vendor' in item ? item.vendor : undefined, product: 'product' in item ? item.product : undefined,
   severity: 'severity' in item ? (isEnglish ? item.severity : item.severityTr) : undefined,
   score: 'score' in item ? item.score : undefined, cvssVersion: 'cvssVersion' in item ? item.cvssVersion : undefined,
@@ -72,7 +83,12 @@ const achievementRecords = siteConfig.achievements.map((item) => {
     url: item.url, secondaryUrl: 'officialUrl' in item ? item.officialUrl : undefined,
     primaryLabel: 'urlLabel' in item ? (isEnglish ? item.urlLabelEn : item.urlLabel) : undefined,
     secondaryLabel: 'officialUrl' in item ? copy.institution : undefined,
-    verifiedLabel: category === 'hof' ? copy.verified : undefined,
+    verifiedLabel: category === 'hof' ? (
+      item.title.includes('University of Oslo') ? copy.institutionLetter
+        : item.title.includes('NASA') || item.title.includes('U.S. DHS') ? copy.platformProfile
+          : item.title.includes('Twente') || item.title.includes('Arçelik') || item.title.includes('KomşuKomşu') ? copy.officialList
+            : copy.publicRecognition
+    ) : undefined,
     year: item.title.match(/\b(20\d{2})\b/)?.[1], brand: brandFor(item.title),
     findings: 'findings' in item ? item.findings : undefined,
     ...evidence,
