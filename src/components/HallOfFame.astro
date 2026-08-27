@@ -33,6 +33,7 @@ const copy = isEnglish ? {
 };
 
 const brandFor = (title: string) => {
+  if (title.includes('University of Oslo')) return { logo: '/images/recognition/university-of-oslo.png', name: 'University of Oslo', shape: 'wordmark' as const };
   if (title.includes('NASA')) return { logo: '/images/recognition/nasa-logo.svg', name: 'NASA', shape: 'round' as const };
   if (title.includes('U.S. DHS')) return { logo: '/images/recognition/dhs-logo.svg', name: 'U.S. Department of Homeland Security', shape: 'wordmark' as const };
   if (title.includes('Twente')) return { logo: '/images/recognition/university-of-twente.svg', name: 'University of Twente', shape: 'wordmark' as const };
@@ -62,13 +63,14 @@ const achievementRecords = siteConfig.achievements.map((item) => {
     evidenceAlt: isEnglish ? item.evidenceAltEn : item.evidenceAlt,
     evidenceWidth: item.evidenceWidth,
     evidenceHeight: item.evidenceHeight,
-    evidenceId: item.title.includes('NASA') ? 'nasa-evidence-title' : item.title.includes('U.S. DHS') ? 'dhs-fema-evidence-title' : item.title.includes('Twente') ? 'twente-evidence-title' : item.title.includes('KomşuKomşu') ? 'komsukomsu-evidence-title' : 'arcelik-evidence-title',
+    evidenceId: item.title.includes('University of Oslo') ? 'university-of-oslo-evidence-title' : item.title.includes('NASA') ? 'nasa-evidence-title' : item.title.includes('U.S. DHS') ? 'dhs-fema-evidence-title' : item.title.includes('Twente') ? 'twente-evidence-title' : item.title.includes('KomşuKomşu') ? 'komsukomsu-evidence-title' : 'arcelik-evidence-title',
   } : {};
   return {
     category, label: category === 'ctf' ? 'CTF' : 'HOF',
     title: isEnglish ? item.titleEn : item.title,
     description: isEnglish ? item.descriptionEn : item.description,
     url: item.url, secondaryUrl: 'officialUrl' in item ? item.officialUrl : undefined,
+    primaryLabel: 'urlLabel' in item ? (isEnglish ? item.urlLabelEn : item.urlLabel) : undefined,
     secondaryLabel: 'officialUrl' in item ? copy.institution : undefined,
     verifiedLabel: category === 'hof' ? copy.verified : undefined,
     year: item.title.match(/\b(20\d{2})\b/)?.[1], brand: brandFor(item.title),
