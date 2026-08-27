@@ -10,6 +10,7 @@ export const personSchema = {
   image: absoluteUrl(siteConfig.defaultImage),
   affiliation: { '@type': 'CollegeOrUniversity', name: 'Goce Delčev University – Štip' },
   award: [
+    'University of Oslo / UiO-CERT — 2026 Letter of Recognition for Security Vulnerability Disclosures',
     'NASA Vulnerability Disclosure Program — 2026 Bugcrowd Hall of Fame',
     'U.S. Department of Homeland Security Vulnerability Disclosure Program — 2026 Bugcrowd Hall of Fame',
     'University of Twente — 2026 Responsible Disclosure Hall of Fame',
