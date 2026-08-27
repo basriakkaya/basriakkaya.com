@@ -33,7 +33,7 @@ const copy = isEnglish ? {
 };
 
 const brandFor = (title: string) => {
-  if (title.includes('University of Oslo')) return { logo: '/images/recognition/university-of-oslo.svg', name: 'University of Oslo', shape: 'wordmark' as const };
+  if (title.includes('University of Oslo')) return { logo: '/images/recognition/university-of-oslo.png', name: 'University of Oslo', shape: 'wordmark' as const };
   if (title.includes('NASA')) return { logo: '/images/recognition/nasa-logo.svg', name: 'NASA', shape: 'round' as const };
   if (title.includes('U.S. DHS')) return { logo: '/images/recognition/dhs-logo.svg', name: 'U.S. Department of Homeland Security', shape: 'wordmark' as const };
   if (title.includes('Twente')) return { logo: '/images/recognition/university-of-twente.svg', name: 'University of Twente', shape: 'wordmark' as const };
