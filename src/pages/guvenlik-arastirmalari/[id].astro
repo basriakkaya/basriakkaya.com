@@ -1,0 +1,10 @@
+---
+import CveResearchPage from '../../components/CveResearchPage.astro';
+import { publishedCves, type PublishedCve } from '../../lib/security-research';
+
+export function getStaticPaths() {
+  return publishedCves.map((cve) => ({ params: { id: cve.id.toLowerCase() }, props: { cve } }));
+}
+const { cve } = Astro.props as { cve: PublishedCve };
+---
+<CveResearchPage cve={cve} locale="tr" />

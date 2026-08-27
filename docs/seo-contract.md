@@ -5,8 +5,8 @@ Bu belge, route, içerik, layout, PWA ve deployment değişikliklerinde korunaca
 ## URL ve locale modeli
 
 - Production origin yalnızca `https://www.basriakkaya.com` değeridir.
-- Türkçe varsayılan dildir ve kökte kalır: `/`, `/yazilar`, `/yazilar/<slug>`, `/yazilar/kategori/<category>`, `/yazilar/seri/<series>`, `/ben-kimim`, `/rss.xml`.
-- İngilizce `/en` altındadır: `/en`, `/en/about`, `/en/articles`, `/en/articles/<slug>`, `/en/articles/category/<category>`, `/en/articles/series/<series>`, `/en/rss.xml`.
+- Türkçe varsayılan dildir ve kökte kalır: `/`, `/yazilar`, `/yazilar/<slug>`, `/yazilar/kategori/<category>`, `/yazilar/seri/<series>`, `/ben-kimim`, `/guvenlik-arastirmalari`, `/guvenlik-arastirmalari/<cve-id>`, `/rss.xml`.
+- İngilizce `/en` altındadır: `/en`, `/en/about`, `/en/articles`, `/en/articles/<slug>`, `/en/articles/category/<category>`, `/en/articles/series/<series>`, `/en/security-research`, `/en/security-research/<cve-id>`, `/en/rss.xml`.
 - Dil seçici gerçek anchor kullanır; otomatik dil redirect'i, cookie veya query-string locale kullanılmaz.
 - Her sayfa self-canonical kullanır. Preview ve localhost origin metadata, sitemap veya RSS'e giremez.
 
@@ -23,6 +23,8 @@ Bu belge, route, içerik, layout, PWA ve deployment değişikliklerinde korunaca
 - `og:url` canonical ile aynıdır. Locale mapping Türkçe için `tr` / `tr-TR` / `tr_TR`, İngilizce için `en` / `en-US` / `en_US` kullanır.
 - Homepage, about ve listing çiftleri karşılıklı `tr`, `en` ve Türkçe eşe giden `x-default` alternate yayınlar.
 - Makaleler `BlogPosting`, görünür yollar `BreadcrumbList` kullanır. `url`, `mainEntityOfPage`, `inLanguage`, tarih, author ve image gerçek sayfa verisiyle uyumludur. `dateModified` build zamanı değildir.
+- Güvenlik araştırması merkezleri `CollectionPage` ve `ItemList`; yayımlanmış CVE detayları `TechArticle`, `Person` ve `BreadcrumbList` kullanır. CVE kimliği, finder kredisi, yayın tarihi, etkilenen ürün, CWE/CAPEC, CVSS ve kaynak bağlantıları görünür içerikle eşleşmelidir.
+- Yayımlanmamış CVE kimliği için detay route'u veya finder `TechArticle` şeması üretilmez. Kayıt, görünür arayüzde açıkça yayın bekliyor olarak ayrılır.
 
 ## Sitemap, RSS ve PWA
 

@@ -1,0 +1,134 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from './Breadcrumbs.astro';
+import type { Locale } from '../i18n/config';
+import { alternateLinks, formatDate } from '../i18n/helpers';
+import { cveResearchRoute, route } from '../i18n/routes';
+import { breadcrumbSchema, cveResearchSchema, personSchema, schemaGraph } from '../lib/schema';
+import { capecUrl, cweUrl, type PublishedCve } from '../lib/security-research';
+
+const { cve, locale } = Astro.props as { cve: PublishedCve; locale: Locale };
+const isEnglish = locale === 'en';
+const trPath = cveResearchRoute('tr', cve.id);
+const enPath = cveResearchRoute('en', cve.id);
+const currentPath = isEnglish ? enPath : trPath;
+const indexPath = route(locale, 'research');
+const title = `${cve.id}: ${isEnglish ? cve.seoTitle : cve.seoTitleTr}`;
+const description = isEnglish
+  ? `${cve.id}, found by Basri Akkaya: official CVE record, ${cve.cwe}, CVSS ${cve.score.toFixed(1)}, affected product, and TR-CERT verification sources.`
+  : `Basri Akkaya tarafından bulunan ${cve.id}: resmî CVE kaydı, ${cve.cwe}, CVSS ${cve.score.toFixed(1)}, etkilenen ürün ve TR-CERT doğrulama kaynakları.`;
+const copy = isEnglish ? {
+  home: 'Home', index: 'Security Research', record: 'Published CVE record',
+  verified: 'Officially credited finder', finder: 'Researcher credit', finderValue: 'Basri Akkaya — finder',
+  summary: 'Public record summary', vendor: 'Vendor', product: 'Affected product', severity: 'Severity', published: 'Published',
+  classification: 'Technical classification', vector: 'CVSS vector', sources: 'Authoritative sources',
+  sourceNote: 'The facts and researcher credit on this page are based on the published CVE record and the government advisory.',
+  cveSource: 'Official CVE record', advisory: 'TR-CERT government advisory', cwe: 'MITRE CWE definition', capec: 'MITRE CAPEC definition',
+  disclosure: 'Responsible disclosure note', disclosureText: 'This page summarizes public information only. It does not publish private report material, credentials, or undisclosed exploitation details.',
+  back: 'View all security research', newTab: ' (opens in a new tab)',
+} : {
+  home: 'Ana Sayfa', index: 'Güvenlik Araştırmaları', record: 'Yayımlanmış CVE kaydı',
+  verified: 'Resmî finder kredisi', finder: 'Araştırmacı kredisi', finderValue: 'Basri Akkaya — finder',
+  summary: 'Kamuya açık kayıt özeti', vendor: 'Üretici', product: 'Etkilenen ürün', severity: 'Önem seviyesi', published: 'Yayın tarihi',
+  classification: 'Teknik sınıflandırma', vector: 'CVSS vektörü', sources: 'Yetkili kaynaklar',
+  sourceNote: 'Bu sayfadaki teknik bilgiler ve araştırmacı kredisi, yayımlanmış CVE kaydı ile resmî devlet bildirimine dayanmaktadır.',
+  cveSource: 'Resmî CVE kaydı', advisory: 'TR-CERT resmî güvenlik bildirimi', cwe: 'MITRE CWE tanımı', capec: 'MITRE CAPEC tanımı',
+  disclosure: 'Sorumlu açıklama notu', disclosureText: 'Bu sayfa yalnızca kamuya açık bilgileri özetler; özel rapor materyali, kimlik bilgileri veya yayımlanmamış istismar ayrıntıları içermez.',
+  back: 'Tüm güvenlik araştırmalarını görüntüle', newTab: ' (yeni sekmede açılır)',
+};
+const jsonLd = schemaGraph([
+  personSchema,
+  cveResearchSchema(cve, locale, currentPath),
+  breadcrumbSchema([
+    { name: copy.home, path: isEnglish ? '/en' : '/' },
+    { name: copy.index, path: indexPath },
+    { name: cve.id, path: currentPath },
+  ]),
+]);
+---
+
+<BaseLayout
+  locale={locale}
+  title={title}
+  description={description}
+  type="article"
+  canonicalPath={currentPath}
+  alternates={alternateLinks(trPath, enPath)}
+  switchPath={isEnglish ? trPath : enPath}
+  jsonLd={jsonLd}
+>
+  <article class="cve-research shell">
+    <Breadcrumbs items={[
+      { name: copy.home, href: isEnglish ? '/en' : '/' },
+      { name: copy.index, href: indexPath },
+      { name: cve.id },
+    ]} />
+
+    <header class="cve-research-hero">
+      <div class="cve-research-status"><span aria-hidden="true"></span>{copy.verified}</div>
+      <p class="eyebrow">$ verify --cve {cve.id}</p>
+      <h1>{cve.id}</h1>
+      <p class="cve-research-title">{isEnglish ? cve.title : cve.titleTr}</p>
+      <p class="lead">{isEnglish ? cve.description : cve.descriptionTr}</p>
+    </header>
+
+    <div class="cve-research-layout">
+      <div class="cve-research-main">
+        <section aria-labelledby="record-summary">
+          <h2 id="record-summary">{copy.summary}</h2>
+          <dl class="cve-facts">
+            <div><dt>{copy.finder}</dt><dd><a href={isEnglish ? '/en/about' : '/ben-kimim'} title={isEnglish ? 'View Basri Akkaya’s security researcher profile' : 'Basri Akkaya güvenlik araştırmacısı profilini görüntüle'}>{copy.finderValue}</a></dd></div>
+            <div><dt>{copy.vendor}</dt><dd>{cve.vendor}</dd></div>
+            <div><dt>{copy.product}</dt><dd>{cve.product}</dd></div>
+            <div><dt>{copy.severity}</dt><dd>{isEnglish ? cve.severity : cve.severityTr} · CVSS {cve.score.toFixed(1)}</dd></div>
+            <div><dt>{copy.published}</dt><dd><time datetime={cve.published}>{formatDate(new Date(`${cve.published}T12:00:00Z`), locale)}</time></dd></div>
+            <div><dt>CVE</dt><dd>{cve.id}</dd></div>
+          </dl>
+        </section>
+
+        <section aria-labelledby="classification">
+          <h2 id="classification">{copy.classification}</h2>
+          <div class="classification-grid">
+            <a href={cweUrl(cve.cwe)} target="_blank" rel="noopener noreferrer"><span>{cve.cwe}</span><strong>{cve.cweName}</strong><small>{copy.cwe}{copy.newTab}</small></a>
+            <a href={capecUrl(cve.capec)} target="_blank" rel="noopener noreferrer"><span>{cve.capec}</span><strong>{cve.capecName}</strong><small>{copy.capec}{copy.newTab}</small></a>
+          </div>
+          <p class="cvss-vector"><span>{copy.vector}</span><code>{cve.cvssVector}</code></p>
+        </section>
+
+        <section aria-labelledby="sources">
+          <h2 id="sources">{copy.sources}</h2>
+          <p>{copy.sourceNote}</p>
+          <ul class="research-sources">
+            <li><a href={cve.url} target="_blank" rel="noopener noreferrer"><strong>{copy.cveSource}</strong><span>cve.org · {cve.id}</span><i aria-hidden="true">↗</i><span class="sr-only">{copy.newTab}</span></a></li>
+            <li><a href={cve.advisoryUrl} target="_blank" rel="noopener noreferrer"><strong>{copy.advisory}</strong><span>siberguvenlik.gov.tr</span><i aria-hidden="true">↗</i><span class="sr-only">{copy.newTab}</span></a></li>
+          </ul>
+        </section>
+
+        <section class="disclosure-note" aria-labelledby="disclosure-note">
+          <h2 id="disclosure-note">{copy.disclosure}</h2><p>{copy.disclosureText}</p>
+        </section>
+      </div>
+
+      <aside class="cve-verification" aria-label={copy.record}>
+        <p>{copy.record}</p><strong>{cve.id}</strong>
+        <dl><div><dt>STATUS</dt><dd>PUBLISHED</dd></div><div><dt>CREDIT</dt><dd>Basri Akkaya</dd></div><div><dt>ROLE</dt><dd>finder</dd></div><div><dt>CVSS</dt><dd>{cve.score.toFixed(1)} / 10</dd></div></dl>
+        <a class="button secondary" href={cve.url} target="_blank" rel="noopener noreferrer">{copy.cveSource} <span aria-hidden="true">↗</span><span class="sr-only">{copy.newTab}</span></a>
+      </aside>
+    </div>
+
+    <a class="back-link" href={indexPath}><span aria-hidden="true">←</span> {copy.back}</a>
+  </article>
+</BaseLayout>
+
+<style>
+  .cve-research{padding-block:64px 100px}.cve-research-hero{max-width:900px;padding:34px 0 38px;border-bottom:1px solid var(--border)}
+  .cve-research-status{display:inline-flex;align-items:center;gap:8px;margin-bottom:22px;padding:6px 9px;color:var(--accent);background:rgba(126,231,135,.06);border:1px solid rgba(126,231,135,.24);border-radius:5px;font:700 10px ui-monospace,monospace;text-transform:uppercase;letter-spacing:.06em}.cve-research-status span{width:7px;height:7px;background:var(--accent);border-radius:50%;box-shadow:0 0 9px rgba(126,231,135,.7)}
+  .cve-research-hero h1{color:var(--accent-2);font:800 clamp(2.5rem,8vw,5rem) ui-monospace,monospace;letter-spacing:-.06em}.cve-research-title{max-width:850px;margin:16px 0 0;color:var(--text);font-size:clamp(1.15rem,2.5vw,1.55rem);font-weight:750;line-height:1.45}.cve-research-hero .lead{max-width:790px}
+  .cve-research-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,320px);align-items:start;gap:clamp(38px,7vw,76px);padding-top:42px}.cve-research-main{min-width:0}.cve-research-main>section+section{margin-top:48px}.cve-research-main h2{margin-bottom:18px;font-size:clamp(1.35rem,3vw,1.75rem)}.cve-research-main>section>p{color:var(--muted)}
+  .cve-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));margin:0;border:1px solid var(--border);border-radius:8px}.cve-facts div{min-width:0;padding:16px 18px}.cve-facts div:nth-child(odd){border-right:1px solid var(--border)}.cve-facts div:nth-child(n+3){border-top:1px solid var(--border)}.cve-facts dt,.cve-verification dt{color:var(--muted);font:700 9px ui-monospace,monospace;text-transform:uppercase;letter-spacing:.08em}.cve-facts dd{margin:5px 0 0;overflow-wrap:anywhere;color:var(--text);font-weight:700}.cve-facts a{color:var(--accent-2);text-decoration:underline;text-underline-offset:3px}
+  .classification-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.classification-grid a{display:grid;min-width:0;padding:18px;background:var(--surface);border:1px solid var(--border);border-radius:7px}.classification-grid a:hover{border-color:var(--accent-2)}.classification-grid span{color:var(--accent-2);font:700 11px ui-monospace,monospace}.classification-grid strong{margin-top:7px}.classification-grid small{margin-top:9px;color:var(--muted)}.cvss-vector{display:grid;gap:8px;margin-top:16px;padding:15px 17px;background:var(--surface);border:1px solid var(--border);border-left:2px solid var(--accent-2);border-radius:6px}.cvss-vector span{font:700 9px ui-monospace,monospace;text-transform:uppercase;letter-spacing:.08em}.cvss-vector code{overflow-wrap:anywhere;color:var(--accent);font:700 12px/1.6 ui-monospace,monospace}
+  .research-sources{display:grid;gap:10px;margin:18px 0 0;padding:0;list-style:none}.research-sources a{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 16px;min-height:70px;padding:14px 17px;background:var(--surface);border:1px solid var(--border);border-radius:7px}.research-sources a:hover{border-color:var(--accent)}.research-sources strong{color:var(--accent-2)}.research-sources span:not(.sr-only){color:var(--muted);font:11px ui-monospace,monospace}.research-sources i{grid-column:2;grid-row:1/3;align-self:center;color:var(--accent-2);font-style:normal}.disclosure-note{padding:22px;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:7px}.disclosure-note h2{font-size:1.2rem}.disclosure-note p{margin-bottom:0}
+  .cve-verification{position:sticky;top:96px;padding:22px;background:var(--surface);border:1px solid var(--border);border-top:2px solid var(--accent);border-radius:8px}.cve-verification>p{margin-bottom:5px;color:var(--muted);font:10px ui-monospace,monospace;text-transform:uppercase;letter-spacing:.08em}.cve-verification>strong{color:var(--accent-2);font:800 1.35rem ui-monospace,monospace}.cve-verification dl{display:grid;gap:11px;margin:20px 0}.cve-verification dl div{display:flex;justify-content:space-between;gap:16px;padding-bottom:9px;border-bottom:1px solid var(--border)}.cve-verification dd{margin:0;color:var(--accent);font:700 10px ui-monospace,monospace;text-align:right}.cve-verification .button{width:100%;font-size:.78rem}.cve-research>.back-link{margin:54px 0 0}
+  @media(max-width:860px){.cve-research-layout{grid-template-columns:1fr}.cve-verification{position:static;order:-1}.cve-verification dl{grid-template-columns:repeat(2,minmax(0,1fr))}.cve-verification dl div{display:grid}.cve-verification dd{text-align:left}}
+  @media(max-width:520px){.cve-research{width:min(calc(100% - 28px),var(--max));padding-top:42px}.cve-facts,.classification-grid{grid-template-columns:1fr}.cve-facts div:nth-child(odd){border-right:0}.cve-facts div+div{border-top:1px solid var(--border)}.cve-verification dl{grid-template-columns:1fr}.cve-research-title{font-size:1.05rem}}
+</style>

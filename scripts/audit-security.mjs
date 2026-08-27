@@ -67,7 +67,10 @@ const siteSource = await readFile(path.join(root, 'src/config/site.ts'), 'utf8')
 for (const value of ['CVE-2026-16323', 'CVE-2026-19441', 'FuyaWeb Internet and Informatics Services', 'IKAS Technology Inc.', '7.5', '5.3', 'tr-26-0882', 'tr-26-0883']) if (!siteSource.includes(value)) failures.push(`CVE yapılandırması eksik: ${value}`);
 for (const route of ['index.html', path.join('en', 'index.html'), path.join('ben-kimim', 'index.html'), path.join('en', 'about', 'index.html')]) {
   const html = await readFile(path.join(dist, route), 'utf8').catch(() => '');
-  for (const value of ['CVE-2026-16323', 'CVE-2026-19441', 'tr-26-0882', 'tr-26-0883']) if (!html.includes(value)) failures.push(`${route} CVE içeriği eksik: ${value}`);
+  for (const value of ['CVE-2026-16323', 'CVE-2026-19441', 'security-research/cve-2026-16323', 'security-research/cve-2026-19441']) {
+    const localizedValue = route.startsWith('en') ? value : value.replace('security-research', 'guvenlik-arastirmalari');
+    if (!html.includes(localizedValue)) failures.push(`${route} CVE içeriği eksik: ${localizedValue}`);
+  }
   for (const logo of ['university-of-oslo.png', 'nasa-logo.svg', 'dhs-logo.svg', 'university-of-twente.svg', 'arcelik.png', 'goce-delcev-university.png', 'rahim-usta-anatolian-high-school.png', 'komsukomsu-logo.png']) if (!html.includes(`/images/recognition/${logo}`)) failures.push(`${route} HOF logosu eksik: ${logo}`);
   for (const value of ['University of Oslo / UiO-CERT', 'HOF · LOR', 'university-of-oslo-letter-of-recognition.png']) if (!html.includes(value)) failures.push(`${route} University of Oslo HOF/LOR içeriği eksik: ${value}`);
   for (const value of ['U.S. DHS VDP', 'Sensitive Data Exposure', 'Disclosure of Secrets', 'dhs-fema-bugcrowd-evidence.png']) if (!html.includes(value)) failures.push(`${route} DHS HOF içeriği eksik: ${value}`);
@@ -76,6 +79,15 @@ for (const route of ['index.html', path.join('en', 'index.html'), path.join('ben
   for (const value of ['Public Frontend İçerisindeki Sabit Credential', 'Hard-Coded Client-Side Credential']) if (html.includes(value)) failures.push(`${route} Arçelik kartında kaldırılan uzun başlık hâlâ mevcut: ${value}`);
   for (const value of ['Goce Delcev', '2FA Bypass', 'Unauthorized Administrator Account Registration', 'Reflected XSS']) if (!html.includes(value)) failures.push(`${route} Goce Delcev HOF içeriği eksik: ${value}`);
   for (const value of ['KomşuKomşu — 2026 Hall of Fame', 'komsukomsu.tech/vulnerability-disclosure-hall-of-fame', 'komsukomsu-hof-evidence.png']) if (!html.includes(value)) failures.push(`${route} KomşuKomşu HOF içeriği eksik: ${value}`);
+}
+for (const [route, advisory] of [
+  [path.join('guvenlik-arastirmalari', 'cve-2026-16323', 'index.html'), 'tr-26-0882'],
+  [path.join('guvenlik-arastirmalari', 'cve-2026-19441', 'index.html'), 'tr-26-0883'],
+  [path.join('en', 'security-research', 'cve-2026-16323', 'index.html'), 'tr-26-0882'],
+  [path.join('en', 'security-research', 'cve-2026-19441', 'index.html'), 'tr-26-0883'],
+]) {
+  const html = await readFile(path.join(dist, route), 'utf8').catch(() => '');
+  if (!html.includes(advisory)) failures.push(`${route} resmî CVE bildirimi eksik: ${advisory}`);
 }
 const publicEmail = siteSource.match(/email:\s*'([^']+)'/u)?.[1] ?? '';
 if (!publicEmail) failures.push('siteConfig public e-posta değeri bulunamadı');
