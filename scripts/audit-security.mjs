@@ -71,7 +71,8 @@ for (const route of ['index.html', path.join('en', 'index.html'), path.join('ben
     const localizedValue = route.startsWith('en') ? value : value.replace('security-research', 'guvenlik-arastirmalari');
     if (!html.includes(localizedValue)) failures.push(`${route} CVE içeriği eksik: ${localizedValue}`);
   }
-  for (const logo of ['university-of-oslo.png', 'nasa-logo.svg', 'dhs-logo.svg', 'university-of-twente.svg', 'arcelik.png', 'goce-delcev-university.png', 'rahim-usta-anatolian-high-school.png', 'komsukomsu-logo.png']) if (!html.includes(`/images/recognition/${logo}`)) failures.push(`${route} HOF logosu eksik: ${logo}`);
+  for (const logo of ['asus-logo.svg', 'university-of-oslo.png', 'nasa-logo.svg', 'dhs-logo.svg', 'university-of-twente.svg', 'arcelik.png', 'goce-delcev-university.png', 'rahim-usta-anatolian-high-school.png', 'komsukomsu-logo.png']) if (!html.includes(`/images/recognition/${logo}`)) failures.push(`${route} HOF logosu eksik: ${logo}`);
+  for (const value of ['ASUS PSIRT — 2026 Hall of Fame', 'Basri Akkaya (realkage)', 'asus.com/security-advisory/#hof']) if (!html.includes(value)) failures.push(`${route} ASUS HOF içeriği eksik: ${value}`);
   for (const value of ['University of Oslo / UiO-CERT', 'HOF · LOR', 'university-of-oslo-letter-of-recognition.png']) if (!html.includes(value)) failures.push(`${route} University of Oslo HOF/LOR içeriği eksik: ${value}`);
   for (const value of ['U.S. DHS VDP', 'Sensitive Data Exposure', 'Disclosure of Secrets', 'dhs-fema-bugcrowd-evidence.png']) if (!html.includes(value)) failures.push(`${route} DHS HOF içeriği eksik: ${value}`);
   for (const value of ['University of Twente', 'Broken Access Control', 'IDOR', 'twente-hof-evidence.png']) if (!html.includes(value)) failures.push(`${route} Twente HOF içeriği eksik: ${value}`);
