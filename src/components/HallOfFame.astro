@@ -38,6 +38,7 @@ const copy = isEnglish ? {
 };
 
 const brandFor = (title: string) => {
+  if (title.includes('ASUS')) return { logo: '/images/recognition/asus-logo.svg', name: 'ASUSTeK Computer Inc. (ASUS)', shape: 'wordmark' as const };
   if (title.includes('University of Oslo')) return { logo: '/images/recognition/university-of-oslo.png', name: 'University of Oslo', shape: 'wordmark' as const };
   if (title.includes('NASA')) return { logo: '/images/recognition/nasa-logo.svg', name: 'NASA', shape: 'round' as const };
   if (title.includes('U.S. DHS')) return { logo: '/images/recognition/dhs-logo.svg', name: 'U.S. Department of Homeland Security', shape: 'wordmark' as const };
@@ -86,7 +87,7 @@ const achievementRecords = siteConfig.achievements.map((item) => {
     verifiedLabel: category === 'hof' ? (
       item.title.includes('University of Oslo') ? copy.institutionLetter
         : item.title.includes('NASA') || item.title.includes('U.S. DHS') ? copy.platformProfile
-          : item.title.includes('Twente') || item.title.includes('Arçelik') || item.title.includes('KomşuKomşu') ? copy.officialList
+          : item.title.includes('ASUS') || item.title.includes('Twente') || item.title.includes('Arçelik') || item.title.includes('KomşuKomşu') ? copy.officialList
             : copy.publicRecognition
     ) : undefined,
     year: item.title.match(/\b(20\d{2})\b/)?.[1], brand: brandFor(item.title),
