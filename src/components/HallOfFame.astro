@@ -79,7 +79,7 @@ const achievementRecords = siteConfig.achievements.map((item) => {
   } : {};
   return {
     category, label: category === 'ctf' ? 'CTF' : 'HOF',
-    title: isEnglish ? item.titleEn : item.title,
+    title: category === 'ctf' ? item.title.replace(/ — 4\.?.*$/, '') : (isEnglish ? item.titleEn : item.title),
     description: isEnglish ? item.descriptionEn : item.description,
     url: item.url, secondaryUrl: 'officialUrl' in item ? item.officialUrl : undefined,
     primaryLabel: 'urlLabel' in item ? (isEnglish ? item.urlLabelEn : item.urlLabel) : undefined,
@@ -91,7 +91,8 @@ const achievementRecords = siteConfig.achievements.map((item) => {
             : copy.publicRecognition
     ) : undefined,
     year: item.title.match(/\b(20\d{2})\b/)?.[1], brand: brandFor(item.title),
-    findings: 'findings' in item ? item.findings : undefined,
+    status: category === 'ctf' ? (isEnglish ? '4th place' : '4.’lük') : undefined,
+    findings: 'findings' in item ? (isEnglish && 'findingsEn' in item ? item.findingsEn : item.findings) : undefined,
     ...evidence,
   };
 });
