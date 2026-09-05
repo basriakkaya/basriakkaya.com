@@ -165,6 +165,20 @@ const { record, copy, featured = false } = Astro.props;
   .achievement-card--hof .achievement-card-actions:has(a:only-child),.achievement-card--hof .achievement-card-actions:has(button:only-child){grid-template-columns:1fr}
   .achievement-card--hof .achievement-card-actions a,.achievement-card--hof .achievement-card-actions button{min-height:36px;justify-content:center;padding:6px 8px;color:#a8c8ae;border:1px solid rgba(126,231,135,.25);border-radius:5px;background:rgba(8,18,16,.7);font:700 9px/1.25 ui-monospace,monospace;text-align:center}
   .achievement-card--hof .achievement-card-actions a:hover,.achievement-card--hof .achievement-card-actions button:hover{color:var(--text);border-color:var(--accent);background:rgba(126,231,135,.07)}
+  .achievement-card--ctf{isolation:isolate;padding:20px;background:rgba(14,20,28,.96);border:1px solid rgba(210,153,34,.24);border-top:1px solid rgba(210,153,34,.5)}
+  .achievement-card--ctf:after{position:absolute;top:0;left:18px;width:46px;height:2px;background:#d29922;box-shadow:0 0 12px rgba(210,153,34,.5);content:""}
+  .achievement-card--ctf .achievement-card-top{min-height:44px;align-items:center}
+  .achievement-card--ctf .achievement-emblem{min-width:52px;height:38px;padding:0 10px;background:rgba(210,153,34,.08);border-color:rgba(210,153,34,.32);font-size:11px}
+  .achievement-card--ctf .achievement-card-body{margin-top:12px}
+  .achievement-card--ctf .achievement-meta{margin-bottom:8px;color:#d29922}
+  .achievement-card--ctf .achievement-status{padding:2px 6px;background:rgba(210,153,34,.08);border:1px solid rgba(210,153,34,.22);border-radius:4px}
+  .achievement-card--ctf h4{font:800 1.08rem/1.3 ui-monospace,monospace;letter-spacing:-.02em}
+  .achievement-card--ctf .achievement-card-body>p{max-width:48ch;font-size:.8rem;line-height:1.55}
+  .achievement-card--ctf .achievement-card-footer{padding-top:13px}
+  .achievement-card--ctf .achievement-card-footer>span:first-child{display:none}
+  .achievement-card--ctf .achievement-card-actions{width:100%}
+  .achievement-card--ctf .cve-link{width:100%;min-height:38px;justify-content:center;padding:7px 10px;color:#dcb565;background:rgba(210,153,34,.04);border:1px solid rgba(210,153,34,.24);border-radius:5px;font:700 9px ui-monospace,monospace;text-align:center}
+  .achievement-card--ctf .cve-link:hover{color:var(--text);border-color:#d29922;background:rgba(210,153,34,.08)}
   @media(max-width:430px){.achievement-card--cve{padding:17px}.achievement-card--cve .achievement-card-actions{grid-template-columns:1fr}.achievement-card--cve .cve-link{width:100%}}
   @media(max-width:430px){.achievement-card--hof{padding:17px}.achievement-card--hof .achievement-card-actions{grid-template-columns:1fr}.achievement-card--hof .achievement-card-actions a,.achievement-card--hof .achievement-card-actions button{width:100%}.hof-verified{font-size:7px}.achievement-card--hof .achievement-logo-frame:not(.achievement-logo-frame--round):not(.achievement-logo-frame--mark){width:138px}.achievement-card--hof .achievement-logo-frame--round,.achievement-card--hof .achievement-logo-frame--mark{width:58px;height:58px;flex-basis:58px}}
   @media(max-width:520px){.evidence-dialog .evidence-dialog-image.is-wide{width:100%;max-width:100%}}
