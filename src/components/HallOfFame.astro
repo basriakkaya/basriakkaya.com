@@ -22,6 +22,7 @@ const copy = isEnglish ? {
   institution: 'Institution website', verified: 'Verified recognition',
   research: 'View research record', officialCve: 'Official CVE record', pending: 'Publication pending', checkStatus: 'Check CVE status',
   officialList: 'Official institution list', platformProfile: 'Public platform profile', institutionLetter: 'Institutional letter', publicRecognition: 'Public recognition record', officialFinder: 'Official finder credit',
+  competitionLog: 'Verified competition results', entries: 'entries', place: 'place',
 } : {
   title: 'Hall of Fame & CVE Kayıtları',
   description: 'Kamuya açık olarak doğrulanabilen güvenlik araştırmaları, sorumlu açıklama ve başarı kayıtları — hızlı inceleme için gruplandırıldı.',
@@ -35,6 +36,7 @@ const copy = isEnglish ? {
   institution: 'Kurum sitesi', verified: 'Doğrulanabilir kayıt',
   research: 'Araştırma kaydını görüntüle', officialCve: 'Resmî CVE kaydı', pending: 'Yayın bekleniyor', checkStatus: 'CVE durumunu kontrol et',
   officialList: 'Resmî kurum listesi', platformProfile: 'Kamuya açık platform profili', institutionLetter: 'Kurum takdir mektubu', publicRecognition: 'Kamuya açık takdir kaydı', officialFinder: 'Resmî finder kredisi',
+  competitionLog: 'Doğrulanmış yarışma sonuçları', entries: 'kayıt', place: 'sıra',
 };
 
 const brandFor = (title: string) => {
@@ -91,7 +93,8 @@ const achievementRecords = siteConfig.achievements.map((item) => {
             : copy.publicRecognition
     ) : undefined,
     year: item.title.match(/\b(20\d{2})\b/)?.[1], brand: brandFor(item.title),
-    status: category === 'ctf' ? (isEnglish ? '4th place' : '4.’lük') : undefined,
+    placement: category === 'ctf' ? '04' : undefined,
+    placementLabel: category === 'ctf' ? copy.place : undefined,
     findings: 'findings' in item ? (isEnglish && 'findingsEn' in item ? item.findingsEn : item.findings) : undefined,
     ...evidence,
   };
@@ -144,8 +147,11 @@ const records = securityOnly ? [...hofRecords, ...cveRecords] : [...hofRecords, 
           <div><h3 id="more-group-title">{copy.moreTitle}</h3><p>{copy.moreDescription}</p></div>
           <strong>{otherRecords.length}</strong>
         </header>
-        <div class="achievement-grid achievement-grid--compact">
-          {otherRecords.map((record) => <AchievementCard record={record} copy={copy} />)}
+        <div class="ctf-board">
+          <div class="ctf-board-bar"><span><i aria-hidden="true"></i>$ cat competition_results.log</span><small>{copy.competitionLog} · {otherRecords.length} {copy.entries}</small></div>
+          <div class="achievement-grid achievement-grid--compact">
+            {otherRecords.map((record) => <AchievementCard record={record} copy={copy} />)}
+          </div>
         </div>
       </section>
     )}
@@ -155,6 +161,12 @@ const records = securityOnly ? [...hofRecords, ...cveRecords] : [...hofRecords, 
 <style>
   .achievement-grid--featured{grid-template-columns:repeat(3,minmax(0,1fr))}
   .achievement-grid--cve{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .ctf-board{overflow:hidden;padding:7px;background:rgba(8,13,19,.72);border:1px solid var(--border);border-radius:10px;box-shadow:0 20px 54px rgba(0,0,0,.18)}
+  .ctf-board-bar{min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:8px 11px;color:#8795a7;border-bottom:1px solid var(--border);font:10px ui-monospace,monospace}
+  .ctf-board-bar span{display:flex;align-items:center;gap:8px;color:#a5b0bf}
+  .ctf-board-bar i{width:7px;height:7px;background:#d29922;border-radius:50%;box-shadow:0 0 8px rgba(210,153,34,.5)}
+  .ctf-board-bar small{color:#667487;font:9px ui-monospace,monospace;text-transform:uppercase;letter-spacing:.06em}
+  .achievement-grid--compact{gap:7px;padding-top:7px}
   @media(max-width:1050px){.achievement-grid--featured,.achievement-grid--cve{grid-template-columns:repeat(2,minmax(0,1fr))}}
-  @media(max-width:760px){.achievement-grid--featured,.achievement-grid--cve{grid-template-columns:1fr}}
+  @media(max-width:760px){.achievement-grid--featured,.achievement-grid--cve,.achievement-grid--compact{grid-template-columns:1fr}.ctf-board-bar{align-items:flex-start;flex-direction:column;gap:4px}}
 </style>
