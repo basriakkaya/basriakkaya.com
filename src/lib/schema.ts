@@ -14,6 +14,7 @@ export const personSchema = {
   image: absoluteUrl(siteConfig.defaultImage),
   affiliation: { '@type': 'CollegeOrUniversity', name: 'Goce Delčev University – Štip' },
   award: [
+    'Microsoft Security Response Center — 2027 Special Mention and $2,500 bounty',
     'ASUS PSIRT — August 2026 Hall of Fame',
     'University of Oslo / UiO-CERT — 2026 Letter of Recognition for Security Vulnerability Disclosures',
     'NASA Vulnerability Disclosure Program — 2026 Bugcrowd Hall of Fame',

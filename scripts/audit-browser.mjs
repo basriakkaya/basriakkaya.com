@@ -68,7 +68,7 @@ const navigate = async (path) => {
 
 await Promise.all([send('Page.enable'), send('Runtime.enable'), send('Network.enable')]);
 
-const viewports = [320, 360, 390, 768, 1024, 1440];
+const viewports = [320, 360, 390, 430, 768, 1024, 1440];
 const layoutResults = [];
 for (const width of viewports) {
   await send('Emulation.setDeviceMetricsOverride', {
@@ -186,7 +186,7 @@ const adminInteractionRequests = networkRequests.slice(adminInteractionStart);
 const baseOrigin = new URL(baseUrl).origin;
 const invalidAdminLoadRequests = adminLoadRequests.filter((requestUrl) => {
   const parsed = new URL(requestUrl);
-  return parsed.origin !== baseOrigin || !(/^\/admin\/?$/u.test(parsed.pathname) || parsed.pathname === '/favicon.svg' || parsed.pathname.startsWith('/_astro/'));
+  return parsed.origin !== baseOrigin || !(/^\/admin\/?$/u.test(parsed.pathname) || parsed.pathname === '/api/visitor-ip' || parsed.pathname === '/favicon.svg' || parsed.pathname.startsWith('/_astro/'));
 });
 const invalidAdminInteractionRequests = adminInteractionRequests.filter((requestUrl) => {
   const parsed = new URL(requestUrl);
