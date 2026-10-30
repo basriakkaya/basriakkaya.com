@@ -1,0 +1,34 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { plannedArticles, imagePath } from '../../../data/editorial';
+export function getStaticPaths() {
+  return plannedArticles.map((item) => ({ params: { slug: item.slug }, props: { item } }));
+}
+const { item } = Astro.props;
+---
+
+<BaseLayout
+  title={`${item.en} — Coming soon`}
+  description={`${item.en}: this article is being prepared. Explore published research and guides.`}
+  noindex
+  locale="en"
+  switchPath={`/yakinda/${item.slug}`}
+>
+  <section class="shell coming-page">
+    <img src="/images/editorial/basrick.png" alt="" width="110" height="110" />
+    <p class="eyebrow">RESEARCH JOURNAL / IN PREPARATION</p>
+    <h1>{item.en}</h1>
+    <p class="ed-lead" style="margin-inline:auto">
+      This article is coming soon. I’m preparing and verifying the content before publishing.
+    </p>
+    <img class="coming-cover" src={imagePath(item.image)} alt="" width="900" height="400" />
+    <div class="actions">
+      <a class="button primary" href="/en/articles">
+        Explore published articles →
+      </a>
+      <a class="button" href="/en/rss.xml">
+        Follow via RSS
+      </a>
+    </div>
+  </section>
+</BaseLayout>

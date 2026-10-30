@@ -1,0 +1,112 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { alternateLinks } from '../i18n/helpers';
+import { siteConfig } from '../config/site';
+import { communityUrl } from '../data/editorial';
+import type { Locale } from '../i18n/config';
+const { locale = 'tr' } = Astro.props as { locale: Locale };
+const en = locale === 'en';
+---
+
+<BaseLayout
+  title={en ? 'Products & resources' : 'Ürünler ve kaynaklar'}
+  locale={locale}
+  description={
+    en
+      ? 'Explore KageAI, open-source work and the Basrick community.'
+      : 'KageAI, açık kaynak çalışmalar ve Basrick topluluğu. Araçları ve kaynakları keşfet.'
+  }
+  alternates={alternateLinks('/urunler', '/en/products')}
+  switchPath={en ? '/urunler' : '/en/products'}
+>
+  <div class="shell">
+    <header class="ed-page-head">
+      <p class="ed-breadcrumb">{en ? 'HOME / PRODUCTS' : 'ANA SAYFA / ÜRÜNLER'}</p>
+      <h1>
+        {en ? 'What I build.' : 'Ürettiklerim.'}
+        <br />
+        {en ? 'What I use.' : 'Kullandıklarım.'}
+        <br />
+        <em>{en ? 'What I share.' : 'Paylaştıklarım.'}</em>
+      </h1>
+      <p>
+        {en
+          ? 'Tools, resources and spaces to learn together.'
+          : 'Araçlar, kaynaklar ve birlikte öğrendiğimiz alanlar.'}
+      </p>
+    </header>
+    <article class="product-feature">
+      <img src="/images/editorial/kageai-brand.svg" width="800" height="500" alt="" />
+      <div>
+        <p class="eyebrow">{en ? 'PRODUCT' : 'ÜRÜN'}</p>
+        <h2>KageAI</h2>
+        <p>
+          {en
+            ? 'Learn about KageAI and explore the product.'
+            : 'KageAI hakkında bilgi edin ve ürünü keşfet.'}
+        </p>
+        <a
+          class="button primary"
+          href="https://kageai.tech"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {en ? 'Explore KageAI' : 'KageAI’ı incele'} ↗
+        </a>
+        <small>kageai.tech · {en ? 'External site' : 'Harici site'}</small>
+      </div>
+    </article>
+    <article class="product-feature community">
+      <div>
+        <p class="eyebrow">{en ? 'COMMUNITY' : 'TOPLULUK'}</p>
+        <h2>{en ? 'Basrick community' : 'Basrick topluluğu'}</h2>
+        <p>
+          {en
+            ? 'Ask questions, discuss research and learn together.'
+            : 'Sorularını paylaş, araştırmaları tartış, birlikte öğren.'}
+        </p>
+        <a class="button primary" href={communityUrl} target="_blank" rel="noopener noreferrer">
+          {en ? 'Join Discord' : 'Discord’a katıl'} ↗
+        </a>
+      </div>
+      <img
+        src="/images/editorial/basrick.png"
+        width="500"
+        height="500"
+        alt="Basrick"
+        loading="lazy"
+      />
+    </article>
+    <h2>{en ? 'Open source & notes' : 'Açık kaynak & notlar'}</h2>
+    <div class="resource-rows">
+      <a href={siteConfig.github} target="_blank" rel="noopener noreferrer">
+        {en ? 'My GitHub projects' : 'GitHub çalışmalarım'} ↗
+      </a>
+      <a
+        title={en ? 'Technical articles' : 'Teknik yazılar'}
+        href={en ? '/en/articles' : '/yazilar'}
+      >
+        {en ? 'Technical articles' : 'Teknik yazılar'} →
+      </a>
+      <a href={siteConfig.community.website} target="_blank" rel="noopener noreferrer">
+        BugHane Academy ↗
+      </a>
+    </div>
+    <p>
+      {en
+        ? 'Product links open the provider’s website.'
+        : 'Ürün bağlantıları ilgili sağlayıcının web sitesine yönlendirir.'}
+    </p>
+    <section class="contact-strip">
+      <h2>{en ? 'Let’s create together.' : 'Birlikte üretelim.'}</h2>
+      <p>
+        {en
+          ? 'Get in touch for collaborations, questions or feedback.'
+          : 'İş birlikleri, sorular veya geri bildirimlerin için benimle iletişime geçebilirsin.'}
+      </p>
+      <button class="button primary" data-contact-open aria-haspopup="dialog">
+        {en ? 'Contact me' : 'İletişime geç'} ↗
+      </button>
+    </section>
+  </div>
+</BaseLayout>

@@ -1,0 +1,11 @@
+Editorial redesign — 2026-10-29
+Approved references: master folder 01_Onayli_Tasarim / 02_Sayfa_Taslaklari.
+Palette: #080808 / #141414 / #F8CC48 / #F6F3E8. Self-hosted Source Serif 4 (OFL).
+Existing Astro static stack, routes, posts and security controls retained.
+HOF audit coverage relocated from homepage to the dedicated research pages and retained on about pages. No record assertions removed.
+Windows audit portability: normalize CRLF before YAML parsing and normalize filesystem separators for required-file checks.
+Coming-soon pages are noindex and excluded from sitemap; no fictitious BlogPosting dates.
+YouTube public Videos-page sync is verified locally. Scheduled workflow becomes active only after approved publication; preserve cover overrides and last valid cache on failure.
+No production changes authorized until final user approval.
+
+29 October revision: public UI palettes normalized to charcoal/warm yellow; article reaction removed including privacy copy; compact TR/EN About rebuilt, recognition cards remain in research hub; contact console with topic selection/copy/Escape/reduced motion. All public email is basriakkaya@pm.me. Connect draft is sibling 06_Connect_Site (Astro 7 static), based on six verified live links. Deployment source mapping still to be confirmed before publishing. No push or production deployment performed.

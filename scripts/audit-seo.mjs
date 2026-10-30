@@ -136,7 +136,7 @@ for (const forbidden of ['/guvenlik-arastirmalari/cve-2026-52662', '/en/security
 }
 
 for (const required of ['rss.xml', 'robots.txt', 'sitemap-index.xml', 'sitemap-0.xml', '404.html']) if (!files.some((file) => file.endsWith(required))) failures.push(`${required} eksik`);
-if (!adminSeen) failures.push('/admin build çıktısı eksik');
+if (adminSeen) failures.push('/admin kaldırılmış olmalı; build içinde bulundu');
 for (const draft of ['linux-terminalinde-her-gun-kullandigim-temel-komutlar', '/yazilar/test']) if (routeFiles.has(`/yazilar/${draft}`) || routeFiles.has(draft)) failures.push(`Draft route üretildi: ${draft}`);
 const sitemap = await readFile(path.join(dist, 'sitemap-0.xml'), 'utf8').catch(() => '');
 if (/localhost|\.vercel\.app|\/404|\/admin(?:\/|<)|\/rss\.xml|\/robots\.txt|linux-terminalinde|\/yazilar\/test/.test(sitemap)) failures.push('Sitemap yasaklı veya draft URL içeriyor');

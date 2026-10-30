@@ -1,0 +1,28 @@
+name: Refresh public YouTube videos
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 */6 * * *'
+permissions:
+  contents: write
+concurrency:
+  group: youtube-sync
+  cancel-in-progress: false
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node scripts/sync-videos.mjs --strict
+      - name: Save changed public video data
+        shell: bash
+        run: |
+          git add src/data/videos.json public/images/videos/ 2>/dev/null || git add src/data/videos.json
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'content: refresh public YouTube videos'
+          git push

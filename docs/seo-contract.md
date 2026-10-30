@@ -34,9 +34,7 @@ Bu belge, route, içerik, layout, PWA ve deployment değişikliklerinde korunaca
 - Manifest ve Service Worker registration tek instance'dır. `/rss.xml`, `/en/rss.xml`, robots, sitemap, manifest ve SW sistem URL'leri NetworkOnly kapsamındadır.
 - RFC 9116 kaynağı yalnızca `/.well-known/security.txt` adresindedir; `/guvenlik` ve `/en/security` karşılıklı locale politika sayfalarıdır. Public contact için tek kaynak `siteConfig.email` değeridir.
 - `security.txt` sitemap ve PWA precache dışında, Service Worker NetworkOnly kapsamındadır. Sabit `Expires` tarihi build sırasında ileri taşınmaz; `audit:security` geçmiş/60 günden yakın veya bir yıldan uzak tarihi reddeder. Tarih en geç 60 gün kala yenilenmelidir.
-- `/admin` yalnızca statik ve noindex operations console route'udur. Canonical, hreflang, JSON-LD, sosyal metadata, RSS discovery veya public navigation bağlantısı yayınlamaz; sitemap/RSS/robots ilanı dışında kalır.
-- `/admin` bağımsız minimal layout kullanır; Analytics, Speed Insights, manifest ve Service Worker registration yüklemez. HTML, Vercel `no-store` ve Service Worker NetworkOnly kurallarıyla PWA runtime cache dışında tutulur.
-- Türkçe reaction anahtarı `basri:post-reaction:<slug>` olarak korunur; İngilizce anahtar `basri:post-reaction:en:<slug>` biçimindedir.
+- Makale reaction bileşeni kullanıcı isteğiyle kaldırılmıştır; yeni reaction verisi saklanmaz. Hakkımda sayfası kısa profil olarak kalır, HOF/CVE kartları iki dilli araştırmalar merkezindedir.
 
 ## Değişiklik sınıfları ve kalite kapısı
 
@@ -46,3 +44,5 @@ Bu belge, route, içerik, layout, PWA ve deployment değişikliklerinde korunaca
 - `npm run build` postbuild aşamasında sitemap, links, PWA, i18n, content, SEO ve security auditlerini çalıştırır. Kritik hata warning'e çevrilmez.
 
 Yayın öncesinde `npm run check`, `npm run build` ve `git diff --check` çalıştırılır. Preview'da canonical production origin olarak kalmalı; navigation, hreflang, RSS, sitemap ve PWA tekrar kontrol edilmelidir. Merge ve production deploy ayrıca kullanıcı onayı gerektirir. Production sonrasında Search Console sonuçlarının gecikmeli olduğu ve sitemap gönderiminin index garantisi olmadığı kabul edilir.
+
+/admin and its legacy API endpoints are removed from the redesign. No login page is built. Retained sitemap/cache exclusions are defensive only.

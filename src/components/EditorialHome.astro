@@ -1,0 +1,157 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import VideoCard from './VideoCard.astro';
+import ResourceCards from './ResourceCards.astro';
+import AdPlacement from './AdPlacement.astro';
+import videos from '../data/videos.json';
+import { plannedArticles, imagePath } from '../data/editorial';
+import { getPublishedPosts, postSlug } from '../lib/posts';
+import { personSchema, schemaGraph } from '../lib/schema';
+import { absoluteUrl, siteConfig } from '../config/site';
+import { alternateLinks } from '../i18n/helpers';
+import type { Locale } from '../i18n/config';
+import { route, articleRoute } from '../i18n/routes';
+const { locale = 'tr' } = Astro.props as { locale: Locale };
+const en = locale === 'en';
+const articles = route(locale, 'articles');
+const posts = await getPublishedPosts(locale);
+const jsonLd = schemaGraph([
+  personSchema,
+  {
+    '@type': 'WebSite',
+    '@id': `${absoluteUrl('/')}#website`,
+    name: siteConfig.name,
+    url: absoluteUrl(route(locale, 'home')),
+    description: siteConfig.description,
+    inLanguage: en ? 'en-US' : 'tr-TR',
+    publisher: { '@id': `${absoluteUrl('/')}#person` },
+  },
+]);
+---
+
+<BaseLayout
+  title={
+    en
+      ? 'Basri Akkaya | Security Research & Stories'
+      : 'Basri Akkaya | Güvenlik Araştırmaları ve Hikâyeler'
+  }
+  description={
+    en
+      ? 'Independent security research, responsible disclosure stories, videos and technical notes by Basri Akkaya.'
+      : 'Basri Akkaya’nın güvenlik araştırmaları, etik hacking hikâyeleri, videoları ve teknik notları. Araştır, anla, paylaş.'
+  }
+  locale={locale}
+  jsonLd={jsonLd}
+  alternates={alternateLinks('/', '/en')}
+  switchPath={en ? '/' : '/en'}
+>
+  <section class="shell ed-hero">
+    <div class="ed-hero-copy">
+      <p class="eyebrow">
+        {en ? 'CYBERSECURITY · RESEARCH · STORIES' : 'SİBER GÜVENLİK · ARAŞTIRMA · HİKÂYE'}
+      </p>
+      <h1>
+        {en ? 'It starts with curiosity.' : 'Merakla başlar.'}
+        <br />
+        {en ? 'Research takes it' : 'Araştırmayla'}
+        <br />
+        <em>{en ? 'deeper.' : 'derinleşir.'}</em>
+      </h1>
+      <p class="ed-lead">
+        {en
+          ? 'Real security research, accessible stories and technical notes.'
+          : 'Gerçek güvenlik araştırmaları, anlaşılır hikâyeler ve teknik notlar.'}
+      </p>
+      <div class="actions">
+        <a
+          class="button primary"
+          href={`https://www.youtube.com/watch?v=${videos[0].id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {en ? 'Watch the latest video' : 'Son videoyu izle'} ↗
+        </a>
+        <a
+          class="button"
+          title={en ? 'Browse all articles' : 'Tüm yazıları incele'}
+          href={articles}
+        >
+          {en ? 'Explore articles' : 'Yazıları keşfet'}
+        </a>
+      </div>
+    </div>
+    <div class="ed-hero-video">
+      <div class="feature-label">
+        <span>
+          <b>01</b> / {en ? 'FEATURED' : 'ÖNE ÇIKAN'}
+        </span>
+        <a href={en ? '/en/videos' : '/videolar'} aria-label={en ? 'All videos' : 'Tüm videolar'}>
+          ↗
+        </a>
+      </div>
+      <VideoCard video={videos[0]} featured locale={locale} />
+    </div>
+  </section>
+  <section class="shell ed-section">
+    <div class="ed-heading">
+      <h2>{en ? 'Latest videos' : 'Son videolar'}</h2>
+      <a href={en ? '/en/videos' : '/videolar'}>{en ? 'All videos' : 'Tüm videolar'} ↗</a>
+    </div>
+    <div class="video-grid">
+      {videos.slice(0, 3).map((video) => (
+        <VideoCard video={video} locale={locale} />
+      ))}
+    </div>
+  </section>
+  <section class="shell ed-section">
+    <div class="ed-heading">
+      <h2>{en ? 'Research journal' : 'Araştırma günlüğü'}</h2>
+      <a title={en ? 'Browse all articles' : 'Tüm yazıları incele'} href={articles}>
+        {en ? 'All articles' : 'Tüm yazılar'} ↗
+      </a>
+    </div>
+    <div class="journal-preview">
+      <article class="journal-feature">
+        <a href={`${en ? '/en/coming-soon' : '/yakinda'}/${plannedArticles[0].slug}`}>
+          <img src={imagePath('anatomy')} width="800" height="440" alt="" loading="lazy" />
+          <p class="eyebrow">{en ? 'RESEARCH · COMING SOON' : 'ARAŞTIRMA · YAKINDA'}</p>
+          <h3>{en ? plannedArticles[0].en : plannedArticles[0].title}</h3>
+          <p>
+            {en
+              ? 'From discovery to disclosure: inside the research process.'
+              : plannedArticles[0].description}
+          </p>
+        </a>
+      </article>
+      <div class="journal-side">
+        {posts.slice(0, 2).map((post, i) => (
+          <article>
+            <a title={post.data.title} href={articleRoute(locale, postSlug(post))}>
+              <img
+                src={post.data.cover ?? imagePath(i ? 'report' : 'xss')}
+                width="240"
+                height="200"
+                alt=""
+                loading="lazy"
+              />
+              <div>
+                <p class="eyebrow">{en ? 'PUBLISHED' : 'YAYINLANDI'}</p>
+                <h3>{post.data.title}</h3>
+                <p>{post.data.description}</p>
+                <span>Basri Akkaya ↗</span>
+              </div>
+            </a>
+          </article>
+        ))}
+      </div>
+    </div>
+    <AdPlacement locale={locale} />
+  </section>
+  <section class="shell ed-section">
+    <div class="ed-heading">
+      <h2>{en ? 'Tools & resources' : 'Araçlar & kaynaklar'}</h2>
+      <a href={en ? '/en/products' : '/urunler'}>{en ? 'Explore' : 'Keşfet'} ↗</a>
+    </div>
+    <ResourceCards locale={locale} />
+  </section>
+</BaseLayout>

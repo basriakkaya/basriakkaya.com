@@ -1,0 +1,26 @@
+---
+import { imagePath } from '../data/editorial';
+const { item, locale = 'tr' } = Astro.props;
+const en = locale === 'en';
+---
+
+<article
+  class="ed-card"
+  data-search-item
+  data-category={item.category}
+  data-search={`${item.title} ${item.category}`}
+>
+  <a class="ed-image-link" href={`${en ? '/en/coming-soon' : '/yakinda'}/${item.slug}`}>
+    <img src={imagePath(item.image)} width="640" height="360" loading="lazy" alt="" />
+    <span class="coming-badge">{en ? 'Coming soon' : 'Yakında'}</span>
+  </a>
+  <p class="eyebrow">{en ? 'RESEARCH NOTES' : item.category}</p>
+  <h3>
+    <a href={`${en ? '/en/coming-soon' : '/yakinda'}/${item.slug}`}>{en ? item.en : item.title}</a>
+  </h3>
+  <p>{en ? 'A new article is in preparation.' : item.description}</p>
+  <a class="card-bottom" href={`${en ? '/en/coming-soon' : '/yakinda'}/${item.slug}`}>
+    <span>Basri Akkaya</span>
+    <span aria-label={en ? 'View article status' : 'Yazı durumunu görüntüle'}>↗</span>
+  </a>
+</article>

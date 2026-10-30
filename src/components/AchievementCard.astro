@@ -1,4 +1,5 @@
 ---
+import ResearchStamp from './ResearchStamp.astro';
 interface RecordItem {
   category: string;
   label: string;
@@ -42,19 +43,57 @@ interface Copy {
   severity: string;
 }
 
-interface Props { record: RecordItem; copy: Copy; featured?: boolean }
-const { record, copy, featured = false } = Astro.props;
+interface Props {
+  record: RecordItem;
+  copy: Copy;
+  featured?: boolean;
+  artwork?: string;
+}
+const { record, copy, featured = false, artwork } = Astro.props;
+const english = Astro.url.pathname.startsWith('/en/');
 ---
 
-<article class:list={['achievement-card', `achievement-card--${record.category}`, { 'achievement-card--featured': featured }]}> 
+<article
+  class:list={[
+    'achievement-card',
+    `achievement-card--${record.category}`,
+    { 'achievement-card--featured': featured },
+  ]}
+>
+  {artwork && (
+    <img class="hof-editorial-art" src={artwork} alt="" width="800" height="280" loading="lazy" />
+  )}
   <div class="achievement-card-top">
     {record.brand ? (
-      <span class:list={['achievement-logo-frame', { 'achievement-logo-frame--round': record.brand.shape === 'round', 'achievement-logo-frame--mark': record.brand.shape === 'mark' }]}><img src={record.brand.logo} alt={record.brand.name} loading="lazy" decoding="async" /></span>
+      <span
+        class:list={[
+          'achievement-logo-frame',
+          {
+            'achievement-logo-frame--round': record.brand.shape === 'round',
+            'achievement-logo-frame--mark': record.brand.shape === 'mark',
+          },
+        ]}
+      >
+        <img src={record.brand.logo} alt={record.brand.name} loading="lazy" decoding="async" />
+        <ResearchStamp english={english} />
+      </span>
     ) : (
-      <span class="achievement-emblem" aria-hidden="true">{record.label === copy.institutional ? 'ORG' : record.label}</span>
+      <span class="achievement-emblem" aria-hidden="true">
+        {record.label === copy.institutional ? 'ORG' : record.label}
+        <ResearchStamp english={english} />
+      </span>
     )}
-    {record.score && <span class:list={['cve-score-badge', { 'is-high': record.score >= 7 }]}>CVSS {record.score.toFixed(1)}</span>}
-    {record.verifiedLabel && <span class="hof-verified"><i aria-hidden="true"></i>{record.verifiedLabel}</span>}
+    {record.score && (
+      <span class:list={['cve-score-badge', { 'is-high': record.score >= 7 }]}>
+        CVSS {record.score.toFixed(1)}
+      </span>
+    )}
+    {record.verifiedLabel && (
+      <span class="hof-verified">
+        <i aria-hidden="true"></i>
+        {record.verifiedLabel}
+      </span>
+    )}
   </div>
   <div class="achievement-card-body">
     <div class="achievement-meta">
@@ -62,41 +101,103 @@ const { record, copy, featured = false } = Astro.props;
       {record.year && <span>{record.year}</span>}
       {record.status && <span class="achievement-status">{record.status}</span>}
     </div>
-    <h4>{record.title}</h4>
-    {record.vendor && <p class="cve-target"><span>{record.vendor}</span>{record.product && <><i aria-hidden="true">/</i>{record.product}</>}</p>}
-    {record.severity && <p class="cve-severity-line"><span class="cve-status-dot" aria-hidden="true"></span>{copy.severity}: <strong>{record.severity}</strong><small>CVSS v{record.cvssVersion}</small></p>}
-    <p>{record.description}</p>
+    <h3>{record.title}</h3>
+    {record.vendor && (
+      <p class="cve-target">
+        <span>{record.vendor}</span>
+        {record.product && (
+          <>
+            <i aria-hidden="true">/</i>
+            {record.product}
+          </>
+        )}
+      </p>
+    )}
+    {record.severity && (
+      <p class="cve-severity-line">
+        <span class="cve-status-dot" aria-hidden="true"></span>
+        {copy.severity}: <strong>{record.severity}</strong>
+        <small>CVSS v{record.cvssVersion}</small>
+      </p>
+    )}
+    <p>
+      {record.description}
+      {record.findings &&
+        record.findings.length > 2 &&
+        ` (${record.findings.slice(2).join(' · ')})`}
+    </p>
     {record.findingTitle && <p class="achievement-finding-title">{record.findingTitle}</p>}
-    {record.findings && <ul class="achievement-findings" aria-label={record.title}>{record.findings.map((finding) => <li>{finding}</li>)}</ul>}
+    {record.findings && (
+      <ul class="achievement-findings" aria-label={record.title}>
+        {record.findings.slice(0, 2).map((finding) => (
+          <li>{finding}</li>
+        ))}
+      </ul>
+    )}
   </div>
   <div class="achievement-card-footer">
     <span>{record.url ? copy.publicRecord : copy.archived}</span>
     {record.url ? (
       <span class="achievement-card-actions">
-        {record.evidence && <button type="button" data-evidence-open>{copy.evidence}</button>}
-        <a class="cve-link cve-link--primary" href={record.url} target={record.primaryExternal === false ? undefined : '_blank'} rel={record.primaryExternal === false ? undefined : 'noopener noreferrer'}>
-          {record.primaryLabel ?? copy.verify} <span aria-hidden="true">↗</span><span class="sr-only">{copy.newTab}</span>
+        {record.evidence && (
+          <button type="button" data-evidence-open>
+            {copy.evidence}
+          </button>
+        )}
+        <a
+          class="cve-link cve-link--primary"
+          href={record.url}
+          target={record.primaryExternal === false ? undefined : '_blank'}
+          rel={record.primaryExternal === false ? undefined : 'noopener noreferrer'}
+        >
+          {record.primaryLabel ?? copy.verify} <span aria-hidden="true">↗</span>
+          <span class="sr-only">{copy.newTab}</span>
         </a>
-        {record.secondaryUrl && <a class="cve-link" href={record.secondaryUrl} target="_blank" rel="noopener noreferrer">
-          {record.secondaryLabel ?? copy.advisory} <span aria-hidden="true">↗</span><span class="sr-only">{copy.newTab}</span>
-        </a>}
+        {record.secondaryUrl && (
+          <a class="cve-link" href={record.secondaryUrl} target="_blank" rel="noopener noreferrer">
+            {record.secondaryLabel ?? copy.advisory} <span aria-hidden="true">↗</span>
+            <span class="sr-only">{copy.newTab}</span>
+          </a>
+        )}
       </span>
-    ) : <small>{copy.archive}</small>}
+    ) : (
+      <small>{copy.archive}</small>
+    )}
   </div>
 </article>
 
 {record.evidence && (
-  <dialog class="evidence-dialog" data-evidence-dialog aria-labelledby={record.evidenceId}>
+  <dialog class="evidence-dialog archive-dossier" data-evidence-dialog aria-labelledby={record.evidenceId}>
     <div class="evidence-dialog-bar">
-      <div><span>{record.title}</span><h3 id={record.evidenceId}>{copy.evidence}</h3></div>
-      <form method="dialog"><button type="submit" aria-label={copy.closeEvidence}>×</button></form>
+      <div>
+        <span class="archive-kicker">{english ? "RESEARCH ARCHIVE / EVIDENCE FILE" : "ARAŞTIRMA ARŞİVİ / KANIT DOSYASI"}</span>
+        <h3 id={record.evidenceId}>{record.title}</h3>
+      </div>
+      <form method="dialog">
+        <button type="submit" aria-label={copy.closeEvidence}>
+          ×
+        </button>
+      </form>
     </div>
+    <div class="archive-index"><span>01 / {english ? 'DOCUMENT' : 'BELGE'}</span><span>{record.year} · {record.label}</span><span>{record.brand?.name}</span></div>
     <figure>
       <div class="evidence-dialog-media">
-        <img class:list={['evidence-dialog-image', { 'is-wide': (record.evidenceWidth ?? 0) > (record.evidenceHeight ?? 1) * 1.4 }]} src={record.evidence} alt={record.evidenceAlt} width={record.evidenceWidth} height={record.evidenceHeight} loading="lazy" decoding="async" />
+        <img
+          class:list={[
+            'evidence-dialog-image',
+            { 'is-wide': (record.evidenceWidth ?? 0) > (record.evidenceHeight ?? 1) * 1.4 },
+          ]}
+          src={record.evidence}
+          alt={record.evidenceAlt}
+          width={record.evidenceWidth}
+          height={record.evidenceHeight}
+          loading="lazy"
+          decoding="async"
+        />
       </div>
       <figcaption>{record.evidenceAlt}</figcaption>
     </figure>
+    <footer class="archive-footer"><span>{english ? 'Coordinated disclosure · Security research' : 'Koordineli bildirim · Güvenlik araştırması'}</span>{record.url && <a href={record.url} target="_blank" rel="noopener noreferrer">{copy.verify} ↗</a>}</footer>
   </dialog>
 )}
 
@@ -112,7 +213,9 @@ const { record, copy, featured = false } = Astro.props;
   });
 
   document.querySelectorAll<HTMLDialogElement>('[data-evidence-dialog]').forEach((dialog) => {
-    dialog.addEventListener('close', () => document.documentElement.classList.remove('evidence-open'));
+    dialog.addEventListener('close', () =>
+      document.documentElement.classList.remove('evidence-open'),
+    );
     dialog.addEventListener('click', (event) => {
       if (event.target === dialog) dialog.close();
     });
@@ -120,66 +223,456 @@ const { record, copy, featured = false } = Astro.props;
 </script>
 
 <style>
-  .achievement-card--cve{isolation:isolate;padding:19px;background:linear-gradient(150deg,rgba(13,22,31,.98),rgba(8,13,19,.98));border-color:rgba(87,171,255,.22);border-top:1px solid rgba(87,171,255,.38)}
-  .achievement-card--cve:before{position:absolute;z-index:-1;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(87,171,255,.035) 1px,transparent 1px),linear-gradient(rgba(87,171,255,.025) 1px,transparent 1px);background-size:22px 22px;content:"";mask-image:linear-gradient(to bottom,#000,transparent 68%)}
-  .achievement-card--cve:after{position:absolute;top:0;left:18px;width:46px;height:2px;background:var(--accent-2);box-shadow:0 0 14px rgba(87,171,255,.7);content:""}
-  .achievement-card--cve .achievement-card-top{min-height:38px;align-items:center}
-  .achievement-card--cve .achievement-emblem{min-width:0;height:auto;padding:5px 8px;border:0;background:rgba(87,171,255,.09);border-radius:4px;font-size:10px;letter-spacing:.15em}
-  .achievement-card--cve .achievement-card-body{margin-top:12px}
-  .achievement-card--cve .achievement-meta{margin-bottom:5px;color:#7893b3}
-  .achievement-card--cve h4{font:800 1.18rem/1.2 ui-monospace,monospace;letter-spacing:-.035em}
-  .cve-score-badge{padding:6px 9px;color:#ffb86b;background:rgba(210,153,34,.08);border:1px solid rgba(210,153,34,.34);border-radius:5px;font:800 10px ui-monospace,monospace;letter-spacing:.04em;white-space:nowrap}
-  .cve-score-badge.is-high{color:#ff7b72;background:rgba(248,81,73,.08);border-color:rgba(248,81,73,.38)}
-  .cve-target{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:11px!important;color:var(--text)!important;font:700 .72rem/1.4 ui-monospace,monospace!important}
-  .cve-target span{color:var(--accent-2)}.cve-target i{color:#4d6077;font-style:normal}
-  .cve-severity-line{display:flex;align-items:center;gap:6px;margin-top:9px!important;color:#8796aa!important;font:700 9px ui-monospace,monospace!important;text-transform:uppercase;letter-spacing:.06em}
-  .cve-severity-line strong{color:#ff7b72}.cve-severity-line small{margin-left:auto;color:#66758a;font-size:8px}
-  .cve-status-dot{width:6px;height:6px;background:#ff5c57;border-radius:50%;box-shadow:0 0 8px rgba(255,92,87,.75)}
-  .achievement-card--cve .achievement-finding-title{padding:0;color:#c7d2df!important;background:transparent;border:0;border-radius:0;font:700 .72rem/1.5 ui-monospace,monospace}
-  .achievement-card--cve .achievement-card-footer{align-items:flex-end;gap:8px;padding-top:14px}
-  .achievement-card--cve .achievement-card-footer>span:first-child{display:none}
-  .achievement-card--cve .achievement-card-actions{width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
-  .achievement-card--cve .cve-link{min-height:36px;justify-content:center;padding:6px 8px;color:#a7b5c6;border:1px solid #29384a;border-radius:5px;background:rgba(10,17,25,.72);font:700 9px/1.25 ui-monospace,monospace;text-align:center}
-  .achievement-card--cve .cve-link--primary{color:var(--accent-2);border-color:rgba(87,171,255,.34)}
-  .achievement-card--cve .cve-link:hover{color:var(--text);border-color:var(--accent-2);background:rgba(87,171,255,.07)}
-  .achievement-card--hof{isolation:isolate;padding:19px;background:linear-gradient(150deg,rgba(13,25,23,.98),rgba(8,14,17,.98));border-color:rgba(126,231,135,.2);border-top:1px solid rgba(126,231,135,.38)}
-  .achievement-card--hof:before{position:absolute;z-index:-1;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(126,231,135,.03) 1px,transparent 1px),linear-gradient(rgba(126,231,135,.025) 1px,transparent 1px);background-size:22px 22px;content:"";mask-image:linear-gradient(to bottom,#000,transparent 72%)}
-  .achievement-card--hof:after{position:absolute;top:0;left:18px;width:46px;height:2px;background:var(--accent);box-shadow:0 0 14px rgba(126,231,135,.65);content:""}
-  .achievement-card--hof .achievement-card-top{min-height:64px;align-items:center}
-  .achievement-card--hof .achievement-logo-frame{width:150px;height:58px;padding:8px 10px;background:rgba(4,12,14,.58);border:1px solid rgba(126,231,135,.2);border-radius:7px;box-shadow:inset 0 0 18px rgba(126,231,135,.025)}
-  .achievement-card--hof .achievement-logo-frame img{width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;object-position:center}
-  .achievement-card--hof .achievement-logo-frame img[src$="university-of-oslo.png"]{filter:invert(1) grayscale(1);opacity:.92}
-  .achievement-card--hof .achievement-logo-frame img[src$="asus-logo.svg"]{filter:invert(1);opacity:.92}
-  .achievement-card--hof .achievement-logo-frame--round{width:64px;height:64px;flex:0 0 64px;padding:7px;background:rgba(4,12,14,.42);border-radius:50%;box-shadow:inset 0 0 16px rgba(126,231,135,.035),0 0 0 1px rgba(0,0,0,.12)}
-  .achievement-card--hof .achievement-logo-frame--round img{width:100%;height:100%;max-width:none;max-height:none;border-radius:50%;object-fit:contain}
-  .achievement-card--hof .achievement-logo-frame--mark{width:64px;height:64px;flex:0 0 64px;padding:5px;background:transparent;border:0;border-radius:15px;box-shadow:none}
-  .achievement-card--hof .achievement-logo-frame--mark img{width:100%;height:100%;max-width:none;max-height:none;border-radius:13px;object-fit:contain}
-  .achievement-card--hof .achievement-card-body{margin-top:13px}
-  .achievement-card--hof h4{font-size:1rem;line-height:1.35}
-  .achievement-card--hof .achievement-card-body>p:not(.achievement-finding-title){font-size:.8rem;line-height:1.55}
-  .hof-verified{display:inline-flex;align-items:center;gap:6px;color:#91d79a;font:700 8px ui-monospace,monospace;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap}
-  .hof-verified i{width:6px;height:6px;background:var(--accent);border-radius:50%;box-shadow:0 0 8px rgba(126,231,135,.75)}
-  .achievement-card--hof .achievement-card-footer{align-items:flex-end;gap:8px;padding-top:14px}
-  .achievement-card--hof .achievement-card-footer>span:first-child{display:none}
-  .achievement-card--hof .achievement-card-actions{width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
-  .achievement-card--hof .achievement-card-actions:has(a:only-child),.achievement-card--hof .achievement-card-actions:has(button:only-child){grid-template-columns:1fr}
-  .achievement-card--hof .achievement-card-actions a,.achievement-card--hof .achievement-card-actions button{min-height:36px;justify-content:center;padding:6px 8px;color:#a8c8ae;border:1px solid rgba(126,231,135,.25);border-radius:5px;background:rgba(8,18,16,.7);font:700 9px/1.25 ui-monospace,monospace;text-align:center}
-  .achievement-card--hof .achievement-card-actions a:hover,.achievement-card--hof .achievement-card-actions button:hover{color:var(--text);border-color:var(--accent);background:rgba(126,231,135,.07)}
-  .achievement-card--ctf{isolation:isolate;padding:20px;background:rgba(14,20,28,.96);border:1px solid rgba(210,153,34,.24);border-top:1px solid rgba(210,153,34,.5)}
-  .achievement-card--ctf:after{position:absolute;top:0;left:18px;width:46px;height:2px;background:#d29922;box-shadow:0 0 12px rgba(210,153,34,.5);content:""}
-  .achievement-card--ctf .achievement-card-top{min-height:44px;align-items:center}
-  .achievement-card--ctf .achievement-emblem{min-width:52px;height:38px;padding:0 10px;background:rgba(210,153,34,.08);border-color:rgba(210,153,34,.32);font-size:11px}
-  .achievement-card--ctf .achievement-card-body{margin-top:12px}
-  .achievement-card--ctf .achievement-meta{margin-bottom:8px;color:#d29922}
-  .achievement-card--ctf .achievement-status{padding:2px 6px;background:rgba(210,153,34,.08);border:1px solid rgba(210,153,34,.22);border-radius:4px}
-  .achievement-card--ctf h4{font:800 1.08rem/1.3 ui-monospace,monospace;letter-spacing:-.02em}
-  .achievement-card--ctf .achievement-card-body>p{max-width:48ch;font-size:.8rem;line-height:1.55}
-  .achievement-card--ctf .achievement-card-footer{padding-top:13px}
-  .achievement-card--ctf .achievement-card-footer>span:first-child{display:none}
-  .achievement-card--ctf .achievement-card-actions{width:100%}
-  .achievement-card--ctf .cve-link{width:100%;min-height:38px;justify-content:center;padding:7px 10px;color:#dcb565;background:rgba(210,153,34,.04);border:1px solid rgba(210,153,34,.24);border-radius:5px;font:700 9px ui-monospace,monospace;text-align:center}
-  .achievement-card--ctf .cve-link:hover{color:var(--text);border-color:#d29922;background:rgba(210,153,34,.08)}
-  @media(max-width:430px){.achievement-card--cve{padding:17px}.achievement-card--cve .achievement-card-actions{grid-template-columns:1fr}.achievement-card--cve .cve-link{width:100%}}
-  @media(max-width:430px){.achievement-card--hof{padding:17px}.achievement-card--hof .achievement-card-actions{grid-template-columns:1fr}.achievement-card--hof .achievement-card-actions a,.achievement-card--hof .achievement-card-actions button{width:100%}.hof-verified{font-size:7px}.achievement-card--hof .achievement-logo-frame:not(.achievement-logo-frame--round):not(.achievement-logo-frame--mark){width:138px}.achievement-card--hof .achievement-logo-frame--round,.achievement-card--hof .achievement-logo-frame--mark{width:58px;height:58px;flex-basis:58px}}
-  @media(max-width:520px){.evidence-dialog .evidence-dialog-image.is-wide{width:100%;max-width:100%}}
+  .achievement-card--cve {
+    isolation: isolate;
+    padding: 19px;
+    background: linear-gradient(150deg, rgba(22, 22, 22, 0.98), rgba(13, 13, 13, 0.98));
+    border-color: rgba(248, 204, 72, 0.22);
+    border-top: 1px solid rgba(248, 204, 72, 0.38);
+  }
+  .achievement-card--cve:before {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(90deg, rgba(248, 204, 72, 0.035) 1px, transparent 1px),
+      linear-gradient(rgba(248, 204, 72, 0.025) 1px, transparent 1px);
+    background-size: 22px 22px;
+    content: '';
+    mask-image: linear-gradient(to bottom, #000, transparent 68%);
+  }
+  .achievement-card--cve:after {
+    position: absolute;
+    top: 0;
+    left: 18px;
+    width: 46px;
+    height: 2px;
+    background: var(--accent-2);
+    box-shadow: 0 0 14px rgba(248, 204, 72, 0.7);
+    content: '';
+  }
+  .achievement-card--cve .achievement-card-top {
+    min-height: 38px;
+    align-items: center;
+  }
+  .achievement-card--cve .achievement-emblem {
+    min-width: 0;
+    height: auto;
+    padding: 5px 8px;
+    border: 0;
+    background: rgba(248, 204, 72, 0.09);
+    border-radius: 4px;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+  }
+  .achievement-card--cve .achievement-card-body {
+    margin-top: 12px;
+  }
+  .achievement-card--cve .achievement-meta {
+    margin-bottom: 5px;
+    color: #959595;
+  }
+  .achievement-card--cve h4 {
+    font:
+      800 1.18rem/1.2 ui-monospace,
+      monospace;
+    letter-spacing: -0.035em;
+  }
+  .cve-score-badge {
+    padding: 6px 9px;
+    color: #f8cc48;
+    background: rgba(248, 204, 72, 0.08);
+    border: 1px solid rgba(248, 204, 72, 0.34);
+    border-radius: 5px;
+    font:
+      800 10px ui-monospace,
+      monospace;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+  .cve-score-badge.is-high {
+    color: #f8cc48;
+    background: rgba(248, 204, 72, 0.08);
+    border-color: rgba(248, 204, 72, 0.38);
+  }
+  .cve-target {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 11px !important;
+    color: var(--text) !important;
+    font:
+      700 0.72rem/1.4 ui-monospace,
+      monospace !important;
+  }
+  .cve-target span {
+    color: var(--accent-2);
+  }
+  .cve-target i {
+    color: #616161;
+    font-style: normal;
+  }
+  .cve-severity-line {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 9px !important;
+    color: #989898 !important;
+    font:
+      700 9px ui-monospace,
+      monospace !important;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .cve-severity-line strong {
+    color: #f8cc48;
+  }
+  .cve-severity-line small {
+    margin-left: auto;
+    color: #777777;
+    font-size: 8px;
+  }
+  .cve-status-dot {
+    width: 6px;
+    height: 6px;
+    background: #f8cc48;
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(248, 204, 72, 0.75);
+  }
+  .achievement-card--cve .achievement-finding-title {
+    padding: 0;
+    color: #d3d3d3 !important;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    font:
+      700 0.72rem/1.5 ui-monospace,
+      monospace;
+  }
+  .achievement-card--cve .achievement-card-footer {
+    align-items: flex-end;
+    gap: 8px;
+    padding-top: 14px;
+  }
+  .achievement-card--cve .achievement-card-footer > span:first-child {
+    display: none;
+  }
+  .achievement-card--cve .achievement-card-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+  .achievement-card--cve .cve-link {
+    min-height: 36px;
+    justify-content: center;
+    padding: 6px 8px;
+    color: #b6b6b6;
+    border: 1px solid #393939;
+    border-radius: 5px;
+    background: rgba(17, 17, 17, 0.72);
+    font:
+      700 9px/1.25 ui-monospace,
+      monospace;
+    text-align: center;
+  }
+  .achievement-card--cve .cve-link--primary {
+    color: var(--accent-2);
+    border-color: rgba(248, 204, 72, 0.34);
+  }
+  .achievement-card--cve .cve-link:hover {
+    color: var(--text);
+    border-color: var(--accent-2);
+    background: rgba(248, 204, 72, 0.07);
+  }
+  .achievement-card--hof {
+    isolation: isolate;
+    padding: 19px;
+    background: linear-gradient(150deg, rgba(20, 20, 20, 0.98), rgba(13, 13, 13, 0.98));
+    border-color: rgba(248, 204, 72, 0.2);
+    border-top: 1px solid rgba(248, 204, 72, 0.38);
+  }
+  .achievement-card--hof:before {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(90deg, rgba(248, 204, 72, 0.03) 1px, transparent 1px),
+      linear-gradient(rgba(248, 204, 72, 0.025) 1px, transparent 1px);
+    background-size: 22px 22px;
+    content: '';
+    mask-image: linear-gradient(to bottom, #000, transparent 72%);
+  }
+  .achievement-card--hof:after {
+    position: absolute;
+    top: 0;
+    left: 18px;
+    width: 46px;
+    height: 2px;
+    background: var(--accent);
+    box-shadow: 0 0 14px rgba(248, 204, 72, 0.65);
+    content: '';
+  }
+  .achievement-card--hof .achievement-card-top {
+    min-height: 64px;
+    align-items: center;
+  }
+  .achievement-card--hof .achievement-logo-frame {
+    width: 150px;
+    height: 58px;
+    padding: 8px 10px;
+    background: rgba(10, 10, 10, 0.58);
+    border: 1px solid rgba(248, 204, 72, 0.2);
+    border-radius: 7px;
+    box-shadow: inset 0 0 18px rgba(248, 204, 72, 0.025);
+  }
+  .achievement-card--hof .achievement-logo-frame img {
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    object-position: center;
+  }
+  .achievement-card--hof .achievement-logo-frame img[src$='university-of-oslo.png'] {
+    filter: invert(1) grayscale(1);
+    opacity: 0.92;
+  }
+  .achievement-card--hof .achievement-logo-frame img[src$='asus-logo.svg'] {
+    filter: invert(1);
+    opacity: 0.92;
+  }
+  .achievement-card--hof .achievement-logo-frame--round {
+    width: 64px;
+    height: 64px;
+    flex: 0 0 64px;
+    padding: 7px;
+    background: rgba(10, 10, 10, 0.42);
+    border-radius: 50%;
+    box-shadow:
+      inset 0 0 16px rgba(248, 204, 72, 0.035),
+      0 0 0 1px rgba(0, 0, 0, 0.12);
+  }
+  .achievement-card--hof .achievement-logo-frame--round img {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    border-radius: 50%;
+    object-fit: contain;
+  }
+  .achievement-card--hof .achievement-logo-frame--mark {
+    width: 64px;
+    height: 64px;
+    flex: 0 0 64px;
+    padding: 5px;
+    background: transparent;
+    border: 0;
+    border-radius: 15px;
+    box-shadow: none;
+  }
+  .achievement-card--hof .achievement-logo-frame--mark img {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    border-radius: 13px;
+    object-fit: contain;
+  }
+  .achievement-card--hof .achievement-card-body {
+    margin-top: 13px;
+  }
+  .achievement-card--hof h4 {
+    font-size: 1rem;
+    line-height: 1.35;
+  }
+  .achievement-card--hof .achievement-card-body > p:not(.achievement-finding-title) {
+    font-size: 0.8rem;
+    line-height: 1.55;
+  }
+  .hof-verified {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #f8cc48;
+    font:
+      700 8px ui-monospace,
+      monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+  .hof-verified i {
+    width: 6px;
+    height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(248, 204, 72, 0.75);
+  }
+  .achievement-card--hof .achievement-card-footer {
+    align-items: flex-end;
+    gap: 8px;
+    padding-top: 14px;
+  }
+  .achievement-card--hof .achievement-card-footer > span:first-child {
+    display: none;
+  }
+  .achievement-card--hof .achievement-card-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+  .achievement-card--hof .achievement-card-actions:has(a:only-child),
+  .achievement-card--hof .achievement-card-actions:has(button:only-child) {
+    grid-template-columns: 1fr;
+  }
+  .achievement-card--hof .achievement-card-actions a,
+  .achievement-card--hof .achievement-card-actions button {
+    min-height: 36px;
+    justify-content: center;
+    padding: 6px 8px;
+    color: #b5b5b5;
+    border: 1px solid rgba(248, 204, 72, 0.25);
+    border-radius: 5px;
+    background: rgba(14, 14, 14, 0.7);
+    font:
+      700 9px/1.25 ui-monospace,
+      monospace;
+    text-align: center;
+  }
+  .achievement-card--hof .achievement-card-actions a:hover,
+  .achievement-card--hof .achievement-card-actions button:hover {
+    color: var(--text);
+    border-color: var(--accent);
+    background: rgba(248, 204, 72, 0.07);
+  }
+  .achievement-card--ctf {
+    isolation: isolate;
+    padding: 20px;
+    background: rgba(21, 21, 21, 0.96);
+    border: 1px solid rgba(248, 204, 72, 0.24);
+    border-top: 1px solid rgba(248, 204, 72, 0.5);
+  }
+  .achievement-card--ctf:after {
+    position: absolute;
+    top: 0;
+    left: 18px;
+    width: 46px;
+    height: 2px;
+    background: #f8cc48;
+    box-shadow: 0 0 12px rgba(248, 204, 72, 0.5);
+    content: '';
+  }
+  .achievement-card--ctf .achievement-card-top {
+    min-height: 44px;
+    align-items: center;
+  }
+  .achievement-card--ctf .achievement-emblem {
+    min-width: 52px;
+    height: 38px;
+    padding: 0 10px;
+    background: rgba(248, 204, 72, 0.08);
+    border-color: rgba(248, 204, 72, 0.32);
+    font-size: 11px;
+  }
+  .achievement-card--ctf .achievement-card-body {
+    margin-top: 12px;
+  }
+  .achievement-card--ctf .achievement-meta {
+    margin-bottom: 8px;
+    color: #f8cc48;
+  }
+  .achievement-card--ctf .achievement-status {
+    padding: 2px 6px;
+    background: rgba(248, 204, 72, 0.08);
+    border: 1px solid rgba(248, 204, 72, 0.22);
+    border-radius: 4px;
+  }
+  .achievement-card--ctf h4 {
+    font:
+      800 1.08rem/1.3 ui-monospace,
+      monospace;
+    letter-spacing: -0.02em;
+  }
+  .achievement-card--ctf .achievement-card-body > p {
+    max-width: 48ch;
+    font-size: 0.8rem;
+    line-height: 1.55;
+  }
+  .achievement-card--ctf .achievement-card-footer {
+    padding-top: 13px;
+  }
+  .achievement-card--ctf .achievement-card-footer > span:first-child {
+    display: none;
+  }
+  .achievement-card--ctf .achievement-card-actions {
+    width: 100%;
+  }
+  .achievement-card--ctf .cve-link {
+    width: 100%;
+    min-height: 38px;
+    justify-content: center;
+    padding: 7px 10px;
+    color: #f8cc48;
+    background: rgba(248, 204, 72, 0.04);
+    border: 1px solid rgba(248, 204, 72, 0.24);
+    border-radius: 5px;
+    font:
+      700 9px ui-monospace,
+      monospace;
+    text-align: center;
+  }
+  .achievement-card--ctf .cve-link:hover {
+    color: var(--text);
+    border-color: #f8cc48;
+    background: rgba(248, 204, 72, 0.08);
+  }
+  @media (max-width: 430px) {
+    .achievement-card--cve {
+      padding: 17px;
+    }
+    .achievement-card--cve .achievement-card-actions {
+      grid-template-columns: 1fr;
+    }
+    .achievement-card--cve .cve-link {
+      width: 100%;
+    }
+  }
+  @media (max-width: 430px) {
+    .achievement-card--hof {
+      padding: 17px;
+    }
+    .achievement-card--hof .achievement-card-actions {
+      grid-template-columns: 1fr;
+    }
+    .achievement-card--hof .achievement-card-actions a,
+    .achievement-card--hof .achievement-card-actions button {
+      width: 100%;
+    }
+    .hof-verified {
+      font-size: 7px;
+    }
+    .achievement-card--hof
+      .achievement-logo-frame:not(.achievement-logo-frame--round):not(
+        .achievement-logo-frame--mark
+      ) {
+      width: 138px;
+    }
+    .achievement-card--hof .achievement-logo-frame--round,
+    .achievement-card--hof .achievement-logo-frame--mark {
+      width: 58px;
+      height: 58px;
+      flex-basis: 58px;
+    }
+  }
+  @media (max-width: 520px) {
+    .evidence-dialog .evidence-dialog-image.is-wide {
+      width: 100%;
+      max-width: 100%;
+    }
+  }
 </style>

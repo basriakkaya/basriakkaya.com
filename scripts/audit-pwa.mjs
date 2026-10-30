@@ -115,7 +115,7 @@ if (occurrences(serviceWorkerSource, /isSystemPath\(url\.pathname\)/gu) !== 2) f
 if (/googleAnalytics|analytics\.js|collect\?/iu.test(serviceWorkerSource ?? '')) failures.push('Service Worker Analytics cache kuralı içeriyor');
 
 const adminHtml = await read('dist/admin/index.html');
-if (!adminHtml) failures.push('dist/admin/index.html eksik');
+if (adminHtml) failures.push('Removed /admin route must not exist in dist');
 else {
   if (/<link rel="manifest"|site\.webmanifest/iu.test(adminHtml)) failures.push('/admin manifest yüklememeli');
   if (/pwa-client|virtual:pwa-register|navigator\.serviceWorker\.register/iu.test(adminHtml)) failures.push('/admin Service Worker registration yüklememeli');

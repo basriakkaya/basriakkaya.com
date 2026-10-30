@@ -1,0 +1,8 @@
+---
+const { locale = 'tr' } = Astro.props;
+---
+
+<button class="ad-placement" type="button" data-contact-open="advertising" aria-haspopup="dialog">
+  <span>{locale === 'tr' ? 'REKLAM ALANI' : 'ADVERTISING'}</span>
+  <small>{locale === 'tr' ? 'Markan burada yer alsın ↗' : 'Your brand here ↗'}</small>
+</button>

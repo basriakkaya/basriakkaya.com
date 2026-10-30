@@ -1,0 +1,48 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { siteConfig } from '../config/site';
+import { alternateLinks } from '../i18n/helpers';
+const { locale = 'tr' } = Astro.props;
+const en = locale === 'en';
+---
+
+<BaseLayout
+  locale={locale}
+  title={en ? 'Privacy & site information' : 'Gizlilik ve site bilgileri'}
+  description={
+    en
+      ? 'Information about site features, external links and privacy contact.'
+      : 'Site özellikleri, dış bağlantılar ve gizlilik iletişim bilgileri.'
+  }
+  alternates={alternateLinks('/gizlilik', '/en/privacy')}
+  switchPath={en ? '/gizlilik' : '/en/privacy'}
+>
+  <article class="shell-narrow section prose">
+    <h1>{en ? 'Privacy & site information' : 'Gizlilik ve site bilgileri'}</h1>
+    <h2>{en ? 'Contact' : 'İletişim'}</h2>
+    <p>
+      {en
+        ? 'For privacy-related questions, contact:'
+        : 'Gizlilikle ilgili soruların için iletişim:'}{' '}
+      <a href={`mailto:${siteConfig.email}`}>{siteConfig.email}</a>.
+    </p>
+    <h2>{en ? 'External links' : 'Dış bağlantılar'}</h2>
+    <p>
+      {en
+        ? 'YouTube, Discord and product links open external services. Their own privacy policies apply after you visit them. Videos are linked rather than embedded.'
+        : 'YouTube, Discord ve ürün bağlantıları harici hizmetlere açılır. Bu hizmetleri ziyaret ettiğinde kendi gizlilik politikaları geçerlidir. Videolar gömülü oynatıcı yerine bağlantı olarak sunulur.'}
+    </p>
+    <h2>{en ? 'Local features' : 'Yerel özellikler'}</h2>
+    <p>
+      {en
+        ? 'The optional installable website caches public pages and resources for offline use. Advertising enquiry buttons only open a contact dialog; they do not load an advertising network.'
+        : 'İsteğe bağlı yüklenebilir site, çevrimdışı kullanım için herkese açık sayfa ve kaynakları önbelleğe alır. Reklam başvuru düğmeleri yalnızca iletişim penceresi açar; reklam ağı yüklemez.'}
+    </p>
+    <h2>{en ? 'Hosting and performance' : 'Barındırma ve performans'}</h2>
+    <p>
+      {en
+        ? 'The site is hosted on Vercel and includes its analytics and performance integrations. An advertising or consent system will require a separate policy update before activation.'
+        : 'Site Vercel üzerinde barındırılır ve Vercel analiz ve performans entegrasyonlarını içerir. Reklam veya onay sistemi etkinleştirilmeden önce bu bilgilendirme ayrıca güncellenecektir.'}
+    </p>
+  </article>
+</BaseLayout>

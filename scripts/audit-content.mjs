@@ -15,8 +15,11 @@ const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 for (const file of files) {
   const text = await readFile(path.join(blogDir, file), 'utf8');
   const match = text.match(/^---\s*\n([\s\S]*?)\n---\s*\n([\s\S]*)$/);
-  if (!match) { errors.push(`${file}: frontmatter okunamadı`); continue; }
-  const data = parse(match[1]);
+  if (!match) {
+    errors.push(`${file}: frontmatter okunamadı`);
+    continue;
+  }
+  const data = parse(match[1].replace(/\r\n?/gu, '\n'));
   const body = match[2];
   const prose = body.replace(/```[\s\S]*?```/g, '');
   const slug = file.replace(/\.mdx?$/, '');
@@ -25,15 +28,23 @@ for (const file of files) {
   if (!['tr', 'en'].includes(lang)) errors.push(`${file}: desteklenmeyen lang '${lang}'`);
   if (!data.lang) errors.push(`${file}: lang alanı zorunlu`);
   if (!data.translationKey) errors.push(`${file}: translationKey zorunlu`);
-  if (data.translationKey && !slugPattern.test(data.translationKey)) errors.push(`${file}: translationKey lowercase ASCII ve tireli olmalı`);
+  if (data.translationKey && !slugPattern.test(data.translationKey))
+    errors.push(`${file}: translationKey lowercase ASCII ve tireli olmalı`);
   if (!data.draft && !data.category) errors.push(`${file}: yayınlanmış yazıda category zorunlu`);
-  if (data.category && !categories[data.category]) errors.push(`${file}: geçersiz category '${data.category}'`);
-  if (data.category && !slugPattern.test(data.category)) errors.push(`${file}: category slug lowercase ASCII ve tireli olmalı`);
+  if (data.category && !categories[data.category])
+    errors.push(`${file}: geçersiz category '${data.category}'`);
+  if (data.category && !slugPattern.test(data.category))
+    errors.push(`${file}: category slug lowercase ASCII ve tireli olmalı`);
   if (!String(data.description ?? '').trim()) errors.push(`${file}: description boş olamaz`);
   if (data.cover) {
-    if (!data.coverAlt || !String(data.coverAlt).trim()) errors.push(`${file}: cover için anlamlı coverAlt zorunlu`);
+    if (!data.coverAlt || !String(data.coverAlt).trim())
+      errors.push(`${file}: cover için anlamlı coverAlt zorunlu`);
     const coverPath = path.join(root, 'public', String(data.cover).replace(/^\//u, ''));
-    try { await access(coverPath); } catch { errors.push(`${file}: cover dosyası bulunamadı (${data.cover})`); }
+    try {
+      await access(coverPath);
+    } catch {
+      errors.push(`${file}: cover dosyası bulunamadı (${data.cover})`);
+    }
   }
   if (!Array.isArray(data.tags)) errors.push(`${file}: tags array olmalı`);
   else {
@@ -44,30 +55,75 @@ for (const file of files) {
   }
   if (data.series && !data.seriesOrder) errors.push(`${file}: series varsa seriesOrder zorunlu`);
   if (data.seriesOrder && !data.series) errors.push(`${file}: seriesOrder varsa series zorunlu`);
-  if (data.series && !seriesRegistry[data.series]) errors.push(`${file}: seri metadata kaydı bulunamadı`);
-  if (data.seriesOrder && (!Number.isInteger(data.seriesOrder) || data.seriesOrder < 1)) errors.push(`${file}: seriesOrder pozitif tam sayı olmalı`);
+  if (data.series && !seriesRegistry[data.series])
+    errors.push(`${file}: seri metadata kaydı bulunamadı`);
+  if (data.seriesOrder && (!Number.isInteger(data.seriesOrder) || data.seriesOrder < 1))
+    errors.push(`${file}: seriesOrder pozitif tam sayı olmalı`);
   if (/^#\s+/m.test(prose)) errors.push(`${file}: Markdown gövdesinde H1 kullanılamaz`);
-  if (/^###\s+/m.test(prose) && !/^##\s+/m.test(prose)) warnings.push(`${file}: H3 öncesinde H2 bulunmuyor`);
-  if (String(data.title ?? '').length < 12 || String(data.title ?? '').length > 75) warnings.push(`${file}: title SEO uzunluğu kontrol edilmeli`);
-  if (String(data.description ?? '').length < 70 || String(data.description ?? '').length > 180) warnings.push(`${file}: description SEO uzunluğu kontrol edilmeli`);
+  if (/^###\s+/m.test(prose) && !/^##\s+/m.test(prose))
+    warnings.push(`${file}: H3 öncesinde H2 bulunmuyor`);
+  if (String(data.title ?? '').length < 12 || String(data.title ?? '').length > 75)
+    warnings.push(`${file}: title SEO uzunluğu kontrol edilmeli`);
+  if (String(data.description ?? '').length < 70 || String(data.description ?? '').length > 180)
+    warnings.push(`${file}: description SEO uzunluğu kontrol edilmeli`);
   if (!slugPattern.test(slug)) errors.push(`${file}: yazı slug biçimi geçersiz`);
 }
 
 for (const post of posts) {
   const lang = post.data.lang ?? 'tr';
-  if (posts.some((other) => other.file !== post.file && !other.data.draft && (other.data.lang ?? 'tr') === lang && other.data.title === post.data.title)) errors.push(`${post.file}: aynı locale içinde duplicate title`);
-  if (posts.some((other) => other.file !== post.file && other.data.description === post.data.description)) errors.push(`${post.file}: description başka yazıyla aynı`);
-  if (post.data.series && posts.some((other) => other.file !== post.file && !other.data.draft && (other.data.lang ?? 'tr') === lang && other.data.series === post.data.series && other.data.seriesOrder === post.data.seriesOrder)) errors.push(`${post.file}: aynı locale ve seride duplicate seriesOrder`);
+  if (
+    posts.some(
+      (other) =>
+        other.file !== post.file &&
+        !other.data.draft &&
+        (other.data.lang ?? 'tr') === lang &&
+        other.data.title === post.data.title,
+    )
+  )
+    errors.push(`${post.file}: aynı locale içinde duplicate title`);
+  if (
+    posts.some(
+      (other) => other.file !== post.file && other.data.description === post.data.description,
+    )
+  )
+    errors.push(`${post.file}: description başka yazıyla aynı`);
+  if (
+    post.data.series &&
+    posts.some(
+      (other) =>
+        other.file !== post.file &&
+        !other.data.draft &&
+        (other.data.lang ?? 'tr') === lang &&
+        other.data.series === post.data.series &&
+        other.data.seriesOrder === post.data.seriesOrder,
+    )
+  )
+    errors.push(`${post.file}: aynı locale ve seride duplicate seriesOrder`);
 }
 for (const post of posts) {
   if (!post.data.translationKey) continue;
   const lang = post.data.lang ?? 'tr';
-  if (posts.some((other) => other.file !== post.file && !other.data.draft && (other.data.lang ?? 'tr') === lang && other.data.translationKey === post.data.translationKey)) errors.push(`${post.file}: aynı locale içinde duplicate translationKey`);
+  if (
+    posts.some(
+      (other) =>
+        other.file !== post.file &&
+        !other.data.draft &&
+        (other.data.lang ?? 'tr') === lang &&
+        other.data.translationKey === post.data.translationKey,
+    )
+  )
+    errors.push(`${post.file}: aynı locale içinde duplicate translationKey`);
 }
 const categorySlugs = Object.keys(categories);
 const seriesSlugs = Object.keys(seriesRegistry);
-for (const slug of categorySlugs) if (seriesSlugs.includes(slug)) errors.push(`Kategori/seri route slug çakışması: ${slug}`);
+for (const slug of categorySlugs)
+  if (seriesSlugs.includes(slug)) errors.push(`Kategori/seri route slug çakışması: ${slug}`);
 
 warnings.forEach((warning) => console.warn(`UYARI: ${warning}`));
-if (errors.length) { errors.forEach((error) => console.error(`HATA: ${error}`)); process.exit(1); }
-console.log(`Content audit başarılı: ${posts.length} yazı, ${categorySlugs.length} kategori ve ${seriesSlugs.length} seri doğrulandı; ${warnings.length} uyarı.`);
+if (errors.length) {
+  errors.forEach((error) => console.error(`HATA: ${error}`));
+  process.exit(1);
+}
+console.log(
+  `Content audit başarılı: ${posts.length} yazı, ${categorySlugs.length} kategori ve ${seriesSlugs.length} seri doğrulandı; ${warnings.length} uyarı.`,
+);

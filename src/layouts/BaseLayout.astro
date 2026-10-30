@@ -6,6 +6,9 @@ import Analytics from '@vercel/analytics/astro';
 import SpeedInsights from '@vercel/speed-insights/astro';
 import '../styles/global.css';
 import '../styles/i18n.css';
+import '../styles/editorial.css';
+import '../styles/defcon.css';
+import BrandContact from '../components/BrandContact.astro';
 import type { Locale } from '../i18n/config';
 import { localeConfig } from '../i18n/config';
 import { t } from '../i18n/translations';
@@ -29,6 +32,7 @@ const locale = props.locale ?? 'tr';
 const copy = t(locale);
 const switchPath = props.switchPath ?? route(locale === 'tr' ? 'en' : 'tr', 'home');
 ---
+
 <!doctype html>
 <html lang={locale} dir={localeConfig[locale].direction}>
   <head>
@@ -44,17 +48,38 @@ const switchPath = props.switchPath ?? route(locale === 'tr' ? 'en' : 'tr', 'hom
     <SEO {...props} locale={locale} />
   </head>
   <body>
-    <a class="skip-link" href="#main-content">{copy.skip}</a>
+    <a class="skip-link" href="#main-content">
+      {copy.skip}
+    </a>
     <Header locale={locale} switchPath={switchPath} />
-    <main id="main-content"><slot /></main>
+    <main id="main-content">
+      <div class="site-brand-atmosphere" aria-hidden="true"></div>
+      <slot />
+    </main>
     <Footer locale={locale} switchPath={switchPath} />
+    <BrandContact locale={locale} />
     <aside class="pwa-update" data-pwa-update aria-live="polite" hidden>
-      <p><span aria-hidden="true">$</span> system_update</p>
       <strong>{copy.updateReady}</strong>
-      <div><button type="button" data-pwa-update-now>{copy.updateNow}</button><button type="button" data-pwa-update-later>{copy.updateLater}</button></div>
+      <div>
+        <button type="button" data-pwa-update-now>
+          {copy.updateNow}
+        </button>
+        <button type="button" data-pwa-update-later>
+          {copy.updateLater}
+        </button>
+      </div>
     </aside>
     <Analytics />
     <SpeedInsights />
     <script src="../scripts/pwa-client.ts"></script>
   </body>
 </html>
+<script>
+  if (location.hostname === '127.0.0.1' && location.port === '4322') {
+    document.querySelectorAll<HTMLAnchorElement>('a[href]').forEach((a) => {
+      const u = new URL(a.href);
+      if (u.hostname === 'links.basriakkaya.com')
+        a.href = `http://127.0.0.1:4323${u.pathname}${u.search}${u.hash}`;
+    });
+  }
+</script>

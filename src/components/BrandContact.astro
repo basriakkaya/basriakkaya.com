@@ -1,0 +1,114 @@
+---
+import { siteConfig } from '../config/site';
+const { locale = 'tr' } = Astro.props;
+const en = locale === 'en';
+const subjects = en
+  ? ['Collaboration', 'Question', 'Security research']
+  : ['İş birliği', 'Bir sorum var', 'Güvenlik araştırması'];
+---
+
+<dialog
+  id="brand-contact"
+  class="brand-dialog contact-console"
+  aria-labelledby="brand-contact-title"
+>
+  <div class="contact-skull-art" aria-hidden="true"><img src="/images/editorial/basrick.png" width="600" height="600" alt=""/></div>
+  <div class="contact-rail">
+    <span>BASRI AKKAYA</span>
+    <form method="dialog">
+      <button class="dialog-x" aria-label={en ? 'Close' : 'Kapat'}>
+        ×
+      </button>
+    </form>
+  </div>
+  <div class="contact-identity">
+    <div class="contact-emblem">
+      <img src="/images/editorial/basrick.png" width="88" height="88" alt="Basrick" />
+    </div>
+    <div>
+      <p class="eyebrow">
+        {en ? 'A good idea starts with a message.' : 'İyi bir fikir, bir mesajla başlar.'}
+      </p>
+      <h2 id="brand-contact-title">{en ? 'Let’s talk.' : 'Konuşalım.'}</h2>
+    </div>
+  </div>
+  <p class="contact-intro">
+    {en
+      ? 'A project, collaboration or a question. Choose a subject and write directly to me.'
+      : 'Bir proje, iş birliği ya da merak ettiğin bir şey. Konunu seç, doğrudan bana yaz.'}
+  </p>
+  <div class="contact-subjects" role="group" aria-label={en ? 'Message subject' : 'Mesaj konusu'}>
+    {subjects.map((subject, i) => (
+      <button
+        type="button"
+        data-contact-subject={subject}
+        aria-pressed={i === 0 ? 'true' : 'false'}
+      >
+        {subject}
+      </button>
+    ))}
+  </div>
+  <a
+    class="contact-mail"
+    data-contact-mail
+    href={`mailto:${siteConfig.email}?subject=${encodeURIComponent(subjects[0])}`}
+  >
+    <span class="eyebrow">{en ? 'EMAIL' : 'E-POSTA'}</span>
+    <strong>{siteConfig.email}</strong>
+    <span aria-hidden="true">↗</span>
+  </a>
+  <div class="contact-bottom">
+    <button type="button" class="copy-email" data-email={siteConfig.email}>
+      {en ? 'Copy address' : 'Adresi kopyala'} <span aria-hidden="true">⧉</span>
+    </button>
+    <a href="https://links.basriakkaya.com/" target="_blank" rel="noopener noreferrer">
+      {en ? 'All my links' : 'Tüm bağlantılarım'} ↗
+    </a>
+  </div>
+  <p class="copy-status" aria-live="polite"></p>
+</dialog>
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('#brand-contact');
+  let backdropPress = false;
+  document.querySelectorAll<HTMLElement>('[data-contact-open]').forEach((b) =>
+    b.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      backdropPress = false;
+      if (dialog && !dialog.open) dialog.showModal();
+    }),
+  );
+  dialog?.addEventListener('pointerdown', (e) => {
+    const r = dialog.getBoundingClientRect();
+    backdropPress =
+      e.target === dialog &&
+      (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom);
+  });
+  dialog?.addEventListener('click', (e) => {
+    if (backdropPress && e.target === dialog) dialog.close();
+    backdropPress = false;
+  });
+  document.querySelectorAll<HTMLButtonElement>('[data-contact-subject]').forEach((b) =>
+    b.addEventListener('click', () => {
+      document
+        .querySelectorAll('[data-contact-subject]')
+        .forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      const mail = document.querySelector<HTMLAnchorElement>('[data-contact-mail]');
+      const email = document.querySelector<HTMLElement>('[data-email]')?.dataset.email;
+      if (mail && email)
+        mail.href = `mailto:${email}?subject=${encodeURIComponent(b.dataset.contactSubject ?? '')}`;
+    }),
+  );
+  document.querySelector<HTMLButtonElement>('.copy-email')?.addEventListener('click', async (e) => {
+    const b = e.currentTarget as HTMLButtonElement;
+    const s = document.querySelector('.copy-status');
+    try {
+      await navigator.clipboard.writeText(b.dataset.email ?? '');
+      if (s)
+        s.textContent =
+          document.documentElement.lang === 'tr' ? 'Adres kopyalandı.' : 'Address copied.';
+    } catch {
+      if (s) s.textContent = b.dataset.email ?? '';
+    }
+  });
+</script>

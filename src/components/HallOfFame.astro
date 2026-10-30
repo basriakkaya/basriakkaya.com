@@ -4,55 +4,154 @@ import AchievementCard from './AchievementCard.astro';
 import { siteConfig } from '../config/site';
 import { cveResearchRoute } from '../i18n/routes';
 
-interface Props { locale?: 'tr' | 'en'; scope?: 'all' | 'security' }
+interface Props {
+  locale?: 'tr' | 'en';
+  scope?: 'all' | 'security' | 'hof';
+}
 const { locale = 'tr', scope = 'all' } = Astro.props;
 const isEnglish = locale === 'en';
-const securityOnly = scope === 'security';
+const securityOnly = scope !== 'all';
+const hofOnly = scope === 'hof';
 
-const copy = isEnglish ? {
-  title: 'Hall of Fame & CVE Records',
-  description: 'Publicly verifiable security research, responsible disclosure, and recognition records — grouped for quick review.',
-  summary: 'Recognition record summary', records: 'records', verify: 'View official record', evidence: 'View evidence', closeEvidence: 'Close evidence',
-  newTab: ' (opens in a new tab)', archive: 'This institutional record is archived; no public link is available.',
-  hofTitle: 'Hall of Fame', hofDescription: 'Recognition received for responsibly reported and validated security findings.',
-  cveTitle: 'CVE Records', cveDescription: 'Public vulnerability identifiers assigned through coordinated disclosure.',
-  moreTitle: 'Competitions & Recognition', moreDescription: 'Competition results and institutional recognition supporting the research journey.',
-  publicRecord: 'Public record', archived: 'Archived', institutional: 'Institutional',
-  advisory: 'View official advisory', company: 'Company', product: 'Product', severity: 'Severity',
-  institution: 'Institution website', verified: 'Verified recognition',
-  research: 'View research record', officialCve: 'Official CVE record', pending: 'Publication pending', checkStatus: 'Check CVE status',
-  officialList: 'Official institution list', platformProfile: 'Public platform profile', institutionLetter: 'Institutional letter', publicRecognition: 'Public recognition record', officialFinder: 'Official finder credit',
-} : {
-  title: 'Hall of Fame & CVE Kayıtları',
-  description: 'Kamuya açık olarak doğrulanabilen güvenlik araştırmaları, sorumlu açıklama ve başarı kayıtları — hızlı inceleme için gruplandırıldı.',
-  summary: 'Başarı kayıtlarının özeti', records: 'kayıt', verify: 'Resmî kaydı görüntüle', evidence: 'Kanıtı görüntüle', closeEvidence: 'Kanıtı kapat',
-  newTab: ' (yeni sekmede açılır)', archive: 'Bu kurumsal kayıt arşivlidir; herkese açık bağlantısı bulunmuyor.',
-  hofTitle: 'Hall of Fame', hofDescription: 'Sorumlu şekilde bildirilen ve doğrulanan güvenlik bulguları için alınan resmî takdirler.',
-  cveTitle: 'CVE Kayıtları', cveDescription: 'Koordineli açıklama süreci sonunda atanmış, kamuya açık güvenlik açığı kimlikleri.',
-  moreTitle: 'Yarışmalar & Takdirler', moreDescription: 'Güvenlik araştırması yolculuğunu destekleyen yarışma dereceleri ve kurumsal takdirler.',
-  publicRecord: 'Kamuya açık kayıt', archived: 'Arşiv', institutional: 'Kurumsal',
-  advisory: 'Resmî güvenlik bildirimini görüntüle', company: 'Firma', product: 'Ürün', severity: 'Önem seviyesi',
-  institution: 'Kurum sitesi', verified: 'Doğrulanabilir kayıt',
-  research: 'Araştırma kaydını görüntüle', officialCve: 'Resmî CVE kaydı', pending: 'Yayın bekleniyor', checkStatus: 'CVE durumunu kontrol et',
-  officialList: 'Resmî kurum listesi', platformProfile: 'Kamuya açık platform profili', institutionLetter: 'Kurum takdir mektubu', publicRecognition: 'Kamuya açık takdir kaydı', officialFinder: 'Resmî finder kredisi',
-};
+const copy = isEnglish
+  ? {
+      title: 'Hall of Fame & CVE Records',
+      description:
+        'Publicly verifiable security research, responsible disclosure, and recognition records — grouped for quick review.',
+      summary: 'Recognition record summary',
+      records: 'records',
+      verify: 'View official record',
+      evidence: 'View evidence',
+      closeEvidence: 'Close evidence',
+      newTab: ' (opens in a new tab)',
+      archive: 'This institutional record is archived; no public link is available.',
+      hofTitle: 'Hall of Fame',
+      hofDescription:
+        'Recognition received for responsibly reported and validated security findings.',
+      cveTitle: 'CVE Records',
+      cveDescription: 'Public vulnerability identifiers assigned through coordinated disclosure.',
+      moreTitle: 'Competitions & Recognition',
+      moreDescription:
+        'Competition results and institutional recognition supporting the research journey.',
+      publicRecord: 'Public record',
+      archived: 'Archived',
+      institutional: 'Institutional',
+      advisory: 'View official advisory',
+      company: 'Company',
+      product: 'Product',
+      severity: 'Severity',
+      institution: 'Institution website',
+      verified: 'Verified recognition',
+      research: 'View research record',
+      officialCve: 'Official CVE record',
+      pending: 'Publication pending',
+      checkStatus: 'Check CVE status',
+      officialList: 'Official institution list',
+      platformProfile: 'Public platform profile',
+      institutionLetter: 'Institutional letter',
+      publicRecognition: 'Public recognition record',
+      officialFinder: 'Official finder credit',
+    }
+  : {
+      title: 'Hall of Fame & CVE Kayıtları',
+      description:
+        'Kamuya açık olarak doğrulanabilen güvenlik araştırmaları, sorumlu açıklama ve başarı kayıtları — hızlı inceleme için gruplandırıldı.',
+      summary: 'Başarı kayıtlarının özeti',
+      records: 'kayıt',
+      verify: 'Resmî kaydı görüntüle',
+      evidence: 'Kanıtı görüntüle',
+      closeEvidence: 'Kanıtı kapat',
+      newTab: ' (yeni sekmede açılır)',
+      archive: 'Bu kurumsal kayıt arşivlidir; herkese açık bağlantısı bulunmuyor.',
+      hofTitle: 'Hall of Fame',
+      hofDescription:
+        'Sorumlu şekilde bildirilen ve doğrulanan güvenlik bulguları için alınan resmî takdirler.',
+      cveTitle: 'CVE Kayıtları',
+      cveDescription:
+        'Koordineli açıklama süreci sonunda atanmış, kamuya açık güvenlik açığı kimlikleri.',
+      moreTitle: 'Yarışmalar & Takdirler',
+      moreDescription:
+        'Güvenlik araştırması yolculuğunu destekleyen yarışma dereceleri ve kurumsal takdirler.',
+      publicRecord: 'Kamuya açık kayıt',
+      archived: 'Arşiv',
+      institutional: 'Kurumsal',
+      advisory: 'Resmî güvenlik bildirimini görüntüle',
+      company: 'Firma',
+      product: 'Ürün',
+      severity: 'Önem seviyesi',
+      institution: 'Kurum sitesi',
+      verified: 'Doğrulanabilir kayıt',
+      research: 'Araştırma kaydını görüntüle',
+      officialCve: 'Resmî CVE kaydı',
+      pending: 'Yayın bekleniyor',
+      checkStatus: 'CVE durumunu kontrol et',
+      officialList: 'Resmî kurum listesi',
+      platformProfile: 'Kamuya açık platform profili',
+      institutionLetter: 'Kurum takdir mektubu',
+      publicRecognition: 'Kamuya açık takdir kaydı',
+      officialFinder: 'Resmî finder kredisi',
+    };
 
 const brandFor = (title: string) => {
-  if (title.includes('Microsoft')) return { logo: '/images/recognition/microsoft-logo.svg', name: 'Microsoft Security Response Center (MSRC)', shape: 'mark' as const };
-  if (title.includes('ASUS')) return { logo: '/images/recognition/asus-logo.svg', name: 'ASUSTeK Computer Inc. (ASUS)', shape: 'wordmark' as const };
-  if (title.includes('University of Oslo')) return { logo: '/images/recognition/university-of-oslo.png', name: 'University of Oslo', shape: 'wordmark' as const };
-  if (title.includes('NASA')) return { logo: '/images/recognition/nasa-logo.svg', name: 'NASA', shape: 'round' as const };
-  if (title.includes('U.S. DHS')) return { logo: '/images/recognition/dhs-logo.svg', name: 'U.S. Department of Homeland Security', shape: 'wordmark' as const };
-  if (title.includes('Twente')) return { logo: '/images/recognition/university-of-twente.svg', name: 'University of Twente', shape: 'wordmark' as const };
-  if (title.includes('Arçelik')) return { logo: '/images/recognition/arcelik.png', name: 'Arçelik', shape: 'wordmark' as const };
-  if (title.includes('Goce Delcev')) return { logo: '/images/recognition/goce-delcev-university.png', name: 'Goce Delcev University', shape: 'wordmark' as const };
-  if (title.includes('Rahim Usta')) return { logo: '/images/recognition/rahim-usta-anatolian-high-school.png', name: 'T.C. Millî Eğitim Bakanlığı — Ayvalık Rahim Usta Anadolu Lisesi', shape: 'round' as const };
-  if (title.includes('KomşuKomşu')) return { logo: '/images/recognition/komsukomsu-logo.png', name: 'KomşuKomşu', shape: 'mark' as const };
+  if (title.includes('Microsoft'))
+    return {
+      logo: '/images/recognition/microsoft-logo.svg',
+      name: 'Microsoft Security Response Center (MSRC)',
+      shape: 'mark' as const,
+    };
+  if (title.includes('ASUS'))
+    return {
+      logo: '/images/recognition/asus-logo.svg',
+      name: 'ASUSTeK Computer Inc. (ASUS)',
+      shape: 'wordmark' as const,
+    };
+  if (title.includes('University of Oslo'))
+    return {
+      logo: '/images/recognition/university-of-oslo.png',
+      name: 'University of Oslo',
+      shape: 'wordmark' as const,
+    };
+  if (title.includes('NASA'))
+    return { logo: '/images/recognition/nasa-logo.svg', name: 'NASA', shape: 'round' as const };
+  if (title.includes('U.S. DHS'))
+    return {
+      logo: '/images/recognition/dhs-logo.svg',
+      name: 'U.S. Department of Homeland Security',
+      shape: 'wordmark' as const,
+    };
+  if (title.includes('Twente'))
+    return {
+      logo: '/images/recognition/university-of-twente.svg',
+      name: 'University of Twente',
+      shape: 'wordmark' as const,
+    };
+  if (title.includes('Arçelik'))
+    return { logo: '/images/recognition/arcelik.png', name: 'Arçelik', shape: 'wordmark' as const };
+  if (title.includes('Goce Delcev'))
+    return {
+      logo: '/images/recognition/goce-delcev-university.png',
+      name: 'Goce Delcev University',
+      shape: 'wordmark' as const,
+    };
+  if (title.includes('Rahim Usta'))
+    return {
+      logo: '/images/recognition/rahim-usta-anatolian-high-school.png',
+      name: 'T.C. Millî Eğitim Bakanlığı — Ayvalık Rahim Usta Anadolu Lisesi',
+      shape: 'round' as const,
+    };
+  if (title.includes('KomşuKomşu'))
+    return {
+      logo: '/images/recognition/komsukomsu-logo.png',
+      name: 'KomşuKomşu',
+      shape: 'mark' as const,
+    };
   return undefined;
 };
 
 const cveRecords = siteConfig.cves.map((item) => ({
-  category: 'cve', label: 'CVE', title: item.id,
+  category: 'cve',
+  label: 'CVE',
+  title: item.id,
   description: isEnglish ? item.description : item.descriptionTr,
   findingTitle: 'title' in item ? (isEnglish ? item.title : item.titleTr) : undefined,
   url: item.status === 'published' ? cveResearchRoute(locale, item.id) : item.url,
@@ -62,90 +161,213 @@ const cveRecords = siteConfig.cves.map((item) => ({
   primaryExternal: item.status !== 'published',
   status: item.status === 'publication-pending' ? copy.pending : undefined,
   verifiedLabel: item.status === 'published' ? copy.officialFinder : undefined,
-  vendor: 'vendor' in item ? item.vendor : undefined, product: 'product' in item ? item.product : undefined,
+  vendor: 'vendor' in item ? item.vendor : undefined,
+  product: 'product' in item ? item.product : undefined,
   severity: 'severity' in item ? (isEnglish ? item.severity : item.severityTr) : undefined,
-  score: 'score' in item ? item.score : undefined, cvssVersion: 'cvssVersion' in item ? item.cvssVersion : undefined,
-  year: item.id.match(/CVE-(\d{4})/)?.[1], brand: undefined,
+  score: 'score' in item ? item.score : undefined,
+  cvssVersion: 'cvssVersion' in item ? item.cvssVersion : undefined,
+  year: item.id.match(/CVE-(\d{4})/)?.[1],
+  brand: undefined,
 }));
 
 const achievementRecords = siteConfig.achievements.map((item) => {
   const category = item.title.includes('CTF') ? 'ctf' : 'hof';
-  const evidence = 'evidence' in item ? {
-    evidence: item.evidence,
-    evidenceAlt: isEnglish ? item.evidenceAltEn : item.evidenceAlt,
-    evidenceWidth: item.evidenceWidth,
-    evidenceHeight: item.evidenceHeight,
-    evidenceId: item.title.includes('University of Oslo') ? 'university-of-oslo-evidence-title' : item.title.includes('NASA') ? 'nasa-evidence-title' : item.title.includes('U.S. DHS') ? 'dhs-fema-evidence-title' : item.title.includes('Twente') ? 'twente-evidence-title' : item.title.includes('KomşuKomşu') ? 'komsukomsu-evidence-title' : 'arcelik-evidence-title',
-  } : {};
+  const evidence =
+    'evidence' in item
+      ? {
+          evidence: item.evidence,
+          evidenceAlt: isEnglish ? item.evidenceAltEn : item.evidenceAlt,
+          evidenceWidth: item.evidenceWidth,
+          evidenceHeight: item.evidenceHeight,
+          evidenceId: item.title.includes('University of Oslo')
+            ? 'university-of-oslo-evidence-title'
+            : item.title.includes('NASA')
+              ? 'nasa-evidence-title'
+              : item.title.includes('U.S. DHS')
+                ? 'dhs-fema-evidence-title'
+                : item.title.includes('Twente')
+                  ? 'twente-evidence-title'
+                  : item.title.includes('KomşuKomşu')
+                    ? 'komsukomsu-evidence-title'
+                    : 'arcelik-evidence-title',
+        }
+      : {};
   return {
-    category, label: category === 'ctf' ? 'CTF' : 'HOF',
-    title: category === 'ctf' ? item.title.replace(/ — 4\.?.*$/, '') : (isEnglish ? item.titleEn : item.title),
+    category,
+    label: category === 'ctf' ? 'CTF' : 'HOF',
+    title:
+      category === 'ctf'
+        ? item.title.replace(/ — 4\.?.*$/, '')
+        : isEnglish
+          ? item.titleEn
+          : item.title,
     description: isEnglish ? item.descriptionEn : item.description,
-    url: item.url, secondaryUrl: 'officialUrl' in item ? item.officialUrl : undefined,
+    url: item.url,
+    secondaryUrl: 'officialUrl' in item ? item.officialUrl : undefined,
     primaryLabel: 'urlLabel' in item ? (isEnglish ? item.urlLabelEn : item.urlLabel) : undefined,
-    secondaryLabel: 'officialUrlLabel' in item ? (isEnglish ? item.officialUrlLabelEn : item.officialUrlLabel) : 'officialUrl' in item ? copy.institution : undefined,
-    verifiedLabel: category === 'hof' ? (
-      item.title.includes('University of Oslo') ? copy.institutionLetter
-        : item.title.includes('NASA') || item.title.includes('U.S. DHS') ? copy.platformProfile
-          : item.title.includes('Microsoft') || item.title.includes('ASUS') || item.title.includes('Twente') || item.title.includes('Arçelik') || item.title.includes('KomşuKomşu') ? copy.officialList
-            : copy.publicRecognition
-    ) : undefined,
-    year: item.title.match(/\b(20\d{2})\b/)?.[1], brand: brandFor(item.title),
-    status: category === 'ctf' ? (isEnglish ? '4th place' : '4.’lük') : 'status' in item ? (isEnglish ? item.statusEn : item.status) : undefined,
-    findings: 'findings' in item ? (isEnglish && 'findingsEn' in item ? item.findingsEn : item.findings) : undefined,
+    secondaryLabel:
+      'officialUrlLabel' in item
+        ? isEnglish
+          ? item.officialUrlLabelEn
+          : item.officialUrlLabel
+        : 'officialUrl' in item
+          ? copy.institution
+          : undefined,
+    verifiedLabel:
+      category === 'hof'
+        ? item.title.includes('University of Oslo')
+          ? copy.institutionLetter
+          : item.title.includes('NASA') || item.title.includes('U.S. DHS')
+            ? copy.platformProfile
+            : item.title.includes('Microsoft') ||
+                item.title.includes('ASUS') ||
+                item.title.includes('Twente') ||
+                item.title.includes('Arçelik') ||
+                item.title.includes('KomşuKomşu')
+              ? copy.officialList
+              : copy.publicRecognition
+        : undefined,
+    year: item.title.match(/\b(20\d{2})\b/)?.[1],
+    brand: brandFor(item.title),
+    status:
+      category === 'ctf'
+        ? isEnglish
+          ? '4th place'
+          : '4.’lük'
+        : 'status' in item
+          ? isEnglish
+            ? item.statusEn
+            : item.status
+          : undefined,
+    findings:
+      'findings' in item
+        ? isEnglish && 'findingsEn' in item
+          ? item.findingsEn
+          : item.findings
+        : undefined,
     ...evidence,
   };
 });
 
+const artFor = (title: string) =>
+  title.includes('Microsoft')
+    ? 'hof-microsoft'
+    : title.includes('NASA')
+      ? 'hof-nasa'
+      : title.includes('ASUS')
+        ? 'hof-asus'
+        : title.includes('Arçelik')
+          ? 'hof-arcelik'
+          : undefined;
 const hofRecords = achievementRecords.filter((record) => record.category === 'hof');
+if (hofOnly)
+  hofRecords.sort((a, b) => Number(Boolean(artFor(b.title))) - Number(Boolean(artFor(a.title))));
 const otherRecords = achievementRecords.filter((record) => record.category === 'ctf');
-const records = securityOnly ? [...hofRecords, ...cveRecords] : [...hofRecords, ...cveRecords, ...otherRecords];
-
+const records = hofOnly
+  ? hofRecords
+  : securityOnly
+    ? [...hofRecords, ...cveRecords]
+    : [...hofRecords, ...cveRecords, ...otherRecords];
 ---
 
-<section class="section shell hof-section" aria-labelledby="hof-title">
+<section class="section shell hof-section" id="hof-title" aria-label={copy.hofTitle}>
   <div class="hof-heading">
-    <SectionHeading eyebrow="cat verified_records.log" title={copy.title} description={copy.description} />
-    <div class:list={['hof-summary', { 'hof-summary--security': securityOnly }]} aria-label={copy.summary}>
-      <span><strong>{records.length}</strong> {copy.records}</span>
-      <span><strong>{cveRecords.length}</strong> CVE</span>
-      <span><strong>{hofRecords.length}</strong> HOF</span>
-      {!securityOnly && <span><strong>{otherRecords.length}</strong> {isEnglish ? 'OTHER' : 'DİĞER'}</span>}
+    <SectionHeading
+      eyebrow="cat verified_records.log"
+      title={hofOnly ? copy.hofTitle : copy.title}
+      description={copy.description}
+    />
+    <div
+      class:list={['hof-summary', { 'hof-summary--security': securityOnly }]}
+      aria-label={copy.summary}
+    >
+      {!hofOnly && (
+        <span>
+          <strong>{records.length}</strong> {copy.records}
+        </span>
+      )}
+      {!hofOnly && (
+        <span>
+          <strong>{cveRecords.length}</strong> CVE
+        </span>
+      )}
+      <span>
+        <strong>{hofRecords.length}</strong> HOF
+      </span>
+      {!securityOnly && !hofOnly && (
+        <span>
+          <strong>{otherRecords.length}</strong> {isEnglish ? 'OTHER' : 'DİĞER'}
+        </span>
+      )}
     </div>
   </div>
 
+  <div class="hof-tools">
+    <label for="hof-search">
+      {isEnglish ? 'Find an institution or a vulnerability' : 'Kurum veya açık türü ara'}
+    </label>
+    <input
+      id="hof-search"
+      type="search"
+      placeholder={isEnglish ? 'Microsoft, NASA, XSS…' : 'Microsoft, NASA, XSS…'}
+    />
+    <p class="hof-search-status" aria-live="polite"></p>
+  </div>
   <div class="achievement-showcase">
     <section class="achievement-group" aria-labelledby="hof-group-title">
       <header class="achievement-group-heading">
-        <span class="achievement-group-index" aria-hidden="true">01</span>
-        <div><h3 id="hof-group-title">{copy.hofTitle}</h3><p>{copy.hofDescription}</p></div>
+        <span class="achievement-group-index" aria-hidden="true">
+          01
+        </span>
+        <div>
+          <h3 id="hof-group-title">{copy.hofTitle}</h3>
+          <p>{copy.hofDescription}</p>
+        </div>
         <strong>{hofRecords.length}</strong>
       </header>
       <div class="achievement-grid achievement-grid--featured">
-        {hofRecords.map((record) => <AchievementCard record={record} copy={copy} featured />)}
+        {hofRecords.map((record) => (
+          <AchievementCard record={record} copy={copy} featured />
+        ))}
       </div>
     </section>
 
-    <section class="achievement-group" aria-labelledby="cve-group-title">
-      <header class="achievement-group-heading">
-        <span class="achievement-group-index" aria-hidden="true">02</span>
-        <div><h3 id="cve-group-title">{copy.cveTitle}</h3><p>{copy.cveDescription}</p></div>
-        <strong>{cveRecords.length}</strong>
-      </header>
-      <div class="achievement-grid achievement-grid--cve">
-        {cveRecords.map((record) => <AchievementCard record={record} copy={copy} />)}
-      </div>
-    </section>
+    {!hofOnly && (
+      <section class="achievement-group" aria-labelledby="cve-group-title">
+        <header class="achievement-group-heading">
+          <span class="achievement-group-index" aria-hidden="true">
+            02
+          </span>
+          <div>
+            <h3 id="cve-group-title">{copy.cveTitle}</h3>
+            <p>{copy.cveDescription}</p>
+          </div>
+          <strong>{cveRecords.length}</strong>
+        </header>
+        <div class="achievement-grid achievement-grid--cve">
+          {cveRecords.map((record) => (
+            <AchievementCard record={record} copy={copy} />
+          ))}
+        </div>
+      </section>
+    )}
 
-    {!securityOnly && (
+    {!securityOnly && !hofOnly && (
       <section class="achievement-group" aria-labelledby="more-group-title">
         <header class="achievement-group-heading">
-          <span class="achievement-group-index" aria-hidden="true">03</span>
-          <div><h3 id="more-group-title">{copy.moreTitle}</h3><p>{copy.moreDescription}</p></div>
+          <span class="achievement-group-index" aria-hidden="true">
+            03
+          </span>
+          <div>
+            <h3 id="more-group-title">{copy.moreTitle}</h3>
+            <p>{copy.moreDescription}</p>
+          </div>
           <strong>{otherRecords.length}</strong>
         </header>
         <div class="achievement-grid achievement-grid--compact">
-          {otherRecords.map((record) => <AchievementCard record={record} copy={copy} />)}
+          {otherRecords.map((record) => (
+            <AchievementCard record={record} copy={copy} />
+          ))}
         </div>
       </section>
     )}
@@ -153,8 +375,39 @@ const records = securityOnly ? [...hofRecords, ...cveRecords] : [...hofRecords, 
 </section>
 
 <style>
-  .achievement-grid--featured{grid-template-columns:repeat(3,minmax(0,1fr))}
-  .achievement-grid--cve{grid-template-columns:repeat(3,minmax(0,1fr))}
-  @media(max-width:1050px){.achievement-grid--featured,.achievement-grid--cve{grid-template-columns:repeat(2,minmax(0,1fr))}}
-  @media(max-width:760px){.achievement-grid--featured,.achievement-grid--cve{grid-template-columns:1fr}}
+  .achievement-grid--featured {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .achievement-grid--cve {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  @media (max-width: 1050px) {
+    .achievement-grid--featured,
+    .achievement-grid--cve {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 760px) {
+    .achievement-grid--featured,
+    .achievement-grid--cve {
+      grid-template-columns: 1fr;
+    }
+  }
 </style>
+
+<script>
+  const hofInput = document.querySelector<HTMLInputElement>('#hof-search');
+  hofInput?.addEventListener('input', () => {
+    let n = 0;
+    document.querySelectorAll<HTMLElement>('.achievement-card--hof').forEach((c) => {
+      c.hidden = !(c.textContent ?? '')
+        .toLocaleLowerCase(document.documentElement.lang)
+        .includes(hofInput.value.trim().toLocaleLowerCase(document.documentElement.lang));
+      if (!c.hidden) n++;
+    });
+    const status = document.querySelector('.hof-search-status');
+    if (status)
+      status.textContent =
+        document.documentElement.lang === 'tr' ? `${n} kayıt gösteriliyor.` : `${n} records shown.`;
+  });
+</script>

@@ -65,13 +65,16 @@ const jsonLd = schemaGraph([
     ]} />
 
     <header class="cve-research-hero">
+      <img class="case-skull" src="/images/editorial/basrick.png" alt="" width="300" height="300" aria-hidden="true" />
+      <p class="case-eyebrow">{isEnglish ? 'RESEARCH ARCHIVE / PUBLIC RECORD' : 'ARAŞTIRMA ARŞİVİ / AÇIK KAYIT'}</p>
       <div class="cve-research-status"><span aria-hidden="true"></span>{copy.verified}</div>
-      <p class="eyebrow">$ verify --cve {cve.id}</p>
+
       <h1>{cve.id}</h1>
       <p class="cve-research-title">{isEnglish ? cve.title : cve.titleTr}</p>
       <p class="lead">{isEnglish ? cve.description : cve.descriptionTr}</p>
     </header>
 
+    <nav class="case-nav" aria-label={isEnglish ? 'On this page' : 'Bu sayfada'}><a href="#record-summary">01 / {isEnglish ? 'Overview' : 'Özet'}</a><a href="#classification">02 / {isEnglish ? 'Technical details' : 'Teknik detaylar'}</a><a href="#sources">03 / {isEnglish ? 'Sources' : 'Kaynaklar'}</a></nav>
     <div class="cve-research-layout">
       <div class="cve-research-main">
         <section aria-labelledby="record-summary">
@@ -88,11 +91,12 @@ const jsonLd = schemaGraph([
 
         <section aria-labelledby="classification">
           <h2 id="classification">{copy.classification}</h2>
+          <p class="case-helper">{isEnglish ? 'Weakness type, attack pattern and scoring details.' : 'Zayıflığın türü, saldırı örüntüsü ve puanlama detayları.'}</p>
           <div class="classification-grid">
             <a href={cweUrl(cve.cwe)} target="_blank" rel="noopener noreferrer"><span>{cve.cwe}</span><strong>{cve.cweName}</strong><small>{copy.cwe}{copy.newTab}</small></a>
             <a href={capecUrl(cve.capec)} target="_blank" rel="noopener noreferrer"><span>{cve.capec}</span><strong>{cve.capecName}</strong><small>{copy.capec}{copy.newTab}</small></a>
           </div>
-          <p class="cvss-vector"><span>{copy.vector}</span><code>{cve.cvssVector}</code></p>
+          <details class="case-vector"><summary>{copy.vector} <span aria-hidden="true">+</span></summary><code>{cve.cvssVector}</code></details>
         </section>
 
         <section aria-labelledby="sources">
@@ -110,8 +114,11 @@ const jsonLd = schemaGraph([
       </div>
 
       <aside class="cve-verification" aria-label={copy.record}>
-        <p>{copy.record}</p><strong>{cve.id}</strong>
-        <dl><div><dt>STATUS</dt><dd>PUBLISHED</dd></div><div><dt>CREDIT</dt><dd>Basri Akkaya</dd></div><div><dt>ROLE</dt><dd>finder</dd></div><div><dt>CVSS</dt><dd>{cve.score.toFixed(1)} / 10</dd></div></dl>
+        <p>{copy.severity}</p>
+        <div class="case-score"><strong>{cve.score.toFixed(1)}</strong><span>/ 10</span></div>
+        <div class="case-meter" aria-hidden="true">{Array.from({length:10},(_,i)=><i class:list={{filled:i < Math.round(cve.score)}}></i>)}</div>
+        <p class="case-severity">{isEnglish ? cve.severity : cve.severityTr}</p>
+        <p class="case-score-note">{isEnglish ? 'CVSS score from the published record. Not a measure of exploitation in the wild.' : 'Yayımlanmış kayıttaki CVSS puanı. Gerçek saldırı sıklığını göstermez.'}</p>
         <a class="button secondary" href={cve.url} target="_blank" rel="noopener noreferrer">{copy.cveSource} <span aria-hidden="true">↗</span><span class="sr-only">{copy.newTab}</span></a>
       </aside>
     </div>
@@ -122,7 +129,7 @@ const jsonLd = schemaGraph([
 
 <style>
   .cve-research{padding-block:64px 100px}.cve-research-hero{max-width:900px;padding:34px 0 38px;border-bottom:1px solid var(--border)}
-  .cve-research-status{display:inline-flex;align-items:center;gap:8px;margin-bottom:22px;padding:6px 9px;color:var(--accent);background:rgba(126,231,135,.06);border:1px solid rgba(126,231,135,.24);border-radius:5px;font:700 10px ui-monospace,monospace;text-transform:uppercase;letter-spacing:.06em}.cve-research-status span{width:7px;height:7px;background:var(--accent);border-radius:50%;box-shadow:0 0 9px rgba(126,231,135,.7)}
+  .cve-research-status{display:inline-flex;align-items:center;gap:8px;margin-bottom:22px;padding:6px 9px;color:var(--accent);background:rgba(248, 204, 72, .06);border:1px solid rgba(248, 204, 72, .24);border-radius:5px;font:700 10px ui-monospace,monospace;text-transform:uppercase;letter-spacing:.06em}.cve-research-status span{width:7px;height:7px;background:var(--accent);border-radius:50%;box-shadow:0 0 9px rgba(248, 204, 72, .7)}
   .cve-research-hero h1{color:var(--accent-2);font:800 clamp(2.5rem,8vw,5rem) ui-monospace,monospace;letter-spacing:-.06em}.cve-research-title{max-width:850px;margin:16px 0 0;color:var(--text);font-size:clamp(1.15rem,2.5vw,1.55rem);font-weight:750;line-height:1.45}.cve-research-hero .lead{max-width:790px}
   .cve-research-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,320px);align-items:start;gap:clamp(38px,7vw,76px);padding-top:42px}.cve-research-main{min-width:0}.cve-research-main>section+section{margin-top:48px}.cve-research-main h2{margin-bottom:18px;font-size:clamp(1.35rem,3vw,1.75rem)}.cve-research-main>section>p{color:var(--muted)}
   .cve-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));margin:0;border:1px solid var(--border);border-radius:8px}.cve-facts div{min-width:0;padding:16px 18px}.cve-facts div:nth-child(odd){border-right:1px solid var(--border)}.cve-facts div:nth-child(n+3){border-top:1px solid var(--border)}.cve-facts dt,.cve-verification dt{color:var(--muted);font:700 9px ui-monospace,monospace;text-transform:uppercase;letter-spacing:.08em}.cve-facts dd{margin:5px 0 0;overflow-wrap:anywhere;color:var(--text);font-weight:700}.cve-facts a{color:var(--accent-2);text-decoration:underline;text-underline-offset:3px}
@@ -131,4 +138,49 @@ const jsonLd = schemaGraph([
   .cve-verification{position:sticky;top:96px;padding:22px;background:var(--surface);border:1px solid var(--border);border-top:2px solid var(--accent);border-radius:8px}.cve-verification>p{margin-bottom:5px;color:var(--muted);font:10px ui-monospace,monospace;text-transform:uppercase;letter-spacing:.08em}.cve-verification>strong{color:var(--accent-2);font:800 1.35rem ui-monospace,monospace}.cve-verification dl{display:grid;gap:11px;margin:20px 0}.cve-verification dl div{display:flex;justify-content:space-between;gap:16px;padding-bottom:9px;border-bottom:1px solid var(--border)}.cve-verification dd{margin:0;color:var(--accent);font:700 10px ui-monospace,monospace;text-align:right}.cve-verification .button{width:100%;font-size:.78rem}.cve-research>.back-link{margin:54px 0 0}
   @media(max-width:860px){.cve-research-layout{grid-template-columns:1fr}.cve-verification{position:static;order:-1}.cve-verification dl{grid-template-columns:repeat(2,minmax(0,1fr))}.cve-verification dl div{display:grid}.cve-verification dd{text-align:left}}
   @media(max-width:520px){.cve-research{width:min(calc(100% - 28px),var(--max));padding-top:42px}.cve-facts,.classification-grid{grid-template-columns:1fr}.cve-facts div:nth-child(odd){border-right:0}.cve-facts div+div{border-top:1px solid var(--border)}.cve-verification dl{grid-template-columns:1fr}.cve-research-title{font-size:1.05rem}}
+
+  .cve-research {padding-top:40px;}
+  .cve-research-hero {position:relative; isolation:isolate; max-width:none; padding:48px 44px; margin-top:28px; border:1px solid #39362c; background:linear-gradient(115deg,#19170f,#101010 65%); overflow:hidden;}
+  .case-skull {position:absolute; right:-30px;top:50%;transform:translateY(-50%) rotate(-12deg);width:360px;height:360px;opacity:.09;z-index:-1;pointer-events:none;}
+  .case-eyebrow {font:10px/1.5 monospace;letter-spacing:.14em;color:#aba18a;margin:0 0 22px;}
+  .cve-research-status {border:0;background:none;padding:0;margin:0 0 16px;color:#c2b68d;}
+  .cve-research-status span {box-shadow:none;}
+  .cve-research-hero h1 {font:800 clamp(26px,4.6vw,64px)/1.15 monospace;letter-spacing:-.05em;color:#f8cc48;margin:0;overflow-wrap:anywhere;}
+  .cve-research-title {font:600 clamp(18px,2vw,25px)/1.5 system-ui;max-width:800px;margin-top:24px;}
+  .cve-research-hero .lead {font:16px/1.85 system-ui;color:#bcb9af;margin:18px 0 0;max-width:760px;}
+  .case-nav {display:flex;flex-wrap:wrap;gap:8px 28px;padding:20px 0;border-bottom:1px solid #343229;}
+  .case-nav a {font:11px/1.7 monospace;color:#bcb6a4;padding:6px 0;}
+  .case-nav a:hover {color:#f8cc48;}
+  .cve-research-layout {gap:48px;grid-template-columns:minmax(0,1fr) 270px;}
+  .cve-research-main h2 {font:700 22px/1.4 monospace;letter-spacing:-.04em;scroll-margin-top:100px;}
+  .cve-research-main p {font:15px/1.8 system-ui;}
+  .cve-facts {border:0;border-radius:0;gap:0 28px;}
+  .cve-facts div {padding:20px;border:0!important;border-bottom:1px solid #333127!important;}
+  .cve-facts dt {font:11px/1.5 monospace;color:#99968b;letter-spacing:.02em;}
+  .cve-facts dd {font:500 16px/1.6 system-ui;margin-top:9px;}
+  .classification-grid a {border-radius:0;padding:22px;background:#121212;}
+  .classification-grid strong {font:500 15px/1.65 system-ui;margin-top:12px;}
+  .classification-grid small {font:10px/1.6 monospace;margin-top:16px;}
+  .case-helper {margin:-6px 0 20px;color:#a8a598;}
+  .case-vector {margin-top:16px;border:1px solid #39362c;background:#101010;}
+  .case-vector summary {cursor:pointer;padding:18px;display:flex;justify-content:space-between;font:12px/1.6 monospace;color:#cfc7ae;}
+  .case-vector[open] summary span {transform:rotate(45deg);}
+  .case-vector code {display:block;padding:0 18px 20px;font:12px/1.8 monospace;color:#f8cc48;overflow-wrap:anywhere;}
+  .cve-verification {border-radius:0;border:1px solid #51472c;background:#16140f;padding:26px;}
+  .case-score {display:flex;gap:10px;align-items:baseline;margin:20px 0;}
+  .case-score strong {font:800 76px/1 monospace;letter-spacing:-.08em;color:#f8cc48;}
+  .case-score span {font:14px monospace;color:#918b79;}
+  .case-meter {display:flex;gap:4px;margin-bottom:16px;}
+  .case-meter i {height:5px;flex:1;background:#363126;}
+  .case-meter i.filled {background:#d5b24c;}
+  .cve-verification .case-severity {font:700 15px/1.6 system-ui;color:#f6f3e8;text-transform:none;}
+  .cve-verification .case-score-note {font:12px/1.8 system-ui;letter-spacing:0;text-transform:none;margin:12px 0 24px;color:#a9a493;}
+  .research-sources a,.disclosure-note {border-radius:0;background:#111;}
+  .research-sources strong {font:600 14px/1.6 system-ui;color:#ded9c9;}
+  .research-sources a {padding:20px;}
+  .disclosure-note {border-left:1px solid #65552d;}
+  .disclosure-note h2 {font-size:15px;}
+  @media(max-width:860px) {.cve-research-layout {grid-template-columns:1fr;gap:32px;} .cve-verification {order:0;position:static;} .cve-research-hero {padding:28px;} }
+  @media(max-width:520px) {.cve-research-hero {padding:24px 20px;} .case-skull {width:240px;height:240px;right:-100px;opacity:.07;} .cve-research-hero .lead {font-size:15px;line-height:1.8;} .case-nav {gap:6px 18px;} .case-nav a {font-size:10px;} .cve-research-main h2 {font-size:19px;} }
 </style>
+

@@ -1,0 +1,32 @@
+---
+const { video, featured = false, locale = 'tr' } = Astro.props;
+const title = locale === 'en' ? (video.titleEn ?? video.title) : video.title;
+---
+
+<article class:list={['video-card', { featured }]}>
+  <a
+    href={`https://www.youtube.com/watch?v=${video.id}`}
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label={`${title} — YouTube`}
+  >
+    <div class="video-art">
+      <img
+        src={video.image}
+        width="960"
+        height="540"
+        loading={featured ? 'eager' : 'lazy'}
+        fetchpriority={featured ? 'high' : 'auto'}
+        alt={title}
+      />
+      <span class="play-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg></span>
+      <span class="video-duration">{video.duration ?? 'YouTube'}</span>
+    </div>
+    <h3>
+      {title} <span aria-hidden="true">↗</span>
+    </h3>
+  </a>
+  {!featured && (
+    <p>{locale === 'tr' ? video.description : 'Watch the research story on YouTube.'}</p>
+  )}
+</article>

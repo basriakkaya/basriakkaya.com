@@ -1,0 +1,285 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import EditorialCard from './EditorialCard.astro';
+import PostCard from './PostCard.astro';
+import AdPlacement from './AdPlacement.astro';
+import { getLocalizedSeries } from '../config/series';
+import { readingTime } from '../lib/reading-time';
+import { plannedArticles } from '../data/editorial';
+import { getPublishedPosts, postSlug } from '../lib/posts';
+import { absoluteUrl } from '../config/site';
+import { schemaGraph, breadcrumbSchema } from '../lib/schema';
+import { alternateLinks } from '../i18n/helpers';
+import type { Locale } from '../i18n/config';
+import { getLocalizedCategory } from '../config/categories';
+import { route, articleRoute } from '../i18n/routes';
+const { locale = 'tr' } = Astro.props as { locale: Locale };
+const en = locale === 'en';
+const posts = await getPublishedPosts(locale);
+const path = route(locale, 'articles');
+const categories = [...new Set(posts.map((p) => p.data.category))];
+const seriesIds = [...new Set(posts.map(p => p.data.series).filter(Boolean))];
+const topicIcons: Record<string,string> = {
+ 'all':'M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z',
+ 'web-guvenligi':'M10 8V5l-2-2 M14 8V5l2-2 M9 10L5 7V3 M15 10l4-3V3 M8 12H4l-2-2 M16 12h4l2-2 M9 15l-5 2v4 M15 15l5 2v4 M10 9h4l2 4-1 5-3 3-3-3-1-5z',
+ 'ag-ve-linux':'M7 3h10v6H7z M12 9v6 M4 15h16 M4 15v3 M20 15v3 M1 18h6v4H1z M17 18h6v4h-6z M10 5l2 1-2 1',
+ 'kisisel-notlar':'M5 3h12l3 3v15H5z M15 3v5h5 M8 11h9 M8 15h7 M8 18h4',
+};
+const title = en ? 'Research journal' : 'Araştırma günlüğü';
+const jsonLd = schemaGraph([
+  {
+    '@type': 'CollectionPage',
+    name: title,
+    url: absoluteUrl(path),
+    inLanguage: en ? 'en-US' : 'tr-TR',
+  },
+  {
+    '@type': 'ItemList',
+    itemListElement: posts.map((p, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: p.data.title,
+      url: absoluteUrl(articleRoute(locale, postSlug(p))),
+    })),
+  },
+  breadcrumbSchema([
+    { name: en ? 'Home' : 'Ana Sayfa', path: route(locale, 'home') },
+    { name: 'Blog', path },
+  ]),
+]);
+---
+
+<BaseLayout
+  title={title}
+  locale={locale}
+  description={
+    en
+      ? 'Security research notes, practical guides and real experiences.'
+      : 'Güvenlik araştırmalarından notlar, teknik rehberler ve gerçek deneyimler.'
+  }
+  jsonLd={jsonLd}
+  alternates={alternateLinks('/yazilar', '/en/articles')}
+  switchPath={en ? '/yazilar' : '/en/articles'}
+>
+  <div class="shell defcon-blog hacker-journal">
+
+    <header class="ed-page-head">
+    <div class="journal-atmosphere" aria-hidden="true"><svg viewBox="0 0 1320 900" preserveAspectRatio="none"><g fill="none" stroke="currentColor" stroke-width="1"><path d="M0 110H75L120 155V290L175 345V490H240M0 150H55L90 185V315L145 370V560H205M1320 85H1210L1160 135V310L1110 360H1060M1320 125H1230L1190 165V340L1140 390V550H1090M1320 680H1240L1200 720V850M0 750H90L145 805V900"/><circle cx="240" cy="490" r="4"/><circle cx="205" cy="560" r="4"/><circle cx="1060" cy="360" r="4"/><circle cx="1090" cy="550" r="4"/></g></svg></div>
+      <nav class="ed-breadcrumb" aria-label={en ? 'Breadcrumb' : 'İçerik yolu'}>
+        <a title={en ? 'Home' : 'Ana Sayfa'} href={route(locale, 'home')}>
+          {en ? 'Home' : 'Ana Sayfa'}
+        </a>{' '}
+        / Blog
+      </nav>
+      <img class="journal-skull" src="/images/editorial/basrick.png" width="300" height="300" alt="" aria-hidden="true" />
+      <h1>
+        {title}
+        <em>.</em>
+      </h1>
+      <p>
+        {en
+          ? 'Security research notes, practical guides and real experiences.'
+          : 'Güvenlik araştırmalarından notlar, teknik rehberler ve gerçek deneyimler.'}
+      </p>
+    </header>
+    <div class="journal-layout"><aside class="journal-sidebar">
+    <section class="blog-explorer" aria-label={en ? 'Find an article' : 'Yazı bul'}>
+      <label for="blog-search">{en ? 'What do you want to learn?' : 'Ne öğrenmek istiyorsun?'}</label>
+      <div class="blog-search-row"><input id="blog-search" type="search" placeholder={en ? 'Search titles, topics or tags…' : 'Başlık, konu veya etiket ara…'} /><button id="blog-reset" type="button">{en ? 'Reset' : 'Temizle'}</button></div>
+      <p class="sidebar-label">{en ? 'Browse by topic' : 'Konuya göre keşfet'}</p>
+      <div class="blog-topics" aria-label={en ? 'Categories' : 'Kategoriler'}>
+        <button data-category-filter="all" aria-pressed="true"><svg class="topic-icon" viewBox="0 0 24 24" aria-hidden="true"><path d={topicIcons.all}/></svg>{en ? 'All' : 'Tümü'} <span>{posts.length}</span></button>
+        {categories.map(c => <button data-category-filter={c} aria-pressed="false"><svg class="topic-icon" viewBox="0 0 24 24" aria-hidden="true"><path d={topicIcons[c] ?? topicIcons.all}/></svg>{getLocalizedCategory(c,locale).name} <span>{posts.filter(p=>p.data.category===c).length}</span></button>)}
+      </div>
+    </section>
+    <section class="learning-paths" aria-labelledby="learning-title">
+      <header class="blog-section-head"><div><span class="eyebrow">{en ? 'SERIES' : 'SERİLER'}</span><h2 id="learning-title">{en ? 'Learn in order' : 'Sırayla öğren'}</h2></div><p>{en ? 'Start at the beginning. Follow the next chapter.' : 'İlk bölümden başla. Adım adım ilerle.'}</p></header>
+      {seriesIds.map(id => <div class="learning-series"><h3>{getLocalizedSeries(id!,locale).title}</h3><ol>{posts.filter(p=>p.data.series===id).sort((a,b)=>(a.data.seriesOrder??0)-(b.data.seriesOrder??0)).map(p=><li><a href={articleRoute(locale,postSlug(p))} title={p.data.title}><span class="lesson-number">{String(p.data.seriesOrder).padStart(2,'0')}</span><span class="lesson-stop">{en ? 'CHAPTER' : 'BÖLÜM'}</span><strong>{p.data.title}</strong><small>{readingTime(p.body??'',locale)} <span aria-hidden="true">↗</span></small></a></li>)}</ol></div>)}
+    </section>
+    </aside><div class="journal-feed">
+    <section class="blog-published" aria-labelledby="articles-title">
+      <header class="blog-section-head"><div><span class="eyebrow">{en ? 'ARTICLE ARCHIVE' : 'YAZI ARŞİVİ'}</span><h2 id="articles-title">{en ? 'All articles' : 'Tüm yazılar'}</h2></div><div class="blog-sort"><label for="blog-sort">{en ? 'Sort by' : 'Sırala'}</label><select id="blog-sort"><option value="newest">{en ? 'Newest' : 'En yeni'}</option><option value="shortest">{en ? 'Short reads' : 'Kısa okumalar'}</option></select></div></header>
+      <p id="search-status" aria-live="polite" role="status">{posts.length} {en ? 'articles' : 'yazı'}</p>
+      <div class="ed-card-grid" data-blog-list>{posts.map((p,i)=><div data-blog-entry data-category={p.data.category} data-order={i} data-length={(p.body??'').split(/\s+/).length} data-query={`${p.data.title} ${p.data.description} ${p.data.tags.join(' ')} ${getLocalizedCategory(p.data.category,locale).name}`}><PostCard post={p} locale={locale}/></div>)}</div>
+      <p class="empty-message" id="no-results" hidden>{en ? 'No matches. Clear the filters or try another word.' : 'Eşleşen yazı yok. Filtreleri temizle veya başka bir kelime dene.'}</p>
+    </section>
+    <section class="blog-upcoming" aria-labelledby="upcoming-title"><header class="blog-section-head"><div><span class="eyebrow">{en ? 'IN PREPARATION' : 'HAZIRLIKTA'}</span><h2 id="upcoming-title">{en ? 'On the horizon' : 'Sırada'}</h2></div><p>{en ? 'In preparation. Not published yet.' : 'Hazırlık aşamasında. Henüz yayımlanmadı.'}</p></header><div class="upcoming-list">{plannedArticles.map(item=><EditorialCard item={item} locale={locale}/>)}</div></section>
+    </div></div>
+    <AdPlacement locale={locale} />
+  </div>
+</BaseLayout>
+<script>
+ const input=document.querySelector<HTMLInputElement>('#blog-search');
+ const sort=document.querySelector<HTMLSelectElement>('#blog-sort');
+ const list=document.querySelector('[data-blog-list]');
+ const items=[...document.querySelectorAll<HTMLElement>('[data-blog-entry]')];
+ const buttons=[...document.querySelectorAll<HTMLButtonElement>('[data-category-filter]')];
+ let category='all';
+ const normalize=(s:string)=>s.toLocaleLowerCase(document.documentElement.lang).trim();
+ function update(){
+   const terms=normalize(input?.value??'').split(/\s+/).filter(Boolean);
+   let count=0;
+   items.sort((a,b)=>sort?.value==='shortest'? Number(a.dataset.length)-Number(b.dataset.length):Number(a.dataset.order)-Number(b.dataset.order)).forEach(el=>{
+     el.hidden=!(category==='all'||el.dataset.category===category)||!terms.every(t=>normalize(el.dataset.query??'').includes(t));
+     if(!el.hidden)count++; list?.append(el);
+   });
+   const status=document.querySelector('#search-status');if(status)status.textContent=`${count} ${document.documentElement.lang==='tr'?'yazı':'articles'}`;
+   const empty=document.querySelector<HTMLElement>('#no-results');if(empty)empty.hidden=count>0;
+   buttons.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.categoryFilter===category)));
+ }
+ buttons.forEach(b=>b.addEventListener('click',()=>{category=b.dataset.categoryFilter??'all';update();}));
+ input?.addEventListener('input',update);sort?.addEventListener('change',update);
+ document.querySelector('#blog-reset')?.addEventListener('click',()=>{if(input)input.value='';category='all';if(sort)sort.value='newest';update();});
+ update();
+</script>
+<style>
+.hacker-journal .ed-page-head {position:relative;isolation:isolate;overflow:hidden;border-bottom:1px solid #51462b;padding-bottom:38px;margin-bottom:36px;}
+.journal-skull {position:absolute;right:0;top:0;width:260px;height:260px;object-fit:contain;opacity:.13;z-index:-1;transform:rotate(-10deg);}
+.journal-layout {display:grid;grid-template-columns:250px minmax(0,1fr);gap:48px;align-items:start;}
+.journal-sidebar {position:sticky;top:100px;min-width:0;border-right:1px solid #353229;padding-right:26px;}
+.blog-explorer>label {display:block;font:600 16px/1.5 system-ui;margin-bottom:16px;color:#e7e1cf;}
+.blog-search-row {display:flex;flex-wrap:wrap;gap:10px;}
+.blog-search-row input {width:100%;min-width:0;padding:12px;background:#121212;border:1px solid #514a36;color:#eee8d6;font:14px/1.6 system-ui;}
+.blog-search-row button {border:0;background:none;color:#a9a08b;padding:4px 0;font:11px/1.7 monospace;cursor:pointer;}
+.blog-topics {display:grid;gap:4px;margin-top:18px;}
+.blog-topics button {display:flex;justify-content:space-between;padding:12px 10px;text-align:left;color:#c3bda9;background:transparent;border:0;border-left:2px solid transparent;font:13px/1.5 system-ui;cursor:pointer;}
+.blog-topics button:hover {background:#171610;}
+.blog-topics button[aria-pressed=true] {color:#f8cc48;background:#211d12;border-left-color:#f8cc48;}
+.blog-topics button span {font:11px monospace;opacity:.7;}
+.learning-paths {margin-top:30px;padding-top:25px;border-top:1px solid #39352a;}
+.blog-section-head {display:flex;align-items:end;justify-content:space-between;gap:20px;margin-bottom:20px;}
+.blog-section-head h2 {font:700 28px/1.35 monospace;letter-spacing:-.04em;margin:8px 0 0;}
+.learning-paths .blog-section-head h2 {font-size:18px;}
+.learning-paths .blog-section-head>p {display:none;}
+.learning-series h3 {font:500 13px/1.7 system-ui;color:#a9a18e;margin:18px 0 12px;}
+.learning-series ol {padding:0;margin:0;list-style:none;}
+.learning-series li {border-top:1px solid #302e26;}
+.learning-series a {display:grid;grid-template-columns:24px minmax(0,1fr);gap:10px;padding:14px 0;}
+.lesson-number {font:12px/1.8 monospace;color:#bda453;}
+.lesson-stop,.learning-series small {display:none;}
+.learning-series strong {font:400 13px/1.7 system-ui;color:#d6d0bf;}
+.learning-series a:hover strong {color:#f8cc48;}
+.journal-feed {min-width:0;}
+.blog-sort {display:flex;align-items:center;gap:10px;font:11px monospace;color:#aaa28e;}
+.blog-sort select {background:#15140f;color:#e1d8bd;padding:10px;border:1px solid #494231;font:12px monospace;}
+#search-status {font:11px/1.5 monospace;color:#aaa18b;margin:0 0 16px;}
+.hacker-journal :global([data-blog-list]) {display:grid!important;grid-template-columns:1fr!important;gap:0!important;}
+.hacker-journal :global(.post-card) {display:grid!important;grid-template-columns:180px minmax(0,1fr);gap:26px;padding:28px 0!important;border:0!important;border-top:1px solid #3a3529!important;background:transparent!important;clip-path:none!important;transform:none!important;box-shadow:none!important;}
+.hacker-journal :global(.post-card::before),.hacker-journal :global(.post-card::after) {display:none!important;}
+.hacker-journal :global(.post-cover) {width:100%;height:130px!important;aspect-ratio:auto!important;margin:4px 0 0;overflow:hidden;border:1px solid #39352b;}
+.hacker-journal :global(.post-cover img) {width:100%;height:100%;object-fit:cover;filter:grayscale(1) sepia(.2) brightness(.65)!important;}
+.hacker-journal :global(.post-card-body) {padding:0!important;}
+.hacker-journal :global(.post-card h3) {font:700 22px/1.45 system-ui!important;letter-spacing:-.025em;margin:12px 0!important;}
+.hacker-journal :global(.post-card p) {font:15px/1.8 system-ui!important;color:#b6b0a2;margin:0 0 18px!important;}
+.hacker-journal :global(.post-taxonomy a) {background:none!important;border:0!important;padding:0!important;font:10px/1.6 monospace!important;color:#baa663!important;}
+.hacker-journal :global(.post-taxonomy a+a) {display:none;}
+.hacker-journal :global(.post-meta) {font:11px/1.7 monospace;color:#99917f;}
+.hacker-journal :global(.tag-list) {display:none;}
+.hacker-journal :global(.read-link) {display:inline-block;margin-top:16px;}
+.blog-upcoming {margin-top:40px;padding-top:28px;border-top:1px solid #50452b;}
+.blog-upcoming .blog-section-head {align-items:start;}
+.blog-upcoming .blog-section-head p {font:13px/1.7 system-ui;color:#9f9785;max-width:230px;}
+.upcoming-list {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+.upcoming-list :global(img),.upcoming-list :global(.ed-card-art) {display:none!important;}
+@media(max-width:900px){.journal-layout{grid-template-columns:210px minmax(0,1fr);gap:28px;}.hacker-journal :global(.post-card){grid-template-columns:1fr;gap:16px;}.hacker-journal :global(.post-cover){height:160px!important;}}
+@media(max-width:650px){.journal-layout{grid-template-columns:1fr;gap:30px;}.journal-sidebar{position:static;padding:0;border:0;}.journal-skull{width:190px;right:-60px;opacity:.08;}.blog-topics{display:flex;flex-wrap:wrap;gap:6px;}.blog-topics button{gap:12px;border:1px solid #39352b;padding:10px;font-size:12px;}.blog-topics button[aria-pressed=true]{border-color:#bda04a;}.learning-paths{margin-top:20px;padding-top:18px;}.learning-series ol{display:grid;gap:0;}.learning-series a{padding:10px 0;}.learning-series h3{margin:8px 0;}.blog-section-head{align-items:start;flex-wrap:wrap;}.blog-section-head h2{font-size:24px;}.hacker-journal :global(.post-card h3){font-size:21px!important;}.hacker-journal :global(.post-cover){height:170px!important;}.upcoming-list{grid-template-columns:1fr;}}
+.upcoming-list :global(.ed-image-link){display:none!important;}.upcoming-list :global(.ed-card){padding:20px!important;min-height:0!important;background:#111!important;border:1px solid #343127!important;}.upcoming-list :global(.ed-card h3){font:600 18px/1.5 system-ui!important;}.upcoming-list :global(.ed-card p:not(.eyebrow)){font:14px/1.7 system-ui;color:#aaa393;}.upcoming-list :global(.card-bottom){display:none;}
+
+/* More breathing room without changing the approved archive structure. */
+.journal-layout {grid-template-columns:285px minmax(0,1fr);gap:56px;}
+.journal-sidebar {padding-right:30px;}
+.blog-explorer>label {font-size:19px;line-height:1.5;margin-bottom:20px;}
+.blog-search-row input {padding:15px 13px;font-size:14px;}
+.blog-search-row button {padding:8px 0;font-size:12px;}
+.sidebar-label {margin:26px 0 12px;font:11px/1.6 monospace;letter-spacing:.05em;color:#99917d;}
+.blog-topics {gap:8px;margin-top:0;}
+.blog-topics button {padding:14px 13px;font-size:14px;line-height:1.6;}
+.learning-paths {margin-top:34px;padding-top:28px;}
+.learning-paths .blog-section-head h2 {font-size:21px;}
+.learning-series h3 {font-size:14px;line-height:1.8;margin:20px 0 16px;}
+.learning-series a {padding:18px 0;gap:14px;}
+.learning-series strong {font-size:14px;line-height:1.8;}
+.lesson-number {font-size:13px;line-height:1.9;}
+.blog-published>.blog-section-head {margin-bottom:24px;}
+.blog-section-head h2 {font-size:32px;line-height:1.4;}
+#search-status {margin-bottom:24px;font-size:12px;}
+.hacker-journal :global(.post-card) {grid-template-columns:190px minmax(0,1fr);gap:32px;padding:34px 0!important;}
+.hacker-journal :global(.post-cover) {height:150px!important;margin-top:6px;}
+.hacker-journal :global(.post-card h3) {font-size:24px!important;line-height:1.45!important;margin:14px 0 16px!important;}
+.hacker-journal :global(.post-card p) {font-size:16px!important;line-height:1.85!important;margin-bottom:20px!important;max-width:65ch;}
+.hacker-journal :global(.post-taxonomy a) {font-size:11px!important;}
+.hacker-journal :global(.post-meta) {font-size:12px;line-height:1.8;}
+.hacker-journal :global(.read-link) {margin-top:20px;font-size:12px;}
+@media(max-width:1100px){.journal-layout{grid-template-columns:240px minmax(0,1fr);gap:32px;}.journal-sidebar{padding-right:22px;}.hacker-journal :global(.post-card){grid-template-columns:1fr;gap:20px;}.hacker-journal :global(.post-cover){height:190px!important;}}
+@media(max-width:650px){.journal-layout{grid-template-columns:1fr;gap:38px;}.journal-sidebar{padding:0;}.blog-explorer>label{font-size:20px;}.sidebar-label{margin-top:20px;}.blog-topics{gap:8px;}.blog-topics button{padding:11px 12px;font-size:13px;}.learning-series a{padding:15px 0;}.learning-paths{margin-top:26px;padding-top:22px;}.blog-section-head h2{font-size:27px;}.hacker-journal :global(.post-card){padding:28px 0!important;}.hacker-journal :global(.post-card h3){font-size:22px!important;}.hacker-journal :global(.post-cover){height:180px!important;}.hacker-journal :global(.post-card p){font-size:16px!important;}}
+
+/* Quiet conference-poster atmosphere; keep reading surfaces clean. */
+.hacker-journal {position:relative;isolation:isolate;}
+.journal-atmosphere {position:absolute;inset:55px 0 auto;height:1100px;overflow:hidden;z-index:-1;pointer-events:none;color:#c3a54b;opacity:.17;background:radial-gradient(ellipse at 100% 5%,#c5a33c25,transparent 45%),radial-gradient(ellipse at 0% 30%,#c5a33c12,transparent 35%);mask-image:linear-gradient(#000, #000 65%,transparent);}
+.journal-atmosphere svg {width:100%;height:100%;}
+.hacker-journal .ed-page-head {background:linear-gradient(100deg,#08080800 45%,#b6973110);}
+.journal-sidebar {background:linear-gradient(90deg,#13120d80,transparent 90%);padding-left:18px;}
+.hacker-journal :global(.post-card) {transition:background .2s,border-color .2s;}
+.hacker-journal :global(.post-card:hover) {background:linear-gradient(90deg,#e1b84408,transparent 75%)!important;border-top-color:#8e7738!important;}
+.hacker-journal :global(.post-cover) {position:relative;}
+.hacker-journal :global(.post-cover::after) {content:'';position:absolute;inset:0;pointer-events:none;border:1px solid #d5b24a18;background:linear-gradient(135deg,#e9c65010,transparent 45%);}
+.blog-published>.blog-section-head {padding-top:12px;border-top:2px solid #746332;}
+@media(max-width:650px){.journal-atmosphere{inset:40px 0 auto;height:700px;opacity:.08;}.journal-sidebar{padding-left:0;background:transparent;}}
+@media(prefers-reduced-motion:reduce){.hacker-journal :global(.post-card){transition:none;}}
+
+/* Contain decoration and align panels with the content grid. */
+.hacker-journal .ed-page-head {overflow:hidden;}
+.journal-atmosphere {max-width:100%;contain:paint;}
+.journal-atmosphere svg {display:block;}
+.journal-layout,.journal-feed,.journal-sidebar,.blog-published,.blog-upcoming {min-width:0;box-sizing:border-box;}
+.journal-sidebar {padding:20px 24px 24px;border:1px solid #353229;background:#11110e;}
+.journal-sidebar :is(input,button,select) {box-sizing:border-box;max-width:100%;}
+.journal-sidebar .learning-series a {min-width:0;}
+.journal-sidebar .learning-series strong {overflow-wrap:anywhere;}
+.hacker-journal :global(.post-cover) {box-sizing:border-box;max-width:100%;}
+.hacker-journal :global(.post-card-body) {min-width:0;}
+.hacker-journal :global(.post-card h3) {overflow-wrap:anywhere;}
+.blog-section-head {min-width:0;flex-wrap:wrap;}
+.blog-sort {max-width:100%;flex-wrap:wrap;}
+@media(min-width:651px){.journal-sidebar{max-height:calc(100dvh - 120px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:#66582e #11110e;}}
+@media(max-width:650px){.journal-sidebar{padding:20px 16px;}.journal-atmosphere{inset:40px 0 auto;}.journal-skull{right:0;}.blog-topics button{white-space:normal;}.blog-sort select{max-width:100%;}}
+.hacker-journal .ed-page-head .journal-atmosphere {inset:0;height:100%;max-height:100%;opacity:.12;}
+
+/* Compact archive width with fluid mobile sizing. */
+.hacker-journal .journal-layout {max-width:1220px;margin-inline:auto;grid-template-columns:265px minmax(0,1fr);gap:40px;}
+.hacker-journal .journal-sidebar {padding:22px 20px;}
+.hacker-journal .blog-explorer>label {font-size:18px;line-height:1.5;max-width:20ch;}
+.hacker-journal .blog-search-row input {padding:12px;font-size:14px;}
+.hacker-journal .blog-topics button {padding:12px 10px;}
+.hacker-journal .blog-published>.blog-section-head {padding-top:18px;margin-bottom:18px;gap:16px;}
+.hacker-journal .blog-published>.blog-section-head h2 {font-size:29px;}
+.hacker-journal :global(.post-card) {grid-template-columns:170px minmax(0,1fr);gap:26px;}
+.hacker-journal :global(.post-cover) {height:135px!important;}
+@media(max-width:1100px){.hacker-journal .journal-layout{grid-template-columns:235px minmax(0,1fr);gap:28px;}.hacker-journal :global(.post-card){grid-template-columns:1fr;}.hacker-journal :global(.post-cover){height:190px!important;}}
+@media(max-width:650px){.hacker-journal .journal-layout{grid-template-columns:minmax(0,1fr);gap:30px;width:100%;}.hacker-journal .journal-sidebar{padding:20px 16px;}.hacker-journal .blog-explorer>label{font-size:19px;max-width:none;}.hacker-journal .blog-published>.blog-section-head h2{font-size:25px;}.hacker-journal .blog-topics button{padding:10px;}.hacker-journal :global(.post-cover){height:auto!important;aspect-ratio:16/9!important;}.hacker-journal :global(.post-card){gap:18px;}}
+
+/* A restrained circuit texture belongs to the archive surface, not only the hero. */
+.hacker-journal .journal-layout {position:relative;isolation:isolate;}
+.hacker-journal .journal-layout::before {content:'';position:absolute;inset:-20px -20px 0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 0 8%,#bfa23b13,transparent 48%);mask-image:linear-gradient(#000, #000 55%,transparent);}
+.hacker-journal .ed-page-head .journal-atmosphere {opacity:.32;}
+.hacker-journal .journal-sidebar {background:linear-gradient(145deg,#1b1910,#10100e 46%);border-color:#49412a;border-top:2px solid #ba9b3c;box-shadow:0 12px 36px #0003;}
+.hacker-journal .blog-explorer>label {font:650 20px/1.45 system-ui;letter-spacing:-.025em;max-width:100%;margin-bottom:18px;color:#f1ecdc;}
+.hacker-journal .blog-search-row {gap:8px;}
+.hacker-journal .blog-search-row input {background:#090a08;border-color:#51472d;border-radius:3px;padding:12px 10px;font-size:13px;}
+.hacker-journal .blog-search-row input:focus-visible {outline:2px solid #e4bc43;outline-offset:3px;}
+.hacker-journal .blog-search-row button {margin-left:auto;font-size:11px;}
+.hacker-journal .sidebar-label {margin-top:20px;margin-bottom:12px;color:#b5aa8c;}
+.hacker-journal .blog-topics {display:grid;grid-template-columns:minmax(0,1fr);gap:7px;}
+.hacker-journal .blog-topics button {display:grid;grid-template-columns:24px minmax(0,1fr) 20px;align-items:center;gap:10px;padding:12px 10px;border:1px solid #353123;border-radius:3px;font:500 13px/1.5 system-ui;background:#10110d;color:#d6d0bd;transition:background .15s,border-color .15s;}
+.hacker-journal .blog-topics button[aria-pressed=true] {background:#2a2412;border-color:#ac8e36;color:#f5cf54;}
+.hacker-journal .blog-topics button:hover {border-color:#8e773b;background:#252114;}
+.hacker-journal .blog-topics button:focus-visible {outline:2px solid #e4bc43;outline-offset:3px;}
+.topic-icon {width:24px;height:24px;fill:none;stroke:#d6b54b;stroke-width:1.4;stroke-linejoin:round;stroke-linecap:round;}
+.hacker-journal .blog-topics button span {text-align:right;}
+@media(max-width:650px){.hacker-journal .journal-layout::before{inset:0;background-size:auto,32px 32px,32px 32px;}.hacker-journal .blog-topics{grid-template-columns:repeat(2,minmax(0,1fr));}.hacker-journal .blog-topics button{grid-template-columns:22px minmax(0,1fr);gap:8px;padding:12px 9px;font-size:12px;}.hacker-journal .blog-topics button span{display:none;}.topic-icon{width:22px;height:22px;}}
+@media(prefers-reduced-motion:reduce){.hacker-journal .blog-topics button{transition:none;}}
+
+/* Only the shared page atmosphere supplies light; keep local circuit artwork. */
+.hacker-journal .ed-page-head .journal-atmosphere {background:none;mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);}
+.hacker-journal .journal-layout::before {display:none;}
+</style>

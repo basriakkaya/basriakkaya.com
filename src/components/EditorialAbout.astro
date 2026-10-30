@@ -1,0 +1,136 @@
+---
+import { siteConfig } from '../config/site';
+const { locale = 'tr' } = Astro.props;
+const en = locale === 'en';
+const areas = en
+  ? [
+      [
+        '01',
+        'Research',
+        'Web and application security. Finding weaknesses, verifying impact and reporting responsibly.',
+      ],
+      ['02', 'Build', 'Tools and projects that turn curiosity into something useful.'],
+      ['03', 'Share', 'Security stories, practical notes and a community that learns together.'],
+    ]
+  : [
+      [
+        '01',
+        'Araştırıyorum.',
+        'Web ve uygulama güvenliği. Açıkları bulmak, etkisini doğrulamak ve sorumlu biçimde raporlamak.',
+      ],
+      ['02', 'Üretiyorum.', 'Merakı işe yarayan araçlara ve projelere dönüştürüyorum.'],
+      [
+        '03',
+        'Paylaşıyorum.',
+        'Güvenlik hikâyeleri, pratik notlar ve birlikte öğrenen bir topluluk.',
+      ],
+    ];
+---
+
+<section class="shell profile-editorial">
+  <div class="profile-hero">
+    <div>
+      <p class="eyebrow">{en ? 'Behind the research' : 'Araştırmaların arkasında'}</p>
+      <h1>
+        Basri <em>Akkaya.</em>
+      </h1>
+      <p class="profile-lead">
+        {en
+          ? 'I ask how systems work. Then, where they break.'
+          : 'Sistemlerin nasıl çalıştığını merak ediyorum. Bir de nerede kırıldığını.'}
+      </p>
+      <p>
+        {en
+          ? 'Computer engineering student and security researcher. I share what I learn through responsible disclosure, projects and videos.'
+          : 'Bilgisayar mühendisliği öğrencisi ve güvenlik araştırmacısıyım. Öğrendiklerimi sorumlu bildirim, projeler ve videolar üzerinden paylaşıyorum.'}
+      </p>
+      <div class="actions">
+        <a class="button primary" href={en ? '/en/security-research' : '/guvenlik-arastirmalari'}>
+          {en ? 'Explore my research' : 'Araştırmalarımı keşfet'} ↗
+        </a>
+        <button class="button secondary" data-contact-open>
+          {en ? 'Get in touch' : 'İletişime geç'}
+        </button>
+      </div>
+    </div>
+    <div class="profile-play">
+      <button class="profile-seal" data-seal-toggle aria-expanded="false" aria-controls="seal-intro" aria-label={en ? 'Meet the person behind the skull' : 'Kuru kafanın arkasındaki kişiyle tanış'}>
+        <span class="seal-orbit" aria-hidden="true"></span>
+        <img src="/images/editorial/basrick.png" width="300" height="300" alt="" />
+        <span class="seal-glint" aria-hidden="true"></span>
+        <span class="seal-hint">{en ? 'A little curious? ↗' : 'Biraz meraklı mısın? ↗'}</span>
+      </button>
+      <div class="seal-intro" id="seal-intro" hidden>
+        <p>{en ? 'No need to hunt for bugs here. Let’s meet :)' : 'Burada açık aramana gerek yok. Tanışabiliriz :)'}</p>
+        <nav aria-label={en ? 'Get to know me' : 'Beni tanı'}>
+          <a href={en ? '/en/security-research' : '/guvenlik-arastirmalari'}>{en ? 'What do I research?' : 'Neler araştırıyorum?'} <span>↗</span></a>
+          <a href={en ? '/en/products' : '/urunler'}>{en ? 'What do I build?' : 'Neler üretiyorum?'} <span>↗</span></a>
+          <button data-contact-open>{en ? 'I have a question.' : 'Bir şey soracağım.'} <span>↗</span></button>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <div class="profile-areas">
+    {areas.map(([n, title, body]) => (
+      <article>
+        <span class="eyebrow">/{n}</span>
+        <h2>{title}</h2>
+        <p>{body}</p>
+      </article>
+    ))}
+  </div>
+  <div class="profile-linkline">
+    <span>{en ? 'Find me elsewhere' : 'Diğer bağlantılarım'}</span>
+    <a href={siteConfig.linkedin} target="_blank" rel="noopener noreferrer">
+      LinkedIn ↗
+    </a>
+    <a href={siteConfig.github} target="_blank" rel="noopener noreferrer">
+      GitHub ↗
+    </a>
+    <a href="https://links.basriakkaya.com/" target="_blank" rel="noopener noreferrer">
+      Links ↗
+    </a>
+  </div>
+</section>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>('[data-seal-toggle]');
+  const panel = document.getElementById('seal-intro');
+  if (toggle && panel) {
+    toggle.addEventListener('click', () => {
+      const opening = toggle.getAttribute('aria-expanded') !== 'true';
+      toggle.setAttribute('aria-expanded', String(opening));
+      panel.hidden = !opening;
+    });
+    panel.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        panel.hidden = true;
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.focus();
+      }
+    });
+  }
+</script>
+<style>
+.profile-hero .profile-lead { margin-bottom:20px; }
+.profile-hero .actions { margin-top:24px; }
+.profile-play { position:relative; min-width:0; }
+button.profile-seal { border:0; color:var(--accent); cursor:pointer; padding:0; font:inherit; }
+button.profile-seal:focus-visible { outline:2px solid #f8cc48; outline-offset:6px; border-radius:50%; }
+.seal-hint { position:absolute; bottom:0; font:10px/1.5 monospace; letter-spacing:.04em; color:#bdb6a1; }
+.seal-glint { position:absolute; left:34%; top:43%; width:32%; height:9%; background:linear-gradient(110deg,transparent 30%,#ffde74 50%,transparent 70%); opacity:0; pointer-events:none; }
+.profile-seal[aria-expanded="true"] .seal-orbit { animation:seal-turn .65s ease-out both; }
+.profile-seal[aria-expanded="true"] .seal-glint { animation:seal-light .55s ease-out; }
+.seal-intro { position:relative; margin:24px auto 0; max-width:390px; background:#14130f; border:1px solid #635635; padding:22px; box-shadow:0 18px 45px #0005; }
+.seal-intro:not([hidden]) { animation:intro-show .25s ease-out; }
+.seal-intro::before { content:''; position:absolute; top:-7px; left:50%; width:12px;height:12px; background:#14130f; border-top:1px solid #635635; border-left:1px solid #635635; transform:rotate(45deg); }
+.profile-hero .seal-intro p { font:16px/1.65 system-ui; color:#f6f3e8; margin:0 0 16px; }
+.seal-intro nav { display:grid; gap:8px; }
+.seal-intro nav :is(a,button) { display:flex; justify-content:space-between; gap:16px; padding:12px; border:1px solid #3e392a; background:#1b1912; color:#f8cc48; text-align:left; font:12px/1.5 monospace; cursor:pointer; }
+.seal-intro nav :is(a,button):hover { background:#2b2515; border-color:#b79a43; }
+@keyframes seal-turn { from {transform:rotate(-30deg);} to {transform:rotate(330deg);} }
+@keyframes seal-light { 0%,100% {opacity:0;transform:translateX(-20%);} 45% {opacity:.85;} 80% {transform:translateX(20%);} }
+@keyframes intro-show { from {opacity:0;transform:translateY(-6px);} to {opacity:1;transform:none;} }
+@media(max-width:800px) { .profile-play {order:-1;} button.profile-seal {max-width:160px; margin:0 auto;} .seal-hint {bottom:-14px;white-space:nowrap;} .seal-intro {margin-top:32px;} .profile-hero {gap:24px;} }
+@media(prefers-reduced-motion:reduce) { .profile-seal[aria-expanded="true"] .seal-orbit,.profile-seal[aria-expanded="true"] .seal-glint,.seal-intro:not([hidden]) {animation:none;} }
+</style>

@@ -1,0 +1,45 @@
+---
+import { communityUrl } from '../data/editorial';
+const { locale = 'tr' } = Astro.props;
+const en = locale === 'en';
+---
+
+<div class="resource-grid">
+  <article class="resource-card">
+    <div>
+      <p class="eyebrow">{en ? 'PRODUCT' : 'ÜRÜN'}</p>
+      <h3>KageAI</h3>
+      <p>
+        {en
+          ? 'Discover KageAI and explore the product.'
+          : 'KageAI hakkında bilgi edin ve ürünü keşfet.'}
+      </p>
+      <a href="https://kageai.tech" target="_blank" rel="noopener noreferrer">
+        {en ? 'Explore product' : 'Ürünü incele'} ↗
+      </a>
+    </div>
+    <img src="/images/editorial/kageai-brand.svg" width="420" height="340" alt="" loading="lazy" />
+  </article>
+  <article class="resource-card">
+    <div>
+      <p class="eyebrow">{en ? 'COMMUNITY' : 'TOPLULUK'}</p>
+      <h3>{en ? 'The Basrick community' : 'Basrick topluluğu'}</h3>
+      <p>
+        {en
+          ? 'Ask, research and learn together.'
+          : 'Merak eden, öğrenen ve paylaşan insanların bir araya geldiği yer.'}
+      </p>
+      <a href={communityUrl} target="_blank" rel="noopener noreferrer">
+        {en ? 'Join Discord' : 'Discord’a katıl'} ↗
+      </a>
+    </div>
+    <img
+      class="skull-art"
+      src="/images/editorial/basrick.png"
+      width="360"
+      height="360"
+      alt=""
+      loading="lazy"
+    />
+  </article>
+</div>

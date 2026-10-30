@@ -29,7 +29,12 @@ const {
   alternates = [],
 } = Astro.props;
 const copy = t(locale);
-const fullTitle = title === siteConfig.defaultTitle ? copy.defaultTitle : title.includes(siteConfig.name) ? title : `${title} | ${siteConfig.name}`;
+const fullTitle =
+  title === siteConfig.defaultTitle
+    ? copy.defaultTitle
+    : title.includes(siteConfig.name)
+      ? title
+      : `${title} | ${siteConfig.name}`;
 const canonical = absoluteUrl(canonicalPath);
 const socialImage = absoluteUrl(image);
 const shouldIndex = siteConfig.indexable && !noindex;
@@ -39,13 +44,23 @@ const bingVerification = import.meta.env.PUBLIC_BING_SITE_VERIFICATION?.trim();
 
 <title>{fullTitle}</title>
 <meta name="description" content={description} />
-<meta name="robots" content={shouldIndex ? 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' : 'noindex, follow'} />
+<meta
+  name="robots"
+  content={
+    shouldIndex
+      ? 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'
+      : 'noindex, follow'
+  }
+/>
 {googleVerification && <meta name="google-site-verification" content={googleVerification} />}
 {bingVerification && <meta name="msvalidate.01" content={bingVerification} />}
 <link rel="canonical" href={canonical} />
 <meta property="og:type" content={type} />
 <meta property="og:locale" content={localeConfig[locale].ogLocale} />
-<meta property="og:locale:alternate" content={localeConfig[locale === 'tr' ? 'en' : 'tr'].ogLocale} />
+<meta
+  property="og:locale:alternate"
+  content={localeConfig[locale === 'tr' ? 'en' : 'tr'].ogLocale}
+/>
 <meta property="og:title" content={fullTitle} />
 <meta property="og:description" content={description} />
 <meta property="og:url" content={canonical} />
@@ -56,7 +71,14 @@ const bingVerification = import.meta.env.PUBLIC_BING_SITE_VERIFICATION?.trim();
 <meta name="twitter:title" content={fullTitle} />
 <meta name="twitter:description" content={description} />
 <meta name="twitter:image" content={socialImage} />
-<meta name="theme-color" content="#0b0f14" />
-<link rel="alternate" type="application/rss+xml" title={`${siteConfig.name} RSS (${localeConfig[locale].name})`} href={absoluteUrl(route(locale, 'rss'))} />
-{alternates.map((alternate) => <link rel="alternate" hreflang={alternate.locale} href={absoluteUrl(alternate.path)} />)}
+<meta name="theme-color" content="#080808" />
+<link
+  rel="alternate"
+  type="application/rss+xml"
+  title={`${siteConfig.name} RSS (${localeConfig[locale].name})`}
+  href={absoluteUrl(route(locale, 'rss'))}
+/>
+{alternates.map((alternate) => (
+  <link rel="alternate" hreflang={alternate.locale} href={absoluteUrl(alternate.path)} />
+))}
 {jsonLd && <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}

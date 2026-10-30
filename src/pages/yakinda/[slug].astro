@@ -1,0 +1,33 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { plannedArticles, imagePath } from '../../data/editorial';
+export function getStaticPaths() {
+  return plannedArticles.map((item) => ({ params: { slug: item.slug }, props: { item } }));
+}
+const { item } = Astro.props;
+---
+
+<BaseLayout
+  title={`${item.title} — Yakında`}
+  description={`${item.title}: bu yazı hazırlanıyor. Yayınlanan güvenlik araştırmalarını ve rehberleri keşfet.`}
+  noindex
+  switchPath={`/en/coming-soon/${item.slug}`}
+>
+  <section class="shell coming-page">
+    <img src="/images/editorial/basrick.png" alt="" width="110" height="110" />
+    <p class="eyebrow">ARAŞTIRMA GÜNLÜĞÜ / HAZIRLANIYOR</p>
+    <h1>{item.title}</h1>
+    <p class="ed-lead" style="margin-inline:auto">
+      Bu yazı yakında geliyor. İçeriği doğrulayıp anlaşılır bir anlatımla hazırlıyorum.
+    </p>
+    <img class="coming-cover" src={imagePath(item.image)} alt="" width="900" height="400" />
+    <div class="actions">
+      <a class="button primary" title="Yayınlanan yazılara göz at" href="/yazilar">
+        Yayınlanan yazılara göz at →
+      </a>
+      <a class="button" href="/rss.xml">
+        RSS ile takip et
+      </a>
+    </div>
+  </section>
+</BaseLayout>

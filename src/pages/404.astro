@@ -1,6 +1,40 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 ---
-<BaseLayout title="Sayfa Bulunamadı | Basri Akkaya" description="Aradığınız sayfa bulunamadı." noindex>
-  <section class="not-found shell-narrow"><p class="eyebrow">$ cd /aradigin-sayfa</p><p class="error-line">bash: dizin bulunamadı</p><h1>404</h1><p>Aradığın sayfa taşınmış, silinmiş veya hiç var olmamış olabilir.</p><a class="button primary" href="/" title="Basri Akkaya ana sayfasına dön">Ana sayfaya dön</a></section>
+<BaseLayout title="404 — Sayfa Bulunamadı | Basri Akkaya" description="Bu adres bulunamadı. Araştırmaları, videoları ve yazıları keşfet." noindex>
+  <section class="signal-lost shell" aria-labelledby="lost-title">
+    <div class="signal-top"><span><i></i> BA / KAYIP SİNYAL</span><span>HTTP · 404</span></div>
+    <div class="signal-body">
+      <div class="signal-copy">
+        <p class="signal-eyebrow">YANLIŞ KOORDİNATLARDASIN</p>
+        <div class="error-number" aria-hidden="true">404</div>
+        <h1 id="lost-title">Bu iz burada bitiyor.</h1>
+        <p class="signal-description">Aradığın sayfa taşınmış ya da hiç var olmamış olabilir. Merakını kaybetme; keşfedecek daha çok şey var.</p>
+        <a class="return-link" href="/" title="Ana sayfaya dön"><span>↖</span> Ana sayfaya dön</a>
+      </div>
+      <div class="signal-art" aria-hidden="true">
+        <div class="orbit orbit-outer"></div><div class="orbit orbit-inner"></div>
+        <span class="cross cross-one">+</span><span class="cross cross-two">+</span>
+        <div class="skull-field"><img src="/images/editorial/basrick.png" alt="" width="420" height="420" /></div>
+        <div class="signal-tag"><span>×</span> SIGNAL NOT FOUND</div>
+        <div class="coordinates">404 / Ø / 404</div>
+      </div>
+    </div>
+    <nav class="recovery-links" aria-label="Keşfetmeye devam et">
+      <a href="/guvenlik-arastirmalari"><span class="route-index">01</span><span>Araştırmalar<small>Bulgular ve güvenlik hikâyeleri</small></span><b aria-hidden="true">↗</b></a>
+      <a href="/yazilar" title="Blog yazılarını keşfet"><span class="route-index">02</span><span>Blog<small>Notlar, rehberler ve keşifler</small></span><b aria-hidden="true">↗</b></a>
+      <a href="/videolar"><span class="route-index">03</span><span>Videolar<small>Hikâyenin ekran başındaki hâli</small></span><b aria-hidden="true">↗</b></a>
+    </nav>
+    <div class="signal-bottom"><span>BAĞLANTI KOPTU. MERAK DEVAM EDİYOR.</span><span>Güvende kal. :)</span></div>
+  </section>
 </BaseLayout>
+<style>
+.signal-lost{--gold:#f8cc48;max-width:1220px;margin:48px auto 64px;position:relative;border:1px solid #f8cc4830;background:linear-gradient(125deg,#181711d9,#0b0c0ce8 60%);padding:0;isolation:isolate}
+.signal-lost::before,.signal-lost::after{content:"";position:absolute;width:26px;height:26px;border-color:var(--gold);pointer-events:none}.signal-lost::before{left:-1px;top:-1px;border-left:2px solid;border-top:2px solid;color:var(--gold)}.signal-lost::after{right:-1px;bottom:-1px;border-right:2px solid;border-bottom:2px solid;color:var(--gold)}
+.signal-top,.signal-bottom{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:18px 28px;font:10px/1.5 monospace;letter-spacing:.12em;color:#a49f8e}.signal-top{border-bottom:1px solid #f8cc481c}.signal-top>span:first-child{color:var(--gold);display:flex;align-items:center;gap:10px}.signal-top i{width:6px;height:6px;background:var(--gold);box-shadow:0 0 12px #f8cc4840}.signal-body{display:grid;grid-template-columns:1.1fr 1fr;align-items:center;gap:24px;padding:48px 54px 54px;overflow:hidden}.signal-eyebrow{font:10px/1.6 monospace;letter-spacing:.2em;color:#aaa28b;margin:0 0 14px}.error-number{position:relative;font:900 clamp(110px,13vw,178px)/.95 monospace;letter-spacing:-.09em;color:var(--gold);width:fit-content;text-shadow:4px 4px 0 #f8cc4810}.signal-copy h1{font:700 clamp(25px,3vw,36px)/1.2 monospace;letter-spacing:-.055em;color:#f4f0df;margin:28px 0 17px}.signal-description{max-width:410px;font:15px/1.8 Arial,sans-serif;color:#aaa99e;margin:0 0 26px}.return-link{display:inline-flex;align-items:center;gap:22px;padding:16px 22px;color:#111;background:var(--gold);font:700 13px/1.3 monospace;text-decoration:none;transition:background .2s,transform .2s}.return-link span{font-size:23px}.return-link:hover{background:#ffe18a;transform:translateY(-2px)}
+.signal-art{position:relative;aspect-ratio:1;width:100%;max-width:430px;justify-self:center;display:grid;place-items:center;background:radial-gradient(circle,#f8cc480b,transparent 65%)}.orbit{position:absolute;border:1px solid #f8cc4828;border-radius:50%;inset:2%}.orbit-outer{border-top-color:#f8cc4880;border-bottom-color:#f8cc4850;transform:rotate(-28deg)}.orbit-inner{inset:11%;border-style:dashed;border-color:#f8cc4820}.skull-field{width:75%;position:relative}.skull-field img{width:100%;height:auto;display:block;filter:drop-shadow(0 8px 24px #000);opacity:.88}.cross{position:absolute;font:24px monospace;color:var(--gold)}.cross-one{top:8%;right:12%}.cross-two{bottom:12%;left:7%;color:#817143}.signal-tag{position:absolute;bottom:12%;right:0;background:#12130f;border:1px solid #f8cc4850;padding:12px 16px;transform:rotate(-5deg);font:700 12px monospace;letter-spacing:.1em;color:var(--gold);box-shadow:0 8px 25px #0008}.signal-tag span{margin-right:10px}.coordinates{position:absolute;bottom:0;font:10px monospace;color:#8c8163;letter-spacing:.3em}
+.recovery-links{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid #f8cc4827;border-bottom:1px solid #f8cc4827;margin:0 28px}.recovery-links a{display:flex;align-items:center;gap:16px;padding:24px 20px;text-decoration:none;color:#f4f0df;transition:background .2s}.recovery-links a+a{border-left:1px solid #f8cc4827}.route-index{color:#b79a4d;font:10px monospace}.recovery-links a>span:nth-child(2){font:700 14px monospace}.recovery-links small{display:block;color:#8d8e85;font:12px/1.5 Arial,sans-serif;margin-top:7px}.recovery-links b{margin-left:auto;color:var(--gold);font-size:20px;font-weight:400}.recovery-links a:hover{background:#f8cc4809}.signal-bottom>span:last-child{color:var(--gold);letter-spacing:0}.signal-lost a:focus-visible{outline:2px solid #fff4cc;outline-offset:4px}
+@media(max-width:800px){.signal-lost{width:calc(100% - 32px);margin-block:24px 40px}.signal-body{padding:32px 28px;gap:14px}.signal-copy h1{font-size:26px}.signal-description{font-size:14px}.signal-tag{font-size:9px;padding:10px}.recovery-links{margin-inline:16px}.recovery-links a{padding:18px 12px;gap:10px}.recovery-links small{font-size:11px}}
+@media(max-width:600px){.signal-top,.signal-bottom{padding:16px;font-size:8px;letter-spacing:.07em}.signal-body{grid-template-columns:1fr;padding:30px 22px 24px;gap:22px}.signal-copy{text-align:center}.signal-eyebrow{font-size:9px}.error-number{margin:auto;font-size:120px}.signal-copy h1{margin-top:20px;font-size:25px}.signal-description{margin:0 auto 22px;max-width:310px}.signal-art{max-width:240px;grid-row:2}.recovery-links{grid-template-columns:1fr}.recovery-links a{padding:18px 8px}.recovery-links a+a{border-left:0;border-top:1px solid #f8cc481a}.recovery-links small{font-size:12px}.signal-bottom{align-items:flex-start}.signal-bottom>span:first-child{max-width:180px}.signal-tag{font-size:9px}.signal-top{gap:8px}}
+@media(prefers-reduced-motion:reduce){.return-link,.recovery-links a{transition:none}}
+</style>

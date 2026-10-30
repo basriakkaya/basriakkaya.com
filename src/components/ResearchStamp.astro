@@ -1,0 +1,25 @@
+---
+const { english = false } = Astro.props;
+---
+<span class="research-stamp" aria-hidden="true"><strong>HACKED</strong></span>
+<span class="research-ethics-tip" aria-hidden="true">{english ? 'Ethically, of course :)' : 'Tabii ki etik olarak :)'}</span>
+<script>
+  document.querySelectorAll<HTMLElement>('.research-ethics-tip').forEach((tip) => {
+    const card = tip.closest('article');
+    if (!card) return;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const hide = () => { clearTimeout(timer); tip.classList.remove('is-visible'); };
+    const move = (event: MouseEvent) => {
+      tip.style.left = `${Math.max(8, Math.min(event.clientX + 16, window.innerWidth - 215))}px`;
+      tip.style.top = `${Math.min(event.clientY + 22, window.innerHeight - 48)}px`;
+    };
+    card.addEventListener('mouseenter', (event) => {
+      move(event as MouseEvent);
+      timer = setTimeout(() => tip.classList.add('is-visible'), 850);
+    });
+    card.addEventListener('mousemove', (event) => move(event as MouseEvent));
+    card.addEventListener('mouseleave', hide);
+    card.addEventListener('click', hide);
+    window.addEventListener('scroll', hide, { passive: true });
+  });
+</script>

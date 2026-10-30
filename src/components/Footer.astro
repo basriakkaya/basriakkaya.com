@@ -1,19 +1,40 @@
 ---
-import { siteConfig } from '../config/site';
-import { getExternalProfileLinkTitle, getNavigationLinkTitle } from '../lib/linkTitles';
-import PWAInstallPrompt from './PWAInstallPrompt.astro';
-import LanguageSwitcher from './LanguageSwitcher.astro';
-import type { Locale } from '../i18n/config';
 import { route } from '../i18n/routes';
-import { t } from '../i18n/translations';
-const { locale = 'tr', switchPath } = Astro.props as { locale?: Locale; switchPath: string };
-const copy = t(locale);
+import type { Locale } from '../i18n/config';
+import PWAInstallPrompt from './PWAInstallPrompt.astro';
+const { locale = 'tr' } = Astro.props as { locale: Locale };
+const en = locale === 'en';
 ---
-<footer class="footer">
-  <div class="shell footer-main">
-    <div class="footer-brand"><a href={route(locale, 'home')} title={getNavigationLinkTitle('home')}><img src="/favicon.svg" width="36" height="36" alt="" aria-hidden="true" /> {siteConfig.name}</a><p>{copy.footerCopy}</p></div>
-    <nav class="footer-nav" aria-label={copy.footerNavLabel}><p>{copy.pages}</p><a href={route(locale, 'home')} title={getNavigationLinkTitle('home')}>{copy.home}</a><a href={route(locale, 'articles')} title={getNavigationLinkTitle('articles')}>{copy.articles}</a><a href={route(locale, 'about')} title={getNavigationLinkTitle('about')}>{copy.about}</a><a href={route(locale, 'security')}>{copy.security}</a></nav>
-    <div class="footer-nav"><p>{copy.links}</p><a href={siteConfig.linkedin} title={getExternalProfileLinkTitle('LinkedIn')} target="_blank" rel="noopener noreferrer">LinkedIn <span aria-hidden="true">↗</span><span class="sr-only">{copy.newTab}</span></a><a href={siteConfig.youtube} title={getExternalProfileLinkTitle('YouTube')} target="_blank" rel="noopener noreferrer">YouTube <span aria-hidden="true">↗</span><span class="sr-only">{copy.newTab}</span></a><a href={`mailto:${siteConfig.email}`}>{copy.email}</a></div>
+
+<footer class="footer shell">
+  <div class="editorial-footer">
+    <a
+      class="brand"
+      title={en ? 'Home — Basri Akkaya' : 'Ana Sayfa — Basri Akkaya'}
+      href={route(locale, 'home')}
+    >
+      <img src="/images/editorial/basrick-small.png" width="38" height="38" alt="" />
+      Basri Akkaya
+    </a>
+    <nav aria-label={en ? 'Footer navigation' : 'Alt menü'}>
+      <a title={en ? 'About Basri Akkaya' : 'Basri Akkaya hakkında'} href={route(locale, 'about')}>
+        {en ? 'About' : 'Hakkımda'}
+      </a>
+      <button data-contact-open aria-haspopup="dialog">
+        {en ? 'Contact' : 'İletişim'}
+      </button>
+      <a href={en ? '/en/privacy' : '/gizlilik'}>{en ? 'Privacy' : 'Gizlilik'}</a>
+      <a href={route(locale, 'security')}>{en ? 'Security' : 'Güvenlik'}</a>
+      <a href={route(locale, 'rss')}>RSS</a>
+      <a href="https://links.basriakkaya.com/" target="_blank" rel="noopener noreferrer">
+        Links ↗
+      </a>
+    </nav>
+    <strong>{en ? 'Stay safe.' : 'Güvende kal.'}</strong>
   </div>
-  <div class="shell footer-bottom"><p>© {new Date().getFullYear()} {siteConfig.name}</p><p>{copy.builtWith} · <a href={route(locale, 'rss')}>RSS</a></p><LanguageSwitcher locale={locale} href={switchPath} /><PWAInstallPrompt locale={locale} /></div>
+  <div class="footer-small">
+    <span>© {new Date().getFullYear()} Basri Akkaya</span>
+    <span>{en ? 'Research. Understand. Share.' : 'Araştır. Anla. Paylaş.'}</span>
+    <PWAInstallPrompt locale={locale} />
+  </div>
 </footer>

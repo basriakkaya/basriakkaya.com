@@ -1,0 +1,81 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import VideoCard from './VideoCard.astro';
+import videos from '../data/videos.json';
+import { alternateLinks } from '../i18n/helpers';
+import { siteConfig } from '../config/site';
+const { locale = 'tr' } = Astro.props;
+const en = locale === 'en';
+---
+
+<BaseLayout
+  title={en ? 'Security research videos' : 'Siber güvenlik videoları'}
+  description={
+    en
+      ? 'Real security research, ethical hacking and bug bounty stories by Basri Akkaya.'
+      : 'Basri Akkaya’nın gerçek güvenlik araştırmaları, etik hacking ve bug bounty hikâyeleri.'
+  }
+  locale={locale}
+  alternates={alternateLinks('/videolar', '/en/videos')}
+  switchPath={en ? '/videolar' : '/en/videos'}
+>
+  <div class="shell defcon-videos">
+    <header class="ed-page-head">
+      <p class="eyebrow">YOUTUBE / BASRI AKKAYA</p>
+      <h1>
+        {en ? 'Every finding has' : 'Her bulgunun'}
+        <br />
+        <em>{en ? 'a story.' : 'bir hikâyesi var.'}</em>
+      </h1>
+      <p>
+        {en
+          ? 'Follow the journey from the first question to responsible disclosure.'
+          : 'İlk sorudan sorumlu açıklamaya uzanan araştırma yolculuğunu izle.'}
+      </p>
+    </header>
+    <section class="ed-section">
+      {videos[0] && (
+        <div class="video-premiere">
+          <VideoCard video={videos[0]} locale={locale} featured />
+          <div class="video-intro">
+            <span class="eyebrow">{en ? 'LATEST VIDEO' : 'SON VİDEO'}</span>
+            <h2>{en ? (videos[0].titleEn ?? videos[0].title) : videos[0].title}</h2>
+            <p>
+              {en
+                ? 'The research, the evidence and the story behind the discovery.'
+                : videos[0].description}
+            </p>
+            <a
+              class="button primary"
+              href={`https://www.youtube.com/watch?v=${videos[0].id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {en ? 'Watch on YouTube' : 'YouTube’da izle'} ↗
+            </a>
+          </div>
+        </div>
+      )}
+      <div class="video-archive-title">
+        <h2>{en ? 'Video archive' : 'Video arşivi'}</h2>
+        <span>
+          {videos.length} {en ? 'videos' : 'video'}
+        </span>
+      </div>
+      <div class="video-grid">
+        {videos.map((video) => (
+          <VideoCard video={video} locale={locale} />
+        ))}
+      </div>
+      <a
+        class="button"
+        style="margin-top:35px"
+        href={siteConfig.youtube}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {en ? 'Visit the YouTube channel' : 'YouTube kanalına git'} ↗
+      </a>
+    </section>
+  </div>
+</BaseLayout>

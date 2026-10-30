@@ -17,4 +17,5 @@ Service Worker’ı temizlemek için tarayıcının Application/Storage panelind
 
 Bu PWA katmanında push notification, backend, üyelik, cookie veya kurulum takibi yoktur. Authorization içeren, cross-origin ve non-GET istekler cache’lenmez.
 
-`/admin`, `/admin/` ve doğrudan statik artefakt yolu `/admin/index.html` PWA kapsamı dışında tutulur: HTML precache veya runtime cache’e yazılmaz, offline fallback ile sunulmaz ve route’un minimal layout’u manifest ya da Service Worker registration yüklemez. Vercel no-store header kuralı bütün `/admin` path varyantlarını kapsamalıdır.
+
+/admin and its legacy API endpoints are removed from the redesign. No login page is built. Retained sitemap/cache exclusions are defensive only.

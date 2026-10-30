@@ -1,11 +1,11 @@
 ---
 import BaseLayout from './BaseLayout.astro';
+import AdPlacement from '../components/AdPlacement.astro';
 import type { BlogPost } from '../lib/posts';
 import { readingTime } from '../lib/reading-time';
 import { absoluteUrl, siteConfig } from '../config/site';
 import { breadcrumbSchema, personSchema, schemaGraph } from '../lib/schema';
 import { postSlug } from '../lib/posts';
-import PostReactions from '../components/PostReactions.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import ArticleTableOfContents from '../components/ArticleTableOfContents.astro';
 import ReadingProgress from '../components/ReadingProgress.astro';
@@ -14,13 +14,20 @@ import RelatedPosts from '../components/RelatedPosts.astro';
 import type { MarkdownHeading } from 'astro';
 import { getLocalizedCategory } from '../config/categories';
 import { getRelatedPosts, getSeriesContext } from '../lib/posts';
-import { getCategoryLinkTitle, getNavigationLinkTitle, getSeriesLinkTitle } from '../lib/linkTitles';
+import {
+  getCategoryLinkTitle,
+  getNavigationLinkTitle,
+  getSeriesLinkTitle,
+} from '../lib/linkTitles';
 import { articleRoute, categoryRoute, route, seriesRoute } from '../i18n/routes';
 import { getLocalizedSeries } from '../config/series';
 import { formatDate, alternateLinks } from '../i18n/helpers';
 import { getTranslation } from '../lib/posts';
 
-interface Props { post: BlogPost; headings: MarkdownHeading[] }
+interface Props {
+  post: BlogPost;
+  headings: MarkdownHeading[];
+}
 const { post, headings } = Astro.props;
 const { title, description, publishedAt, updatedAt, tags, cover } = post.data;
 const slug = postSlug(post);
@@ -28,50 +35,269 @@ const locale = post.data.lang;
 const category = getLocalizedCategory(post.data.category, locale);
 const localizedSeries = post.data.series ? getLocalizedSeries(post.data.series, locale) : undefined;
 const seriesContext = await getSeriesContext(post);
-const related = await getRelatedPosts(post, [seriesContext?.previous, seriesContext?.next].filter(Boolean) as BlogPost[]);
+const related = await getRelatedPosts(
+  post,
+  [seriesContext?.previous, seriesContext?.next].filter(Boolean) as BlogPost[],
+);
 const postPath = articleRoute(locale, slug);
 const postUrl = absoluteUrl(postPath);
 const format = (date: Date) => formatDate(date, locale);
 const counterpart = await getTranslation(post, locale === 'tr' ? 'en' : 'tr');
-const counterpartPath = counterpart ? articleRoute(counterpart.data.lang, postSlug(counterpart)) : undefined;
+const counterpartPath = counterpart
+  ? articleRoute(counterpart.data.lang, postSlug(counterpart))
+  : undefined;
 const switchPath = counterpartPath ?? route(locale === 'tr' ? 'en' : 'tr', 'articles');
-const alternates = counterpartPath ? alternateLinks(locale === 'tr' ? postPath : counterpartPath, locale === 'en' ? postPath : counterpartPath) : [];
+const alternates = counterpartPath
+  ? alternateLinks(
+      locale === 'tr' ? postPath : counterpartPath,
+      locale === 'en' ? postPath : counterpartPath,
+    )
+  : [];
 const posting: Record<string, unknown> = {
-  '@type': 'BlogPosting', headline: title, description, url: postUrl,
+  '@type': 'BlogPosting',
+  headline: title,
+  description,
+  url: postUrl,
   mainEntityOfPage: { '@type': 'WebPage', '@id': postUrl },
-  datePublished: publishedAt.toISOString(), dateModified: (updatedAt ?? publishedAt).toISOString(),
-  author: { '@id': `${absoluteUrl('/')}#person` }, publisher: { '@id': `${absoluteUrl('/')}#person` },
-  inLanguage: locale === 'tr' ? 'tr-TR' : 'en-US', keywords: tags.join(', '), articleSection: category.name,
+  datePublished: publishedAt.toISOString(),
+  dateModified: (updatedAt ?? publishedAt).toISOString(),
+  author: { '@id': `${absoluteUrl('/')}#person` },
+  publisher: { '@id': `${absoluteUrl('/')}#person` },
+  inLanguage: locale === 'tr' ? 'tr-TR' : 'en-US',
+  keywords: tags.join(', '),
+  articleSection: category.name,
 };
 posting.image = absoluteUrl(cover ?? siteConfig.defaultImage);
-if (post.data.series && localizedSeries) posting.isPartOf = { '@type': 'CreativeWorkSeries', name: localizedSeries.title, url: absoluteUrl(seriesRoute(locale, localizedSeries.slug)) };
+if (post.data.series && localizedSeries)
+  posting.isPartOf = {
+    '@type': 'CreativeWorkSeries',
+    name: localizedSeries.title,
+    url: absoluteUrl(seriesRoute(locale, localizedSeries.slug)),
+  };
 const breadcrumbItems = seriesContext?.metadata
-  ? [{ name: locale === 'tr' ? 'Ana Sayfa' : 'Home', path: route(locale, 'home') }, { name: locale === 'tr' ? 'Yazılar' : 'Articles', path: route(locale, 'articles') }, { name: localizedSeries!.title, path: seriesRoute(locale, localizedSeries!.slug) }, { name: title, path: postPath }]
-  : [{ name: locale === 'tr' ? 'Ana Sayfa' : 'Home', path: route(locale, 'home') }, { name: locale === 'tr' ? 'Yazılar' : 'Articles', path: route(locale, 'articles') }, { name: category.name, path: categoryRoute(locale, category.slug) }, { name: title, path: postPath }];
-const jsonLd = schemaGraph([
-  personSchema,
-  posting,
-  breadcrumbSchema(breadcrumbItems),
-]);
-const visibleBreadcrumbs = breadcrumbItems.map((item, index) => ({ name: item.name, href: index < breadcrumbItems.length - 1 ? item.path : undefined }));
+  ? [
+      { name: locale === 'tr' ? 'Ana Sayfa' : 'Home', path: route(locale, 'home') },
+      { name: locale === 'tr' ? 'Yazılar' : 'Articles', path: route(locale, 'articles') },
+      { name: localizedSeries!.title, path: seriesRoute(locale, localizedSeries!.slug) },
+      { name: title, path: postPath },
+    ]
+  : [
+      { name: locale === 'tr' ? 'Ana Sayfa' : 'Home', path: route(locale, 'home') },
+      { name: locale === 'tr' ? 'Yazılar' : 'Articles', path: route(locale, 'articles') },
+      { name: category.name, path: categoryRoute(locale, category.slug) },
+      { name: title, path: postPath },
+    ];
+const jsonLd = schemaGraph([personSchema, posting, breadcrumbSchema(breadcrumbItems)]);
+const visibleBreadcrumbs = breadcrumbItems.map((item, index) => ({
+  name: item.name,
+  href: index < breadcrumbItems.length - 1 ? item.path : undefined,
+}));
 ---
-<BaseLayout title={title} description={description} type="article" image={cover} jsonLd={jsonLd} locale={locale} canonicalPath={postPath} switchPath={switchPath} alternates={alternates}>
-  <article class:list={['article', 'shell', { 'has-toc': post.data.toc && headings.filter(({ depth }) => depth === 2 || depth === 3).length >= 2 }]} data-article-shell>
+
+<BaseLayout
+  title={title}
+  description={description}
+  type="article"
+  image={cover}
+  jsonLd={jsonLd}
+  locale={locale}
+  canonicalPath={postPath}
+  switchPath={switchPath}
+  alternates={alternates}
+>
+  <article
+    class:list={[
+      'article',
+      'shell',
+      {
+        'has-toc':
+          post.data.toc && headings.filter(({ depth }) => depth === 2 || depth === 3).length >= 2,
+      },
+    ]}
+    data-article-shell
+  >
     <ReadingProgress />
     <header class="article-header">
+      <div class="article-header-art" aria-hidden="true"><img src="/images/editorial/basrick.png" width="300" height="300" alt=""/><svg viewBox="0 0 1000 400" preserveAspectRatio="none"><g fill="none" stroke="currentColor"><path d="M0 30H90l35 35v70l45 45h90 M0 60h60l35 35v65l45 45h65 M1000 70H870l-45 45v110l-40 40h-90 M1000 105h-90l-45 45v100l-40 40h-70"/><circle cx="260" cy="180" r="4"/><circle cx="695" cy="265" r="4"/></g></svg></div>
       <Breadcrumbs items={visibleBreadcrumbs} />
-      <div class="article-taxonomy"><a href={categoryRoute(locale, category.slug)} title={getCategoryLinkTitle(category.name, locale)}>{category.name}</a>{localizedSeries && seriesContext && <a href={seriesRoute(locale, localizedSeries.slug)} title={getSeriesLinkTitle(localizedSeries.title, locale)}>{localizedSeries.title} · {locale === 'tr' ? 'Bölüm' : 'Part'} {seriesContext.index + 1} / {seriesContext.posts.length}</a>}</div>
-      <h1>{title}</h1><p class="lead">{description}</p>
-      <div class="article-meta"><span>{locale === 'tr' ? 'Yazar' : 'Author'}: {siteConfig.name}</span><span>·</span><time datetime={publishedAt.toISOString()}>{format(publishedAt)}</time><span>·</span><span>{readingTime(post.body ?? '', locale)}</span>{updatedAt && <span>{locale === 'tr' ? 'Güncellendi' : 'Updated'}: <time datetime={updatedAt.toISOString()}>{format(updatedAt)}</time></span>}</div>
-      <ul class="tag-list" aria-label={locale === 'tr' ? 'Etiketler' : 'Tags'}>{tags.map((tag) => <li>{tag}</li>)}</ul>
-      {post.data.toc && <ArticleTableOfContents headings={headings} mode="mobile" locale={locale} />}
+      <div class="article-taxonomy">
+        <a
+          href={categoryRoute(locale, category.slug)}
+          title={getCategoryLinkTitle(category.name, locale)}
+        >
+          {category.name}
+        </a>
+        {localizedSeries && seriesContext && (
+          <a
+            href={seriesRoute(locale, localizedSeries.slug)}
+            title={getSeriesLinkTitle(localizedSeries.title, locale)}
+          >
+            {localizedSeries.title} · {locale === 'tr' ? 'Bölüm' : 'Part'} {seriesContext.index + 1}{' '}
+            / {seriesContext.posts.length}
+          </a>
+        )}
+      </div>
+      <h1>{title}</h1>
+      <p class="lead">{description}</p>
+      <div class="article-meta">
+        <span>
+          {locale === 'tr' ? 'Yazar' : 'Author'}: {siteConfig.name}
+        </span>
+        <span>·</span>
+        <time datetime={publishedAt.toISOString()}>{format(publishedAt)}</time>
+        <span>·</span>
+        <span>{readingTime(post.body ?? '', locale)}</span>
+        {updatedAt && (
+          <span>
+            {locale === 'tr' ? 'Güncellendi' : 'Updated'}:{' '}
+            <time datetime={updatedAt.toISOString()}>{format(updatedAt)}</time>
+          </span>
+        )}
+      </div>
+      <ul class="tag-list" aria-label={locale === 'tr' ? 'Etiketler' : 'Tags'}>
+        {tags.map((tag) => (
+          <li>{tag}</li>
+        ))}
+      </ul>
+      {post.data.toc && (
+        <ArticleTableOfContents headings={headings} mode="mobile" locale={locale} />
+      )}
     </header>
     <div class="article-layout">
-      <div class="article-main"><div class="prose" data-article-body><slot /></div><PostReactions slug={slug} locale={locale} />
-        {post.data.series && seriesContext?.metadata && <SeriesNavigation slug={post.data.series as any} current={post} posts={seriesContext.posts} index={seriesContext.index} previous={seriesContext.previous} next={seriesContext.next} />}
-        <RelatedPosts posts={related} locale={locale} /><a class="back-link article-end-link" href={route(locale, 'articles')} title={getNavigationLinkTitle('articles')}>← {locale === 'tr' ? 'Yazılara dön' : 'Back to articles'}</a>
+      <div class="article-main">
+        {cover && !(post.body ?? '').includes(cover) && (
+          <img
+            class="article-cover"
+            src={cover}
+            alt={post.data.coverAlt ?? ''}
+            width="1000"
+            height="500"
+          />
+        )}
+        <div class="article-share">
+          <button type="button" data-copy-article>
+            {locale === 'tr' ? 'Bağlantıyı kopyala ↗' : 'Copy link ↗'}
+          </button>
+          <span data-share-status aria-live="polite"></span>
+        </div>
+        <div class="prose" data-article-body>
+          <slot />
+        </div>
+        <aside class="author-card">
+          <img src="/images/editorial/basrick-small.png" alt="" width="70" height="70" />
+          <div>
+            <h3>Basri Akkaya</h3>
+            <p>
+              {locale === 'tr'
+                ? 'Siber güvenlik, araştırma ve teknoloji üzerine yazıyor.'
+                : 'Writing about cybersecurity, research and technology.'}
+            </p>
+            <a
+              title={locale === 'en' ? 'About Basri Akkaya' : 'Basri Akkaya hakkında'}
+              href={route(locale, 'about')}
+            >
+              {locale === 'tr' ? 'Hakkımda →' : 'About me →'}
+            </a>
+          </div>
+        </aside>
+        <AdPlacement locale={locale} />
+        {post.data.series && seriesContext?.metadata && (
+          <SeriesNavigation
+            slug={post.data.series as any}
+            current={post}
+            posts={seriesContext.posts}
+            index={seriesContext.index}
+            previous={seriesContext.previous}
+            next={seriesContext.next}
+          />
+        )}
+        <RelatedPosts posts={related} locale={locale} />
+        <a
+          class="back-link article-end-link"
+          href={route(locale, 'articles')}
+          title={getNavigationLinkTitle('articles')}
+        >
+          ← {locale === 'tr' ? 'Yazılara dön' : 'Back to articles'}
+        </a>
       </div>
-      {post.data.toc && <ArticleTableOfContents headings={headings} mode="desktop" locale={locale} />}
+      {post.data.toc && (
+        <ArticleTableOfContents headings={headings} mode="desktop" locale={locale} />
+      )}
     </div>
   </article>
 </BaseLayout>
+<script>
+  document.querySelector('[data-copy-article]')?.addEventListener('click', async () => {
+    const s = document.querySelector('[data-share-status]');
+    try {
+      const canonical = document.querySelector<HTMLLinkElement>('link[rel=canonical]');
+      await navigator.clipboard.writeText(canonical?.href ?? location.href);
+      if (s) s.textContent = document.documentElement.lang === 'tr' ? 'Kopyalandı.' : 'Copied.';
+    } catch {
+      if (s) s.textContent = location.href;
+    }
+  });
+</script>
+<script>
+  document.querySelectorAll<HTMLPreElement>('[data-article-body] pre').forEach((pre) => {
+    if (pre.parentElement?.classList.contains('code-frame')) return;
+    const tr = document.documentElement.lang === 'tr';
+    const code = pre.querySelector('code');
+    const frame = document.createElement('div');
+    frame.className = 'code-frame';
+    const bar = document.createElement('div');
+    bar.className = 'code-toolbar';
+    const label = document.createElement('span');
+    label.textContent =
+      pre.dataset.language ||
+      code?.className.match(/language-([\w-]+)/)?.[1] ||
+      (tr ? 'Kod' : 'Code');
+    const copy = document.createElement('button');
+    copy.type = 'button';
+    copy.textContent = tr ? 'Kopyala' : 'Copy';
+    copy.setAttribute('aria-label', tr ? 'Kod bloğunu kopyala' : 'Copy code block');
+    const feedback = document.createElement('span');
+    feedback.className = 'code-feedback';
+    feedback.setAttribute('role', 'status');
+    bar.append(label, copy);
+    pre.before(frame);
+    frame.append(bar, pre, feedback);
+    pre.tabIndex = 0;
+    pre.setAttribute('aria-label', tr ? 'Kaydırılabilir kod bloğu' : 'Scrollable code block');
+    copy.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(code?.textContent ?? pre.textContent ?? '');
+        copy.textContent = tr ? 'Kopyalandı ✓' : 'Copied ✓';
+        feedback.textContent = tr ? 'Kod panoya kopyalandı.' : 'Code copied to clipboard.';
+        setTimeout(() => (copy.textContent = tr ? 'Kopyala' : 'Copy'), 2000);
+      } catch {
+        feedback.textContent = tr
+          ? 'Kopyalanamadı. Kodu seçerek kopyalayabilirsin.'
+          : 'Could not copy. Select the code to copy it manually.';
+      }
+    });
+  });
+</script>
+
+<script>
+  function enhanceArticleTables() {
+    document.querySelectorAll<HTMLTableElement>('.article-main .prose table').forEach((table) => {
+      if (table.parentElement?.classList.contains('data-table-scroll')) return;
+      const tr = document.documentElement.lang === 'tr';
+      const frame = document.createElement('div'); frame.className = 'data-table-frame';
+      const columns = table.tHead?.rows[0]?.cells.length ?? table.rows[0]?.cells.length ?? 0;
+      if (columns === 2) frame.classList.add('data-table-compact');
+      const bar = document.createElement('div'); bar.className = 'data-table-bar';
+      const label = document.createElement('span'); label.textContent = tr ? 'VERİ TABLOSU' : 'DATA TABLE';
+      const hint = document.createElement('span'); hint.textContent = tr ? '↔ Kaydırarak incele' : '↔ Scroll to explore';
+      const scroller = document.createElement('div'); scroller.className = 'data-table-scroll';
+      scroller.tabIndex = 0; scroller.setAttribute('role','region');
+      scroller.setAttribute('aria-label',tr ? 'Kaydırılabilir veri tablosu' : 'Scrollable data table');
+      bar.append(label,hint); table.before(frame); frame.append(bar,scroller); scroller.append(table);
+      const sync = () => { const overflow=scroller.scrollWidth>scroller.clientWidth+1; hint.hidden=!overflow; scroller.tabIndex=overflow?0:-1; };
+      new ResizeObserver(sync).observe(scroller); sync();
+    });
+  }
+  enhanceArticleTables();
+  document.addEventListener('astro:page-load', enhanceArticleTables);
+</script>

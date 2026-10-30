@@ -123,75 +123,9 @@ const links = await evaluate(`(() => {
   return {
     linkedin: hrefs.some((href) => href.includes('linkedin.com')),
     youtube: hrefs.some((href) => href === 'https://www.youtube.com/@basrikkya'),
-    exposedEmailText: document.body.innerText.includes('real0kage@protonmail.com')
+    exposedEmailText: document.body.innerText.includes('basriakkaya@pm.me')
   };
 })()`);
-
-const adminLayoutResults = [];
-for (const width of viewports) {
-  await send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: width < 768 });
-  await navigate('/admin');
-  adminLayoutResults.push(await evaluate(`(() => {
-    const controls = [...document.querySelectorAll('.admin-form input, .admin-form button')];
-    return {
-      width: ${width},
-      overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
-      cardVisible: Boolean(document.querySelector('.admin-card')?.getBoundingClientRect().height),
-      controlCount: controls.length,
-      minTouchHeight: Math.min(...controls.map((control) => control.getBoundingClientRect().height))
-    };
-  })()`));
-}
-
-await send('Emulation.setScriptExecutionDisabled', { value: true });
-await navigate('/admin');
-const adminWithoutJs = await evaluate(`(() => {
-  const form = document.querySelector('[data-admin-form]');
-  return {
-    formVisible: Boolean(form && getComputedStyle(form).display !== 'none'),
-    title: document.querySelector('h1')?.textContent === 'Admin Login',
-    inputs: form?.querySelectorAll('input').length === 2
-  };
-})()`);
-await send('Emulation.setScriptExecutionDisabled', { value: false });
-
-await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 900, deviceScaleFactor: 1, mobile: true });
-const adminLoadStart = networkRequests.length;
-await navigate('/admin');
-await new Promise((resolve) => setTimeout(resolve, 50));
-const adminLoadRequests = networkRequests.slice(adminLoadStart);
-const adminInteractionStart = networkRequests.length;
-const adminInteraction = await evaluate(`(async () => {
-  const form = document.querySelector('[data-admin-form]');
-  const username = document.querySelector('#operator-id');
-  const password = document.querySelector('#access-key');
-  const button = form.querySelector('button[type="submit"]');
-  username.focus();
-  const usernameFocus = document.activeElement === username;
-  password.focus();
-  const passwordFocus = document.activeElement === password;
-  button.focus();
-  const buttonFocus = document.activeElement === button;
-  username.value = 'audit-user';
-  password.value = 'audit-secret';
-  form.requestSubmit();
-  await new Promise((resolve) => setTimeout(resolve, 250));
-  return {
-    credentialsCleared: username.value === '' && password.value === '',
-    deniedMessage: document.querySelector('[data-admin-response]').textContent === 'Invalid username or password.',
-    focusNatural: usernameFocus && passwordFocus && buttonFocus
-  };
-})()`);
-const adminInteractionRequests = networkRequests.slice(adminInteractionStart);
-const baseOrigin = new URL(baseUrl).origin;
-const invalidAdminLoadRequests = adminLoadRequests.filter((requestUrl) => {
-  const parsed = new URL(requestUrl);
-  return parsed.origin !== baseOrigin || !(/^\/admin\/?$/u.test(parsed.pathname) || parsed.pathname === '/api/visitor-ip' || parsed.pathname === '/favicon.svg' || parsed.pathname.startsWith('/_astro/'));
-});
-const invalidAdminInteractionRequests = adminInteractionRequests.filter((requestUrl) => {
-  const parsed = new URL(requestUrl);
-  return parsed.origin !== baseOrigin || parsed.pathname !== '/api/admin-alert';
-});
 
 socket.close();
 
@@ -202,17 +136,9 @@ const failures = [
   ...consoleErrors.map((error) => `Console: ${error}`),
   ...networkErrors.map((error) => `Network: ${error}`),
   ...Object.entries(links).filter(([name, passed]) => name === 'exposedEmailText' ? passed : !passed).map(([name]) => `${name} başarısız`),
-  ...adminLayoutResults.filter((result) => result.overflow).map((result) => `/admin ${result.width}px yatay taşma`),
-  ...adminLayoutResults.filter((result) => result.minTouchHeight < 44).map((result) => `/admin ${result.width}px touch target ${result.minTouchHeight}`),
-  ...adminLayoutResults.filter((result) => !result.cardVisible || result.controlCount !== 3).map((result) => `/admin ${result.width}px login kontrol yapısı yanlış`),
-  ...Object.entries(adminWithoutJs).filter(([, passed]) => !passed).map(([name]) => `/admin JavaScript-off ${name} başarısız`),
-  ...Object.entries(adminInteraction).filter(([, passed]) => !passed).map(([name]) => `/admin ${name} başarısız`),
-  ...invalidAdminLoadRequests.map((url) => `/admin izin verilmeyen load request: ${url}`),
-  ...invalidAdminInteractionRequests.map((url) => `/admin interaction sonrası izin verilmeyen request: ${url}`),
-  ...(adminInteractionRequests.length !== 1 ? [`/admin interaction request sayısı ${adminInteractionRequests.length}, beklenen 1`] : []),
 ];
 
-console.log(JSON.stringify({ baseUrl, layoutResults, interactions, statuses, links, adminLayoutResults, adminWithoutJs, adminInteraction, adminLoadRequests, adminInteractionRequests, consoleErrors, networkErrors }, null, 2));
+console.log(JSON.stringify({ baseUrl, layoutResults, interactions, statuses, links, consoleErrors, networkErrors }, null, 2));
 if (failures.length) {
   console.error(`Tarayıcı denetimi başarısız:\n- ${failures.join('\n- ')}`);
   process.exitCode = 1;

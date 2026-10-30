@@ -1,0 +1,60 @@
+export const plannedArticles = [
+  {
+    slug: 'bir-guvenlik-aciginin-anatomisi',
+    title: 'Bir güvenlik açığının anatomisi',
+    en: 'The anatomy of a security vulnerability',
+    category: 'Araştırma',
+    image: 'anatomy',
+    description: 'Keşiften raporlamaya, bir güvenlik araştırmasının arkasındaki süreç.',
+  },
+  {
+    slug: 'xss-nedir',
+    title: 'XSS nedir? Tarayıcıda başlayan hikâye',
+    en: 'What is XSS? A story that starts in the browser',
+    category: 'Web güvenliği',
+    image: 'xss',
+    description: 'Güvenilmeyen içerik, tarayıcıda nasıl çalışan koda dönüşür?',
+  },
+  {
+    slug: 'ilk-bug-bounty-raporu',
+    title: 'İlk bug bounty raporunu yazarken',
+    en: 'Writing your first bug bounty report',
+    category: 'Bug bounty',
+    image: 'report',
+    description: 'Açık, tekrarlanabilir ve etkisi anlaşılır bir rapor hazırlamak.',
+  },
+  {
+    slug: 'jwt-guvenin-sinirlari',
+    title: 'JWT: Güvenin sınırları',
+    en: 'JWT: The boundaries of trust',
+    category: 'Web güvenliği',
+    image: 'jwt',
+    description: 'Bir token’ın içindeki bilgiye ne zaman güvenebiliriz?',
+  },
+  {
+    slug: 'sorumlu-aciklama',
+    title: 'Sorumlu açıklama nasıl yapılır?',
+    en: 'A guide to responsible disclosure',
+    category: 'Rehberler',
+    image: 'disclosure',
+    description: 'Bulguyu doğru kişiye, doğru kapsamda ve doğru zamanda ulaştırmak.',
+  },
+  {
+    slug: 'recon-notlari',
+    title: 'Recon notları',
+    en: 'Recon notes',
+    category: 'Araştırma',
+    image: 'recon',
+    description: 'Araştırmaya başlamadan önce sorulacak sorular.',
+  },
+  {
+    slug: 'guvenli-gelistirme',
+    title: 'Güvenli geliştirme alışkanlıkları',
+    en: 'Secure development habits',
+    category: 'Rehberler',
+    image: 'development',
+    description: 'Güvenliği günlük geliştirme sürecinin bir parçası yapmak.',
+  },
+];
+export const communityUrl = 'https://discord.gg/6ZZpw2SyNf';
+export const imagePath = (name: string) => `/images/editorial/${name}.webp`;
