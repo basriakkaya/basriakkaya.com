@@ -66,11 +66,17 @@ const bingVerification = import.meta.env.PUBLIC_BING_SITE_VERIFICATION?.trim();
 <meta property="og:url" content={canonical} />
 <meta property="og:site_name" content={siteConfig.name} />
 <meta property="og:image" content={socialImage} />
+{image === siteConfig.defaultImage && <>
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:type" content="image/jpeg" />
+</>}
 <meta property="og:image:alt" content={copy.socialAlt} />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content={fullTitle} />
 <meta name="twitter:description" content={description} />
 <meta name="twitter:image" content={socialImage} />
+<meta name="twitter:image:alt" content={copy.socialAlt} />
 <meta name="theme-color" content="#080808" />
 <link
   rel="alternate"

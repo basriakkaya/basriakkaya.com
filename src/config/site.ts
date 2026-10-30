@@ -17,7 +17,7 @@ export const siteConfig = {
   language: 'tr',
   siteUrl,
   indexable: !isPreview && siteUrl === 'https://www.basriakkaya.com',
-  defaultImage: '/images/editorial/social-card.jpg',
+  defaultImage: '/images/editorial/share-main-20261030.jpg',
   defaultTitle: 'Basri Akkaya | Siber Güvenlik Araştırmacısı',
   description: 'Web güvenliği, ağ güvenliği, Linux, etik hacking, CVE araştırmaları ve sorumlu zafiyet bildirimi üzerine teknik yazılar, projeler ve notlar.',
   heroCopy: 'Günümün büyük bölümünü bilgisayar başında; web güvenliği, uygulama güvenliği ve güvenlik araştırmalarıyla geçiriyorum. İstenmeyen posta ve dolandırıcılık ağlarını bulup raporlamak, internetin biraz daha temiz kalmasına katkı sağlamak işin en sevdiğim tarafı.',
