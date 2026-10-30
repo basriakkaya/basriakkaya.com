@@ -1,0 +1,45 @@
+---
+const {locale='tr'}=Astro.props;
+const en=locale==='en';
+---
+<aside class="measurement-choice" data-measurement-banner hidden aria-label={en?'Analytics preferences':'Analiz tercihleri'}>
+  <strong>{en?'A little insight. Your choice.':'Küçük bir ölçüm. Karar senin.'}</strong>
+  <p>{en?'May we use Google Analytics to understand which pages are useful? Optional analytics starts only with your permission.':'Hangi sayfaların faydalı olduğunu anlamak için Google Analytics kullanabilir miyiz? İsteğe bağlı analiz yalnızca izninle başlar.'}</p>
+  <div><button type="button" data-measurement-accept>{en?'Allow analytics':'Analize izin ver'}</button><button type="button" data-measurement-reject>{en?'Decline':'Reddet'}</button><a href={en?'/en/privacy':'/gizlilik'}>{en?'Privacy':'Gizlilik'}</a></div>
+</aside>
+<button class="measurement-settings" type="button" data-measurement-settings>{en?'Analytics preferences':'Analiz tercihleri'}</button>
+<script>
+const measurementId='G-T3SRCP7KDS';
+const key='basri:analytics-consent:v1';
+const production=['www.basriakkaya.com','basriakkaya.com','links.basriakkaya.com'].includes(location.hostname);
+const banner=document.querySelector<HTMLElement>('[data-measurement-banner]');
+const settings=document.querySelector<HTMLButtonElement>('[data-measurement-settings]');
+const analyticsWindow=window as unknown as Window & {dataLayer?:unknown[];gtag?:(...args:unknown[])=>void;[key:string]:unknown};
+let loaded=false;
+function consent(){try{return localStorage.getItem(key);}catch{return null;}}
+function remember(value:string){try{localStorage.setItem(key,value);}catch{/* Choice remains valid for this page. */}}
+function start(){
+ if(!production||loaded)return;
+ loaded=true;
+ analyticsWindow.dataLayer=analyticsWindow.dataLayer||[];
+ analyticsWindow.gtag=function(){analyticsWindow.dataLayer!.push(arguments);};
+ analyticsWindow.gtag('consent','default',{analytics_storage:'granted',ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied'});
+ analyticsWindow.gtag('js',new Date());
+ analyticsWindow.gtag('config',measurementId,{allow_google_signals:false,allow_ad_personalization_signals:false,page_location:location.origin+location.pathname,page_referrer:document.referrer.split('?')[0].split('#')[0]});
+ const script=document.createElement('script');script.async=true;script.src='https://www.googletagmanager.com/gtag/js?id='+measurementId;script.dataset.googleMeasurement='true';document.head.append(script);
+}
+function reject(){
+ remember('denied');analyticsWindow['ga-disable-'+measurementId]=true;
+ analyticsWindow.gtag?.('consent','update',{analytics_storage:'denied',ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied'});
+ for(const cookie of document.cookie.split(';')){const name=cookie.split('=')[0].trim();if(name==='_ga'||name.startsWith('_ga_'))for(const domain of ['',location.hostname,'.basriakkaya.com'])document.cookie=name+'=; Max-Age=0; Path=/'+(domain?'; Domain='+domain:'');}
+ if(banner)banner.hidden=true;
+}
+document.querySelector('[data-measurement-accept]')?.addEventListener('click',()=>{remember('granted');analyticsWindow['ga-disable-'+measurementId]=false;if(loaded)analyticsWindow.gtag?.('consent','update',{analytics_storage:'granted'});else start();if(banner)banner.hidden=true;});
+document.querySelector('[data-measurement-reject]')?.addEventListener('click',reject);
+settings?.addEventListener('click',()=>{if(banner)banner.hidden=!banner.hidden;});
+if(production){if(consent()==='granted')start();else if(consent()!=='denied'&&banner)banner.hidden=false;}else{if(settings)settings.hidden=true;}
+</script>
+<style>
+.measurement-choice[hidden],.measurement-settings[hidden]{display:none!important}.measurement-choice{position:fixed;z-index:1000;bottom:22px;left:22px;width:min(430px,calc(100vw - 44px));padding:22px;background:#10110ff5;color:#eeeade;border:1px solid #f8cc4850;border-top:2px solid #f8cc48;box-shadow:0 16px 60px #0009;font:13px/1.6 Arial,sans-serif}.measurement-choice strong{font:700 15px/1.4 monospace}.measurement-choice p{color:#b9b8ad;margin:12px 0}.measurement-choice>div{display:flex;flex-wrap:wrap;align-items:center;gap:10px}.measurement-choice button{padding:9px 12px;border:1px solid #f8cc4880;color:#f8cc48;background:#161710;cursor:pointer;font:12px monospace}.measurement-choice a{color:#b9b8ad;font-size:11px}.measurement-settings{display:block;margin:0 auto 18px;background:transparent;border:0;color:#a49f8e;font:10px monospace;cursor:pointer;text-decoration:underline;text-underline-offset:4px}.measurement-choice button:focus-visible,.measurement-settings:focus-visible{outline:2px solid #f8cc48;outline-offset:3px}
+</style>
+

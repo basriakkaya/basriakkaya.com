@@ -8,6 +8,7 @@ import '../styles/global.css';
 import '../styles/i18n.css';
 import '../styles/editorial.css';
 import '../styles/defcon.css';
+import GoogleMeasurement from '../components/GoogleMeasurement.astro';
 import BrandContact from '../components/BrandContact.astro';
 import type { Locale } from '../i18n/config';
 import { localeConfig } from '../i18n/config';
@@ -58,6 +59,7 @@ const switchPath = props.switchPath ?? route(locale === 'tr' ? 'en' : 'tr', 'hom
     </main>
     <Footer locale={locale} switchPath={switchPath} />
     <BrandContact locale={locale} />
+    <GoogleMeasurement locale={locale} />
     <aside class="pwa-update" data-pwa-update aria-live="polite" hidden>
       <strong>{copy.updateReady}</strong>
       <div>
