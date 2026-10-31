@@ -3,24 +3,24 @@
     "id": "RFM-gyVMkUg",
     "title": "Microsoft’u Hackledim, Bana 4.000 Dolar Ödediler!",
     "image": "/images/videos/RFM-gyVMkUg.jpg",
+    "titleEn": "I Hacked Microsoft, and They Paid Me $4,000!",
     "description": "Bir güvenlik araştırmasının keşiften ödüle uzanan hikâyesi.",
-    "duration": "5:56",
-    "titleEn": "I Hacked Microsoft, and They Paid Me $4,000!"
+    "duration": "5:56"
   },
   {
     "id": "G5azOf_LEZo",
     "title": "NASA’yı Hackledim, Bana Teşekkür Ettiler! | 3 Güvenlik Açığı",
     "image": "/images/videos/G5azOf_LEZo.jpg",
+    "titleEn": "I Hacked NASA, and They Thanked Me! | 3 Vulnerabilities",
     "description": "Etik araştırma, sorumlu bildirim ve üç güvenlik bulgusu.",
-    "duration": "4:10",
-    "titleEn": "I Hacked NASA, and They Thanked Me! | 3 Vulnerabilities"
+    "duration": "4:10"
   },
   {
     "id": "Ka9BS8Pgq6g",
     "title": "ASOSYAL TR’ye Ne Oldu?",
     "image": "/images/videos/Ka9BS8Pgq6g.jpg",
+    "titleEn": "What Happened to ASOSYAL TR?",
     "description": "Geçmişten bugüne kanalın ve güvenlik araştırmalarının hikâyesi.",
-    "duration": "3:31",
-    "titleEn": "What Happened to ASOSYAL TR?"
+    "duration": "3:31"
   }
 ]
