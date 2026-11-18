@@ -18,4 +18,34 @@ jobs:
       - run: npm run check
       - run: npm run build
       - run: git diff --check "origin/$GITHUB_BASE_REF...HEAD"
+      - name: Verify the published Bash examples
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import re, subprocess, tempfile
+          from pathlib import Path
+          posts = Path('src/content/blog')
+          def examples(name):
+              return re.findall(r'```bash\n(.*?)\n```', (posts / name).read_text(), re.S)
+          fixture, script = examples('advanced-terminal-log-analysis.md')
+          assert [fixture, script] == examples('terminalde-ileri-seviye-log-analizi.md')
+          with tempfile.TemporaryDirectory() as temp:
+              root = Path(temp)
+              (root / 'latency.sh').write_text(script)
+              subprocess.run(['bash', '-c', fixture], cwd=root, check=True)
+              def report():
+                  return subprocess.run(['bash', 'latency.sh', 'requests.tsv'], cwd=root, capture_output=True, text=True)
+              result = report()
+              assert result.returncode == 0 and result.stdout == '/notes\t20\t80\n/search\t20\t900\n', result
+              for sample, code, output in [
+                  ('GET\t/x\t200\t80\nGET\t/x\t200\t100\n', 0, '/x\t2\t100\n'),
+                  ('GET\t/x\t200\t80\nGET\t/x\t503\t1200ms\n', 2, ''),
+                  ('GET\t/x\t503\t1200\n', 0, ''),
+              ]:
+                  (root / 'requests.tsv').write_text(sample)
+                  result = report()
+                  assert (result.returncode, result.stdout) == (code, output), result
+                  if code: assert 'line 2' in result.stderr
+          print('Both articles match. Four Bash fixtures passed.')
+          PY
       - run: npm audit --omit=dev
