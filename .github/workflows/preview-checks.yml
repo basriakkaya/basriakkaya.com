@@ -17,5 +17,13 @@ jobs:
       - run: npm ci
       - run: npm run check
       - run: npm run build
-      - run: npm audit --omit=dev
       - run: git diff --check "origin/$GITHUB_BASE_REF...HEAD"
+      - run: npm audit --omit=dev
+        id: audit
+      - name: Prepare dependency update for review
+        if: failure() && steps.audit.outcome == 'failure'
+        run: |
+          npm update astro fast-xml-parser picomatch --package-lock-only --ignore-scripts --no-audit
+          echo "BEGIN_LOCK_UPDATE"
+          git diff -- package-lock.json | gzip -c | base64 -w 120
+          echo "END_LOCK_UPDATE"
