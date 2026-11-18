@@ -11,7 +11,7 @@ tags:
   - Personal
   - Cybersecurity
   - Learning
-cover: "/images/blog/neden-bu-blogu-actim/terminal-ogrenme-yolculugu.png"
+cover: "/images/blog/neden-bu-blogu-actim/terminal-ogrenme-yolculugu.webp"
 coverAlt: "A security student working late while investigating a problem among terminal windows and technical notes"
 ---
 
@@ -28,7 +28,7 @@ I remember the command but not why I used it. I found the solution, but lost the
 I started this blog partly to stop repeating that cycle.
 
 <figure class="article-figure">
-  <img src="/images/blog/neden-bu-blogu-actim/terminal-ogrenme-yolculugu.png" alt="A security student working late while investigating a problem among terminal windows and technical notes" width="1536" height="1024" loading="eager" />
+  <img src="/images/blog/neden-bu-blogu-actim/terminal-ogrenme-yolculugu.webp" alt="A security student working late while investigating a problem among terminal windows and technical notes" width="1536" height="1024" loading="eager" />
   <figcaption>Sometimes the solution is a single line; reaching that line takes notes, experiments, and a few hours in the terminal.</figcaption>
 </figure>
 
@@ -79,7 +79,7 @@ Sometimes everyone else sees a website behaving normally while you notice one sm
 I admit that I enjoy this part.
 
 <figure class="article-figure">
-  <img src="/images/blog/neden-bu-blogu-actim/guvenlik-arastirmasi-anomali.png" alt="Technical illustration of a security researcher following a small anomaly inside an apparently normal web system" width="1536" height="1024" loading="lazy" />
+  <img src="/images/blog/neden-bu-blogu-actim/guvenlik-arastirmasi-anomali.webp" alt="Technical illustration of a security researcher following a small anomaly inside an apparently normal web system" width="1536" height="1024" loading="lazy" />
   <figcaption>Security research sometimes begins by noticing a single inconsistency in a flow everyone else considers normal.</figcaption>
 </figure>
 

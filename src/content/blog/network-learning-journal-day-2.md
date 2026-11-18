@@ -15,7 +15,7 @@ tags:
   - OSI
   - TCP/IP
   - Packet Analysis
-cover: "/images/blog/network-gun-2/osi-wireshark-cover.png"
+cover: "/images/blog/network-gun-2/osi-wireshark-cover.webp"
 coverAlt: "Dark technical illustration showing network packets crossing layers and a packet-analysis screen"
 ---
 
@@ -28,7 +28,7 @@ My goal is to answer this question properly:
 Saying “the packet is going somewhere” is not technically false, but it is not reassuring either. If a parcel tracker said only “it is going somewhere,” we would call customer service.
 
 <figure class="article-figure">
-  <img src="/images/blog/network-gun-2/osi-wireshark-cover.png" alt="Dark technical illustration showing network packets crossing layers and a packet-analysis screen" width="1536" height="1024" loading="eager" />
+  <img src="/images/blog/network-gun-2/osi-wireshark-cover.webp" alt="Dark technical illustration showing network packets crossing layers and a packet-analysis screen" width="1536" height="1024" loading="eager" />
   <figcaption>Today's route: layers in theory, real packets in practice.</figcaption>
 </figure>
 

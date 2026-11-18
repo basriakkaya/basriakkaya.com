@@ -15,7 +15,7 @@ tags:
   - Subnetting
   - CIDR
   - Öğrenme Günlüğü
-cover: "/images/blog/network-gun-3/ipv4-subnet-cover.png"
+cover: "/images/blog/network-gun-3/ipv4-subnet-cover.webp"
 coverAlt: "Dört alt ağa ayrılmış cihaz gruplarını, bir router'ı ve hedefe ilerleyen veri paketini gösteren teknik illüstrasyon"
 ---
 
@@ -36,7 +36,7 @@ Bugünkü hedefim tam olarak bu:
 > Bir IPv4 adresine baktığımda ağ adresini, broadcast adresini ve kullanılabilir host aralığını kendim hesaplayabilmek.
 
 <figure class="article-figure">
-  <img src="/images/blog/network-gun-3/ipv4-subnet-cover.png" alt="Dört alt ağa ayrılmış cihaz gruplarını, bir router'ı ve hedefe ilerleyen veri paketini gösteren teknik illüstrasyon" width="1536" height="1024" loading="eager" />
+  <img src="/images/blog/network-gun-3/ipv4-subnet-cover.webp" alt="Dört alt ağa ayrılmış cihaz gruplarını, bir router'ı ve hedefe ilerleyen veri paketini gösteren teknik illüstrasyon" width="1536" height="1024" loading="eager" />
   <figcaption>Bugünün sorusu: Bu IP hangi ağın sınırları içinde yaşıyor?</figcaption>
 </figure>
 
