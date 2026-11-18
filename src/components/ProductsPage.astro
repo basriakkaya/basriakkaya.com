@@ -25,7 +25,7 @@ const en = locale === 'en';
       <h1>{en ? 'Products & resources' : 'Ürünler ve kaynaklar'}</h1>
     </header>
     <ResourceCards locale={locale} heading="h2" />
-    <h2>{en ? 'Open source & notes' : 'Açık kaynak & notlar'}</h2>
+    <h2 class="resource-title">{en ? 'Open source & notes' : 'Açık kaynak & notlar'}</h2>
     <div class="resource-rows">
       <a href={siteConfig.github} target="_blank" rel="noopener noreferrer">
         {en ? 'My GitHub projects' : 'GitHub çalışmalarım'} ↗
@@ -40,18 +40,8 @@ const en = locale === 'en';
         BugHane Academy ↗
       </a>
     </div>
-    <p>
-      {en
-        ? 'Product links open the provider’s website.'
-        : 'Ürün bağlantıları ilgili sağlayıcının web sitesine yönlendirir.'}
-    </p>
-    <section class="contact-strip">
-      <h2>{en ? 'Let’s create together.' : 'Birlikte üretelim.'}</h2>
-      <p>
-        {en
-          ? 'Get in touch for collaborations, questions or feedback.'
-          : 'İş birlikleri, sorular veya geri bildirimlerin için benimle iletişime geçebilirsin.'}
-      </p>
+    <section class="product-contact">
+      <h2>{en ? 'Collaborations' : 'İş birlikleri'}</h2>
       <button class="button primary" data-contact-open aria-haspopup="dialog">
         {en ? 'Contact me' : 'İletişime geç'} ↗
       </button>
@@ -62,4 +52,8 @@ const en = locale === 'en';
 <style>
   .ed-page-head { padding-block: 24px 14px; }
   .ed-page-head h1 { font-size: clamp(1.75rem, 4vw, 2.8rem); margin: 6px 0; }
+  .resource-title, .product-contact h2 { margin: 0; font-size: 1.125rem; }
+  .resource-rows { display: flex; flex-wrap: wrap; gap: 0 18px; margin: 4px 0 20px; }
+  .resource-rows a { min-height: 44px; align-items: center; padding: 6px 0; border: 0; color: var(--accent); }
+  .product-contact { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; border-top: 1px solid var(--border); padding-block: 12px; }
 </style>
