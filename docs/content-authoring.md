@@ -44,10 +44,6 @@ Her yayınlanmış bölümün sıra numarası benzersiz ve pozitif olmalıdır. 
 
 Markdown gövdesinde H1 kullanma; makale başlığı layout tarafından üretilir. Ana bölümler H2, alt bölümler H3 olmalıdır. Gereksiz H4–H6 kullanımından kaçın. İki veya daha fazla H2/H3 bulunduğunda içindekiler otomatik oluşur; `toc: false` ile kapatılabilir.
 
-## Reaction sistemi
-
-RECON, PATCH ve ROOT alanı bütün blog detaylarında otomatik görünür. Markdown içine reaction bileşeni ekleme.
-
 ## Günlük yayın akışı
 
 ```bash
