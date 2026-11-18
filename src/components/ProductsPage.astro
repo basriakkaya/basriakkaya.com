@@ -2,7 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { alternateLinks } from '../i18n/helpers';
 import { siteConfig } from '../config/site';
-import { communityUrl } from '../data/editorial';
+import ResourceCards from './ResourceCards.astro';
 import type { Locale } from '../i18n/config';
 const { locale = 'tr' } = Astro.props as { locale: Locale };
 const en = locale === 'en';
@@ -24,66 +24,7 @@ const en = locale === 'en';
       <p class="ed-breadcrumb">{en ? 'HOME / PRODUCTS' : 'ANA SAYFA / ÜRÜNLER'}</p>
       <h1>{en ? 'Products & resources' : 'Ürünler ve kaynaklar'}</h1>
     </header>
-    <article class="term-feature" id="kageterm">
-      <div class="term-copy">
-        <img src="/images/kageterm/mark.webp" width="64" height="64" alt="" />
-        <h2>KageTerm</h2>
-        <p class="term-tagline">{en ? 'Learn the command line by typing.' : 'Komut satırını yazarak öğren.'}</p>
-        <p>{en
-          ? 'Start with pwd to see what it does, then practise moving between directories and working with files. Track your typing speed and accuracy, or switch to Exam mode to test yourself.'
-          : 'İlk alıştırmada pwd komutunun ne işe yaradığını gör. Ardından dizinler arasında gezinmeyi ve dosyalarla çalışmayı komutları yazarak öğren. Yazma hızını ve doğruluk oranını takip et, hazır olduğunda Sınav modunda kendini dene.'}</p>
-        <a class="button primary" href="https://kageterm.com/" target="_blank" rel="noopener noreferrer">
-          {en ? 'Practise in KageTerm' : 'KageTerm’de pratik yap'} ↗
-        </a>
-      </div>
-      <figure>
-        <img src={`/images/kageterm/practice-${locale}.webp`} width="1020" height="780"
-          alt={en ? 'KageTerm showing the pwd command, its meaning and the on-screen keyboard' : 'KageTerm’de pwd komutu, açıklaması ve ekran klavyesi'} />
-        <figcaption>{en ? 'Learn mode · Directory navigation' : 'Öğren modu · Dizinlerde gezinti'}</figcaption>
-      </figure>
-    </article>
-    <article class="product-feature">
-      <img src="/images/editorial/kageai-brand.svg" width="800" height="500" alt="" />
-      <div>
-        <p class="eyebrow">{en ? 'PRODUCT' : 'ÜRÜN'}</p>
-        <h2>KageAI</h2>
-        <p>
-          {en
-            ? 'Learn about KageAI and explore the product.'
-            : 'KageAI hakkında bilgi edin ve ürünü keşfet.'}
-        </p>
-        <a
-          class="button primary"
-          href="https://kageai.tech"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {en ? 'Explore KageAI' : 'KageAI’ı incele'} ↗
-        </a>
-        <small>kageai.tech · {en ? 'External site' : 'Harici site'}</small>
-      </div>
-    </article>
-    <article class="product-feature community">
-      <div>
-        <p class="eyebrow">{en ? 'COMMUNITY' : 'TOPLULUK'}</p>
-        <h2>{en ? 'Basrick community' : 'Basrick topluluğu'}</h2>
-        <p>
-          {en
-            ? 'Ask questions, discuss research and learn together.'
-            : 'Sorularını paylaş, araştırmaları tartış, birlikte öğren.'}
-        </p>
-        <a class="button primary" href={communityUrl} target="_blank" rel="noopener noreferrer">
-          {en ? 'Join Discord' : 'Discord’a katıl'} ↗
-        </a>
-      </div>
-      <img
-        src="/images/editorial/basrick.png"
-        width="500"
-        height="500"
-        alt="Basrick"
-        loading="lazy"
-      />
-    </article>
+    <ResourceCards locale={locale} heading="h2" />
     <h2>{en ? 'Open source & notes' : 'Açık kaynak & notlar'}</h2>
     <div class="resource-rows">
       <a href={siteConfig.github} target="_blank" rel="noopener noreferrer">
@@ -119,22 +60,6 @@ const en = locale === 'en';
 </BaseLayout>
 
 <style>
-  .term-feature {
-    display: grid;
-    grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
-    align-items: center;
-    margin-bottom: 30px;
-    border: 1px solid var(--border);
-    background: #0e0e0e;
-  }
-  .term-copy { padding: clamp(20px, 4vw, 56px); }
-  .term-copy > img { display: block; object-fit: contain; }
-  .term-copy h2 { margin: 12px 0 0; font-size: clamp(2.5rem, 5vw, 4.8rem); line-height: 1; }
-  .term-copy .term-tagline { margin: 16px 0 10px; color: var(--accent); font-size: 1.25rem; font-weight: 650; }
-  .term-copy p { line-height: 1.6; }
-  .term-copy a { margin-top: 8px; }
-  .term-feature figure { margin: 0; align-self: stretch; display: grid; align-content: center; background: #080808; }
-  .term-feature figure img { width: 100%; height: auto; display: block; }
-  .term-feature figcaption { padding: 12px 18px; color: #c2bfb3; font: .78rem/1.5 ui-monospace, monospace; }
-  @media (max-width: 740px) { .term-feature { grid-template-columns: 1fr; } }
+  .ed-page-head { padding-block: 24px 14px; }
+  .ed-page-head h1 { font-size: clamp(1.75rem, 4vw, 2.8rem); margin: 6px 0; }
 </style>
