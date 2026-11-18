@@ -81,6 +81,7 @@ export default defineConfig({
     directPwaBuild,
   ],
   vite: {
+    build: { assetsInlineLimit: 0 },
     plugins: [tailwindcss(), ...pwaPlugins],
   },
 });
