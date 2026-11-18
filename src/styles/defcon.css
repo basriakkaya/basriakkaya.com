@@ -1255,7 +1255,7 @@ body:has(.hacker-journal,.defcon-collection,[data-article-shell]) main {backgrou
 
 /* Open article masthead: watermark extends behind the title without a box. */
 .article .article-header {border:0;background:transparent;padding:32px 0;overflow:visible;}
-.article .article-header-art {inset:-40px -60px -36px 0;overflow:hidden;}
+.article .article-header-art {inset:-40px 0 -36px;overflow:hidden;}
 .article .article-header-art img {width:440px;height:440px;max-width:70%;right:0;top:0;opacity:.085;transform:rotate(-12deg);}
 .article .article-header-art svg {opacity:.10;}
 @media(max-width:650px){
