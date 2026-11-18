@@ -5,6 +5,15 @@ const en = locale === 'en';
 ---
 
 <div class="resource-grid">
+  <article class="resource-card term-resource">
+    <div>
+      <p class="eyebrow">{en ? 'PRODUCT' : 'ÜRÜN'}</p>
+      <h3>KageTerm</h3>
+      <p>{en ? 'Build command-line fluency with short Linux typing exercises.' : 'Kısa Linux alıştırmalarıyla terminal komutlarını yazarak öğren.'}</p>
+      <a href={en ? '/en/products#kageterm' : '/urunler#kageterm'}>{en ? 'Explore KageTerm' : 'KageTerm’i incele'} →</a>
+    </div>
+    <img class="skull-art" src="/images/kageterm/mark.webp" width="256" height="256" alt="" loading="lazy" />
+  </article>
   <article class="resource-card">
     <div>
       <p class="eyebrow">{en ? 'PRODUCT' : 'ÜRÜN'}</p>
@@ -43,3 +52,8 @@ const en = locale === 'en';
     />
   </article>
 </div>
+
+<style>
+  .term-resource { grid-column: 1 / -1; }
+  .term-resource > img.skull-art { inset: 10% 4% auto auto; height: 80%; width: 25%; object-fit: contain; }
+</style>

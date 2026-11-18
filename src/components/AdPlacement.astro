@@ -1,8 +1,23 @@
 ---
 const { locale = 'tr' } = Astro.props;
+const en = locale === 'en';
 ---
 
-<button class="ad-placement" type="button" data-contact-open="advertising" aria-haspopup="dialog">
-  <span>{locale === 'tr' ? 'REKLAM ALANI' : 'ADVERTISING'}</span>
-  <small>{locale === 'tr' ? 'Markan burada yer alsın ↗' : 'Your brand here ↗'}</small>
-</button>
+<aside class="term-promotion" aria-label={en ? 'KageTerm and advertising' : 'KageTerm ve reklam başvurusu'}>
+  <a class="term-promo-link" href="https://kageterm.com/" target="_blank" rel="noopener noreferrer">
+    <img src="/images/kageterm/mark.webp" width="48" height="48" alt="" loading="lazy" />
+    <span><strong>KageTerm</strong> {en ? 'Learn the command line by typing.' : 'Komut satırını yazarak öğren.'}</span>
+    <span aria-hidden="true">↗</span>
+  </a>
+  <button class="ad-inquiry" type="button" data-contact-open="advertising" aria-haspopup="dialog">
+    {en ? 'Advertise here' : 'Reklam başvurusu'} ↗
+  </button>
+</aside>
+
+<style>
+  .term-promotion { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 28px; margin-top: 30px; border-block: 1px solid var(--border); padding: 14px 0; }
+  .term-promo-link { flex: 1 1 20rem; display: flex; gap: 14px; align-items: center; color: inherit; line-height: 1.4; }
+  .term-promo-link img { flex: none; object-fit: contain; }
+  .term-promo-link strong { display: block; color: var(--accent); }
+  .ad-inquiry { background: none; border: 0; padding: 10px 0; cursor: pointer; color: inherit; text-decoration: underline; text-underline-offset: 4px; }
+</style>
