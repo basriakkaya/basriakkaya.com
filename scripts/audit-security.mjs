@@ -83,6 +83,15 @@ for (const file of await filesUnder('dist')) {
   const text = await readFile(file, 'utf8').catch(() => '');
   if (secretPattern.test(text))
     failures.push(`Build çıktısında secret paterni: ${path.relative(root, file)}`);
+  if (file.endsWith('.html')) {
+    for (const [, attrs, body] of text.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)) {
+      if (/\btype="application\/ld\+json"/i.test(attrs)) {
+        if (body.includes('<')) failures.push(`Unescaped JSON-LD in ${path.relative(root, file)}`);
+      } else if (body.trim()) {
+        failures.push(`Inline executable script in ${path.relative(root, file)}`);
+      }
+    }
+  }
   if (file.endsWith('.map')) failures.push(`Production source map: ${path.relative(root, file)}`);
   const metadataTags =
     text.match(/<(?:link|meta)\b[^>]*(?:rel="canonical"|property="og:url")[^>]*>/gi) ?? [];
@@ -110,6 +119,8 @@ for (const key of [
 ])
   if (!headers.has(key)) failures.push(`Güvenlik header eksik: ${key}`);
 const csp = headers.get('content-security-policy') ?? '';
+const scriptPolicy = csp.split(';').map((part) => part.trim()).find((part) => part.startsWith('script-src '));
+if (!scriptPolicy || scriptPolicy.includes("'unsafe-inline'")) failures.push('Missing or permissive script-src');
 for (const directive of [
   "object-src 'none'",
   "base-uri 'self'",
