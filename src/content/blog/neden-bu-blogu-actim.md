@@ -11,7 +11,7 @@ tags:
   - Kişisel
   - Siber Güvenlik
   - Öğrenme
-cover: "/images/blog/neden-bu-blogu-actim/terminal-ogrenme-yolculugu.png"
+cover: "/images/blog/neden-bu-blogu-actim/terminal-ogrenme-yolculugu.webp"
 coverAlt: "Gece çalışan, terminal ekranları ve teknik notlar arasında bir problemi araştıran güvenlik öğrencisi"
 ---
 
@@ -28,7 +28,7 @@ Komutu hatırlıyorum ama neden kullandığımı hatırlamıyorum. Çözümü bu
 Bu blogu biraz da aynı şeyleri tekrar tekrar yaşamamak için açtım.
 
 <figure class="article-figure">
-  <img src="/images/blog/neden-bu-blogu-actim/terminal-ogrenme-yolculugu.png" alt="Gece çalışan, terminal ekranları ve teknik notlar arasında bir problemi araştıran güvenlik öğrencisi" width="1536" height="1024" loading="eager" />
+  <img src="/images/blog/neden-bu-blogu-actim/terminal-ogrenme-yolculugu.webp" alt="Gece çalışan, terminal ekranları ve teknik notlar arasında bir problemi araştıran güvenlik öğrencisi" width="1536" height="1024" loading="eager" />
   <figcaption>Bazen çözüm tek satır; o satıra ulaşan yol ise notlar, denemeler ve birkaç saatlik terminal mesaisi.</figcaption>
 </figure>
 
@@ -79,7 +79,7 @@ Bazen herkesin normal çalışan bir site gördüğü yerde sen yanlış giden k
 İtiraf edeyim, bu kısmı seviyorum.
 
 <figure class="article-figure">
-  <img src="/images/blog/neden-bu-blogu-actim/guvenlik-arastirmasi-anomali.png" alt="Normal görünen bir web sistemi içinde küçük bir anomaliyi takip eden güvenlik araştırmacısını gösteren teknik illüstrasyon" width="1536" height="1024" loading="lazy" />
+  <img src="/images/blog/neden-bu-blogu-actim/guvenlik-arastirmasi-anomali.webp" alt="Normal görünen bir web sistemi içinde küçük bir anomaliyi takip eden güvenlik araştırmacısını gösteren teknik illüstrasyon" width="1536" height="1024" loading="lazy" />
   <figcaption>Güvenlik araştırması bazen herkesin normal gördüğü akıştaki tek bir küçük tutarsızlığı fark etmekle başlıyor.</figcaption>
 </figure>
 

@@ -15,7 +15,7 @@ tags:
   - OSI
   - TCP/IP
   - Paket Analizi
-cover: "/images/blog/network-gun-2/osi-wireshark-cover.png"
+cover: "/images/blog/network-gun-2/osi-wireshark-cover.webp"
 coverAlt: "Katmanlardan geçen ağ paketlerini ve paket analiz ekranını gösteren koyu temalı teknik illüstrasyon"
 ---
 
@@ -28,7 +28,7 @@ Hedefim şu soruya düzgün cevap verebilmek:
 Çünkü “paket gidiyor abi” teknik olarak tamamen yanlış değil ama insanın içini de pek rahatlatmıyor. Kargo firması takip ekranına “bir yerlere gidiyor” yazsa müşteri hizmetlerini arardık.
 
 <figure class="article-figure">
-  <img src="/images/blog/network-gun-2/osi-wireshark-cover.png" alt="Katmanlardan geçen ağ paketlerini ve paket analiz ekranını gösteren koyu temalı teknik illüstrasyon" width="1536" height="1024" loading="eager" />
+  <img src="/images/blog/network-gun-2/osi-wireshark-cover.webp" alt="Katmanlardan geçen ağ paketlerini ve paket analiz ekranını gösteren koyu temalı teknik illüstrasyon" width="1536" height="1024" loading="eager" />
   <figcaption>Bugünün rotası: teoride katmanlar, pratikte gerçek paketler.</figcaption>
 </figure>
 

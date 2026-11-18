@@ -1,45 +1,38 @@
 ---
 import { communityUrl } from '../data/editorial';
-const { locale = 'tr' } = Astro.props;
+import type { Locale } from '../i18n/config';
+
+interface Props { locale?: Locale; heading?: 'h2' | 'h3' }
+const { locale = 'tr', heading: Heading = 'h3' } = Astro.props;
 const en = locale === 'en';
+const resources = [
+  { id: 'kageterm', title: 'KageTerm', url: 'https://kageterm.com/', text: en ? 'Learn Linux commands by typing them.' : 'Linux komutlarını yazarak öğren.' },
+  { id: 'kageai', title: 'KageAI', url: 'https://kageai.tech', text: en ? 'Explore KageAI.' : 'KageAI’ı keşfet.' },
+  { id: 'basrick', title: en ? 'Basrick community' : 'Basrick topluluğu', url: communityUrl, text: en ? 'Join the conversation on Discord.' : 'Discord’da sohbete katıl.' },
+];
 ---
 
-<div class="resource-grid">
-  <article class="resource-card">
-    <div>
-      <p class="eyebrow">{en ? 'PRODUCT' : 'ÜRÜN'}</p>
-      <h3>KageAI</h3>
-      <p>
-        {en
-          ? 'Discover KageAI and explore the product.'
-          : 'KageAI hakkında bilgi edin ve ürünü keşfet.'}
-      </p>
-      <a href="https://kageai.tech" target="_blank" rel="noopener noreferrer">
-        {en ? 'Explore product' : 'Ürünü incele'} ↗
+<ul class="compact-resources">
+  {resources.map(({ id, title, text, url }) => (
+    <li id={id}>
+      <a href={url} target="_blank" rel="noopener noreferrer">
+        <Heading>{title}</Heading><span>{text}</span><i aria-hidden="true">↗</i>
       </a>
-    </div>
-    <img src="/images/editorial/kageai-brand.svg" width="420" height="340" alt="" loading="lazy" />
-  </article>
-  <article class="resource-card">
-    <div>
-      <p class="eyebrow">{en ? 'COMMUNITY' : 'TOPLULUK'}</p>
-      <h3>{en ? 'The Basrick community' : 'Basrick topluluğu'}</h3>
-      <p>
-        {en
-          ? 'Ask, research and learn together.'
-          : 'Merak eden, öğrenen ve paylaşan insanların bir araya geldiği yer.'}
-      </p>
-      <a href={communityUrl} target="_blank" rel="noopener noreferrer">
-        {en ? 'Join Discord' : 'Discord’a katıl'} ↗
-      </a>
-    </div>
-    <img
-      class="skull-art"
-      src="/images/editorial/basrick.png"
-      width="360"
-      height="360"
-      alt=""
-      loading="lazy"
-    />
-  </article>
-</div>
+    </li>
+  ))}
+</ul>
+
+<style>
+  .compact-resources { list-style: none; padding: 0; margin: 0 0 24px; }
+  .compact-resources li { border-bottom: 1px solid var(--border); }
+  .compact-resources a { display: grid; grid-template-columns: minmax(8rem, 12rem) 1fr auto; align-items: center; gap: 4px 16px; min-height: 44px; padding: 9px 6px; color: inherit; }
+  .compact-resources :is(h2, h3) { font-size: 1rem; line-height: 1.25; margin: 0; }
+  .compact-resources span { font-size: .875rem; line-height: 1.4; color: #c5c2b7; }
+  .compact-resources i { color: var(--accent); font-style: normal; }
+  .compact-resources a:hover :is(h2,h3), .compact-resources a:focus-visible :is(h2,h3) { color: var(--accent); }
+  @media (max-width: 540px) {
+    .compact-resources a { grid-template-columns: 1fr auto; }
+    .compact-resources span { grid-column: 1; }
+    .compact-resources i { grid-column: 2; grid-row: 1 / 3; }
+  }
+</style>

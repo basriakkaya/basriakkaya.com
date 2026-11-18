@@ -87,4 +87,4 @@ const bingVerification = import.meta.env.PUBLIC_BING_SITE_VERIFICATION?.trim();
 {alternates.map((alternate) => (
   <link rel="alternate" hreflang={alternate.locale} href={absoluteUrl(alternate.path)} />
 ))}
-{jsonLd && <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+{jsonLd && <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd).replace(/</g, '\\u003c')} />}

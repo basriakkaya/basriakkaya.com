@@ -15,7 +15,7 @@ tags:
   - Subnetting
   - CIDR
   - Learning Journal
-cover: "/images/blog/network-gun-3/ipv4-subnet-cover.png"
+cover: "/images/blog/network-gun-3/ipv4-subnet-cover.webp"
 coverAlt: "Technical illustration showing device groups divided into four subnets, a router, and a packet moving toward its destination"
 ---
 
@@ -36,7 +36,7 @@ That is today's exact objective:
 > Given an IPv4 address, calculate its network address, broadcast address, and usable host range myself.
 
 <figure class="article-figure">
-  <img src="/images/blog/network-gun-3/ipv4-subnet-cover.png" alt="Technical illustration showing device groups divided into four subnets, a router, and a packet moving toward its destination" width="1536" height="1024" loading="eager" />
+  <img src="/images/blog/network-gun-3/ipv4-subnet-cover.webp" alt="Technical illustration showing device groups divided into four subnets, a router, and a packet moving toward its destination" width="1536" height="1024" loading="eager" />
   <figcaption>Today's question: Within which network boundaries does this IP live?</figcaption>
 </figure>
 

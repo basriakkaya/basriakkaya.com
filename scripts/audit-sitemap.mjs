@@ -100,7 +100,9 @@ for (const file of sitemapFiles) {
   sitemapUrls.push(...locs);
 }
 
+const plannedArticleRoute = /^\/(?:yakinda|en\/coming-soon)\//u;
 const forbiddenPathPatterns = [
+  plannedArticleRoute,
   /^\/404(?:\/|$)/u,
   /^\/offline(?:\.html)?(?:\/|$)/u,
   /(?:^|\/)test(?:-|\/|$)/iu,
@@ -139,7 +141,10 @@ for (const file of htmlFiles) {
   const html = await readFile(file, 'utf8');
   const robotsContent = html.match(/<meta name="robots" content="([^"]+)"/u)?.[1] ?? '';
   const canonicalValue = html.match(/<link rel="canonical" href="([^"]+)"/u)?.[1] ?? '';
-  const excluded = route === '/404' || route === '/admin' || route === '/offline' || /(?:^|\/)test(?:-|\/|$)/iu.test(route) || (!isPreviewBuild && robotsContent.toLowerCase().includes('noindex'));
+  if (plannedArticleRoute.test(route) && !robotsContent.toLowerCase().includes('noindex')) {
+    failures.push(`Unpublished article must be noindex: ${route}`);
+  }
+  const excluded = plannedArticleRoute.test(route) || route === '/404' || route === '/admin' || route === '/offline' || /(?:^|\/)test(?:-|\/|$)/iu.test(route) || (!isPreviewBuild && robotsContent.toLowerCase().includes('noindex'));
   if (excluded) continue;
 
   let canonical;
